@@ -24,6 +24,7 @@ import biblioteca.exception.CredenciaisInvalidasException;
 import biblioteca.exception.RegistroNaoEncontradoException;
 import biblioteca.service.CatalogoService;
 import biblioteca.service.EmprestimoService;
+import biblioteca.service.SolicitacaoEmprestimoService;
 import biblioteca.service.UsuarioService;
 
 public class TelaLogin extends JFrame{
@@ -38,18 +39,20 @@ public class TelaLogin extends JFrame{
 	
 	final private UsuarioService usuarios;
 	final private CatalogoService catalogo;
-	final private EmprestimoService emprestimos;
 	final private Sessao sessao;
+	final private EmprestimoService emprestimoService;
+	final private SolicitacaoEmprestimoService solicitacaoEmprestimos;
 	
 	// construtor
 	
-	public TelaLogin(UsuarioService usuarios, CatalogoService catalogo, EmprestimoService emprestimos, Sessao sessao) {
+	public TelaLogin(UsuarioService usuarios, CatalogoService catalogo, EmprestimoService emp, Sessao sessao, SolicitacaoEmprestimoService sol) {
 		configurarJanela();
 		inicializarComponentes();
 		this.usuarios = usuarios;
 		this.catalogo = catalogo;
-		this.emprestimos = emprestimos;
+		this.emprestimoService = emp;
 		this.sessao = sessao;
+		this.solicitacaoEmprestimos = sol;
 	}
 	
 	private void configurarJanela() {
@@ -137,7 +140,7 @@ public class TelaLogin extends JFrame{
         	String senhaDigitada = new String(this.senha.getPassword());
         	try {
 				this.usuarios.logar(loginDigitado, senhaDigitada);
-				MenuPrincipal tela = new MenuPrincipal(this.sessao, this.usuarios, this.catalogo, this.emprestimos, () -> this.setVisible(true));
+				MenuPrincipal tela = new MenuPrincipal(this.sessao, this.usuarios, this.catalogo, this.emprestimoService, () -> this.setVisible(true), this.solicitacaoEmprestimos);
 
                 this.setVisible(false);
                 tela.setVisible(true);

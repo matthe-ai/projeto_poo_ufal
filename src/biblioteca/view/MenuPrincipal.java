@@ -38,6 +38,7 @@ import biblioteca.model.material.Periodico;
 import biblioteca.model.usuario.Cargo;
 import biblioteca.service.CatalogoService;
 import biblioteca.service.EmprestimoService;
+import biblioteca.service.SolicitacaoEmprestimoService;
 import biblioteca.service.UsuarioService;
 
 public class MenuPrincipal extends JFrame{
@@ -54,17 +55,19 @@ public class MenuPrincipal extends JFrame{
     final private UsuarioService usuarios;
     final private CatalogoService catalogo;
     final private EmprestimoService emprestimos;
+    final private SolicitacaoEmprestimoService solicitacaoEmprestimos;
     
     private Runnable voltarLogin;
     
     // construtor
     
-    public MenuPrincipal(Sessao usuario, UsuarioService usuarios, CatalogoService catalogo, EmprestimoService emprestimos, Runnable voltarLogin) {
+    public MenuPrincipal(Sessao usuario, UsuarioService usuarios, CatalogoService catalogo, EmprestimoService emprestimos, Runnable voltarLogin, SolicitacaoEmprestimoService sol) {
     	this.sessao = usuario;
     	this.usuarios = usuarios;
     	this.catalogo = catalogo;
     	this.emprestimos = emprestimos;
     	this.voltarLogin = voltarLogin;
+    	this.solicitacaoEmprestimos = sol;
     	configurarJanela();
         criarMenu();
         criarConteudo();
@@ -125,17 +128,24 @@ public class MenuPrincipal extends JFrame{
         menuPrincipal.add(itemMeusDados);
 
         barraMenu.add(menuPrincipal);
+        
 
         // BIBLIOTECARIO
         if (this.sessao.getUsuarioLogado().getCargo() == Cargo.BIBLIOTECARIO || this.sessao.getUsuarioLogado().getCargo() == Cargo.ADMINISTRADOR) {
 
             JMenuItem itemGerenciar = new JMenuItem("Gerenciar materiais");
+            JMenuItem solicitacoes = new JMenuItem("Solicitacoes");
 
             itemGerenciar.addActionListener(e -> {
-                cardLayout.show(painelCentral, "BIBLIOTECARIO"); // TODO deve passar um JPanel e não um JMenuItem
+                cardLayout.show(painelCentral, "BIBLIOTECARIO");
+            });
+            
+            solicitacoes.addActionListener(e -> {
+            	cardLayout.show(painelCentral, "SOLICITACOES");
             });
             
             menuPrincipal.add(itemGerenciar);
+            menuPrincipal.add(solicitacoes);
         }
 
         // SOMENTE ADMINISTRADOR
@@ -144,7 +154,7 @@ public class MenuPrincipal extends JFrame{
             JMenuItem itemGerenciarUsuarios = new JMenuItem("Gerenciar usuários");
 
             itemGerenciarUsuarios.addActionListener(e -> {
-                cardLayout.show(painelCentral, "ADMINISTRADOR"); // TODO deve passar um JPanel e não um JMenuItem
+                cardLayout.show(painelCentral, "ADMINISTRADOR");
             });
 
             menuPrincipal.add(itemGerenciarUsuarios);
@@ -170,11 +180,12 @@ public class MenuPrincipal extends JFrame{
         painelCentral.add(criarPainelCatalogo(), "CATALOGO");
 
         // Adiciona a tela de dados
-        painelCentral.add(new MeusDados(this.sessao, this.usuarios, this.emprestimos, voltarLogin),"MEUS_DADOS");
+        painelCentral.add(new MeusDados(this.sessao, this.usuarios, this.emprestimos, voltarLogin, this.solicitacaoEmprestimos),"MEUS_DADOS");
         
         // Adiciona a tela do bibliotecario
         if (this.sessao.getUsuarioLogado().getCargo() == Cargo.BIBLIOTECARIO || this.sessao.getUsuarioLogado().getCargo() == Cargo.ADMINISTRADOR) {
         	painelCentral.add(new MenuBibliotecario(this.catalogo, voltarLogin), "BIBLIOTECARIO");
+        	painelCentral.add(new Solicitacoes(this.solicitacaoEmprestimos, voltarLogin), "SOLICITACOES");
         }
         
         // Adiciona a tela do administrador
@@ -323,8 +334,8 @@ public class MenuPrincipal extends JFrame{
 
                 int opcao = JOptionPane.showConfirmDialog(
                         this,
-                        "Deseja pegar o material \"" + material.getTitulo() +
-                                "\" emprestado?",
+                        "Deseja solicitar o material \"" + material.getTitulo() +
+                                "\" para pegar emprestado?",
                         "Confirmar empréstimo",
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE
@@ -332,7 +343,7 @@ public class MenuPrincipal extends JFrame{
 
                 if (opcao == JOptionPane.YES_OPTION) {
                     try {
-						this.emprestimos.registrarEmprestimo(this.sessao.getUsuarioLogado().getID(), material.getId());
+                    	this.solicitacaoEmprestimos.solicitarEmprestimo(material.getId());
 						this.atualizarMateriais();
 					} catch (OperacaoNaoPermitidaException one) {
 						JOptionPane.showMessageDialog(this, "Você não tem permissão para realizar essa operação", one.getMessage(), JOptionPane.ERROR_MESSAGE);
@@ -342,12 +353,8 @@ public class MenuPrincipal extends JFrame{
 						voltarLogin.run();
 					} catch (RegistroNaoEncontradoException e1) {
 						JOptionPane.showMessageDialog(this, "Material não encontrado", "Erro ao emprestar", JOptionPane.ERROR_MESSAGE);
-					} catch (MaterialIndisponivelException e1) {
-						JOptionPane.showMessageDialog(this, "O material está indisponivel no momento", "Erro ao emprestar", JOptionPane.ERROR_MESSAGE);
-					} catch (LimiteEmprestimosException e1) {
-						JOptionPane.showMessageDialog(this, "Limite de emprestimos excedido, você não pode mais pegar materiais emprestados", "Erro ao emprestar", JOptionPane.ERROR_MESSAGE);
 					} catch (ItemDuplicadoException e1) {
-						JOptionPane.showMessageDialog(this, "Esse emprestimo já existe", "Erro ao emprestar", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(this, "Esse emprestimo/solicitação já existe", "Erro ao emprestar", JOptionPane.ERROR_MESSAGE);
 					}
                 }
             });
@@ -367,9 +374,9 @@ public class MenuPrincipal extends JFrame{
     
     private void criarInformacoes(JPanel informacoes, Livro material) {
         informacoes.add(new JLabel("Autor: " + material.getAutor()));
-        informacoes.add(Box.createVerticalStrut(5));
+        informacoes.add(Box.createVerticalStrut(2));
         informacoes.add(new JLabel("Ano de publicação: " + material.getAnoPublicacao()));
-        informacoes.add(Box.createVerticalStrut(5));
+        informacoes.add(Box.createVerticalStrut(2));
         informacoes.add(new JLabel("ISBN / Edição: " + material.getIsbn()));
     }
     

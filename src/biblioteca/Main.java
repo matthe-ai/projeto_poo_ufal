@@ -5,10 +5,12 @@ import javax.swing.SwingUtilities;
 import biblioteca.auth.Sessao;
 import biblioteca.repository.EmprestimoRepositorio;
 import biblioteca.repository.MaterialRepositorio;
+import biblioteca.repository.SolicitacaoEmprestimoRepositorio;
 import biblioteca.repository.UsuarioRepositorio;
 import biblioteca.service.AutorizacaoService;
 import biblioteca.service.CatalogoService;
 import biblioteca.service.EmprestimoService;
+import biblioteca.service.SolicitacaoEmprestimoService;
 import biblioteca.service.UsuarioService;
 import biblioteca.view.TelaLogin;
 
@@ -22,6 +24,8 @@ public class Main {
 			final Sessao sessao = new Sessao();
 			
 			// repository
+			
+			final SolicitacaoEmprestimoRepositorio solicitacaoRepositorio= new SolicitacaoEmprestimoRepositorio();
 			
 			final UsuarioRepositorio usuarioRepositorio = new UsuarioRepositorio();
 			usuarioRepositorio.cadastrarUsuariosIniciais();
@@ -40,9 +44,11 @@ public class Main {
 			final CatalogoService catalogoService = new CatalogoService(materialRepositorio, autorizacaoService, sessao);
 
 			final EmprestimoService emprestimoService = new EmprestimoService(emprestimoRepositorio, materialRepositorio, usuarioRepositorio, autorizacaoService, sessao);
+			
+			final SolicitacaoEmprestimoService solicitacaoService = new SolicitacaoEmprestimoService(autorizacaoService, sessao, solicitacaoRepositorio, materialRepositorio, emprestimoService);
             
 			// Tela inicial
-			TelaLogin telalogin = new TelaLogin(usuarioService, catalogoService, emprestimoService, sessao);
+			TelaLogin telalogin = new TelaLogin(usuarioService, catalogoService, emprestimoService, sessao, solicitacaoService);
 			telalogin.setVisible(true);
 		});
 

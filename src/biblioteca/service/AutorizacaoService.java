@@ -19,12 +19,14 @@ public class AutorizacaoService {
 
             case BIBLIOTECARIO -> switch (permissao) {
                 case GERENCIAR_CATALOGO,
+                	 GERENCIAR_SOLICITACOES,
                      REGISTRAR_EMPRESTIMO,
                      REGISTRAR_DEVOLUCAO,
                      CONSULTAR_CATALOGO,
                      CONSULTAR_TODOS_EMPRESTIMOS,
                      CONSULTAR_USUARIOS,
                      CONSULTAR_PROPRIOS_EMPRESTIMOS,
+                     CONSULTAR_TODAS_SOLICITACOES,
                      ATUALIZAR_PROPRIOS_DADOS -> true;
 
                 default -> false;

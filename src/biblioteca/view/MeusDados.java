@@ -8,8 +8,11 @@ import biblioteca.exception.OperacaoNaoPermitidaException;
 import biblioteca.exception.RegistroNaoEncontradoException;
 import biblioteca.exception.UsuarioNaoAutenticadoException;
 import biblioteca.model.Emprestimo;
+import biblioteca.model.SolicitacaoEmprestimo;
 import biblioteca.model.StatusEmprestimo;
+import biblioteca.model.StatusSolicitacao;
 import biblioteca.service.EmprestimoService;
+import biblioteca.service.SolicitacaoEmprestimoService;
 import biblioteca.service.UsuarioService;
 
 import java.awt.BorderLayout;
@@ -39,22 +42,23 @@ public class MeusDados extends JPanel {
 	
 	// atributos
 	
-    private Sessao sessao;
-    private EmprestimoService emprestimos;
-    private UsuarioService usuarioService;
+    final private Sessao sessao;
+    final private EmprestimoService emprestimos;
+    final private UsuarioService usuarioService;
+    final private SolicitacaoEmprestimoService solicitacaoEmprestimos;
     
     private JPanel painelEmprestimos;
     
-    private Runnable voltarLogin;
+    final private Runnable voltarLogin;
     
     // construtor
     
-    public MeusDados(Sessao sessao, UsuarioService usuarioService, EmprestimoService emprestimos, Runnable voltarLogin) {
+    public MeusDados(Sessao sessao, UsuarioService usuarioService, EmprestimoService emprestimos, Runnable voltarLogin, SolicitacaoEmprestimoService sol) {
         this.sessao = sessao;
         this.usuarioService = usuarioService;
         this.emprestimos = emprestimos;
         this.voltarLogin = voltarLogin;
-
+        this.solicitacaoEmprestimos = sol;
         configurarPainel();
         criarComponentes();
     }
@@ -247,15 +251,21 @@ public class MeusDados extends JPanel {
 	private void criarMateriais(JPanel painelEmprestimos, JPanel painelHistorico) {
 		try {
 			List<Emprestimo> emprestimosUsuario = this.emprestimos.listarMeusEmprestimos();
+			List<SolicitacaoEmprestimo> solicitacoesUsuario = this.solicitacaoEmprestimos.listarMinhasSolicitacoes();
 			for (Emprestimo emprestimo : emprestimosUsuario) {
 				if (emprestimo.getStatus() == StatusEmprestimo.DEVOLVIDO) {
-					painelHistorico.add(criarMaterial(emprestimo));
+					painelHistorico.add(this.criarMaterial(emprestimo));
 					painelHistorico.add(Box.createVerticalStrut(15));
 				} else {
-		            painelEmprestimos.add(criarMaterial(emprestimo));
+		            painelEmprestimos.add(this.criarMaterial(emprestimo));
 		            painelEmprestimos.add(Box.createVerticalStrut(15));
 				}
 	        }
+			for (SolicitacaoEmprestimo solicitacaoEmprestimo : solicitacoesUsuario) {
+				if (solicitacaoEmprestimo.getStatus() != StatusSolicitacao.APROVADA) {
+					painelHistorico.add(this.criarMaterial(solicitacaoEmprestimo));
+				}
+			}
 		} catch (OperacaoNaoPermitidaException one) {
 			JOptionPane.showMessageDialog(this, "Você não tem permissão para realizar essa operação", one.getMessage(), JOptionPane.ERROR_MESSAGE);
 		} catch (UsuarioNaoAutenticadoException une) {
@@ -263,8 +273,23 @@ public class MeusDados extends JPanel {
 			voltarLogin.run();
 		}
 	}
+	
+	private JPanel criarMaterial(SolicitacaoEmprestimo solicitacao) {
+		JPanel itemEmprestimo = new JPanel(new BorderLayout());
+		
+	    itemEmprestimo.setBackground(Color.WHITE);
+	    itemEmprestimo.setBorder(new EmptyBorder(20, 30, 20, 30));
+	    itemEmprestimo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 65));
+	    itemEmprestimo.setAlignmentX(Component.LEFT_ALIGNMENT);
+	    
+	    JLabel informacao;
+	    
+    	informacao = new JLabel(solicitacao.getMaterialSolicitado().getTitulo() + " - Status: solicitação " + solicitacao.getStatus());
+    	itemEmprestimo.add(informacao, BorderLayout.CENTER);
+    	return itemEmprestimo;
+	    
+	}
     
-
 	private JPanel criarMaterial(Emprestimo emprestimo) {
 	    JPanel itemEmprestimo = new JPanel(new BorderLayout());
 	
