@@ -50,6 +50,7 @@ public class MenuBibliotecario extends JPanel{
 	private CatalogoService catalogo;
 	private Runnable voltarLogin;
 	private Path caminhoCapa;
+	private String campoBuscar;
 	
 	private JPanel painelListaMateriais;
 
@@ -104,11 +105,11 @@ public class MenuBibliotecario extends JPanel{
         painelPesquisa.add(botaoBuscar, BorderLayout.EAST);
 
         botaoBuscar.addActionListener(e -> {
-            String pesquisa = campoPesquisa.getText();
+            this.campoBuscar = campoPesquisa.getText();
 
             List<MaterialBibliografico> materiais;
 			try {
-				materiais = this.catalogo.listarMateriaisPorTitulo(pesquisa);
+				materiais = this.catalogo.listarMateriaisPorTitulo(campoBuscar);
 				this.criarMateriais(materiais);
 			} catch (OperacaoNaoPermitidaException one) {
 				JOptionPane.showMessageDialog(this, "Você não tem permissão para realizar essa operação", one.getMessage(), JOptionPane.ERROR_MESSAGE);
@@ -441,8 +442,7 @@ public class MenuBibliotecario extends JPanel{
                 if (opcao == JOptionPane.YES_OPTION) {
                     try {
                         this.catalogo.removerMaterial(material.getId());
-                        this.criarMateriais(materiais);
-
+                        this.criarMateriais(this.catalogo.listarMateriaisPorTitulo(this.campoBuscar));
                     } catch (OperacaoNaoPermitidaException one) {
                         JOptionPane.showMessageDialog(this,one.getMessage(),"Erro de permissão",JOptionPane.ERROR_MESSAGE);
                     } catch (RegistroNaoEncontradoException e1) {
@@ -463,7 +463,7 @@ public class MenuBibliotecario extends JPanel{
             painelObra.add(painelBotoes, BorderLayout.EAST);
 
             painelListaMateriais.add(painelObra);
-            painelListaMateriais.add(Box.createVerticalStrut(15));
+            painelListaMateriais.add(Box.createVerticalStrut(5));
         }
 
         painelListaMateriais.revalidate();
