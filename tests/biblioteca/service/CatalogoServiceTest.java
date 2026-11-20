@@ -1,8 +1,8 @@
-
 package biblioteca.service;
 
 import biblioteca.auth.Sessao;
 import biblioteca.exception.*;
+import biblioteca.model.material.Livro;
 import biblioteca.model.material.MaterialBibliografico;
 import biblioteca.model.material.Periodico;
 import biblioteca.model.material.TipoPeriodico;
@@ -14,34 +14,38 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class CatalogoServiceTest {
 
+    private static final Path CAPA_VALIDA =
+            Path.of(MaterialRepositorio.uploadsDirectory, "clean_code.jpg");
+
+    private static final Path CAPA_INEXISTENTE =
+            Path.of(MaterialRepositorio.uploadsDirectory, "arquivo_inexistente.jpg");
+
     private CatalogoService service;
     private MaterialRepositorio repositorio;
     private AutorizacaoService autorizacaoService;
     private Sessao sessao;
-    private MaterialBibliografico livroTeste;
+    private Livro livroTeste;
 
     @BeforeEach
-    void setUp() throws ItemDuplicadoException,
-            OperacaoNaoPermitidaException,
-            UsuarioNaoAutenticadoException,
-            CredenciaisInvalidasException {
-
+    void setUp() throws Exception {
         repositorio = new MaterialRepositorio();
         autorizacaoService = new AutorizacaoService();
         sessao = new Sessao();
         service = new CatalogoService(repositorio, autorizacaoService, sessao);
 
-        Usuario usuarioPermitido = new Usuario(
-                "Bibliotecario", "lib", "123456", Cargo.BIBLIOTECARIO
+        Usuario bibliotecario = new Usuario(
+                "Bibliotecário", "bibliotecario", "123456", Cargo.BIBLIOTECARIO
         );
 
-        sessao.iniciarSessao(usuarioPermitido);
+        sessao.iniciarSessao(bibliotecario);
 
         livroTeste = service.cadastrarLivro(
                 "Clean Code",
@@ -49,52 +53,45 @@ class CatalogoServiceTest {
                 "Robert C. Martin",
                 "9780132350884",
                 "Prentice Hall",
-                Path.of(MaterialRepositorio.uploadsDirectory, "clean_code.jpg")
+                CAPA_VALIDA
         );
     }
 
-    // CADASTRO
-
-    @Test
-    void deveCadastrarMaterial()
-            throws Exception {
-
-        MaterialBibliografico encontrado =
-                service.buscarMaterial(livroTeste.getId());
-
-        assertNotNull(encontrado);
-        assertEquals(livroTeste.getId(), encontrado.getId());
-    }
-
-    @Test
-    void deveCadastrarJornalRevista()
-            throws OperacaoNaoPermitidaException,
-            UsuarioNaoAutenticadoException,
-            CredenciaisInvalidasException,
-            ItemDuplicadoException,
-            RegistroNaoEncontradoException {
-
-        Periodico jornal = service.cadastrarPeriodico(
+    private Periodico cadastrarPeriodicoValido(TipoPeriodico tipo) throws Exception {
+        return service.cadastrarPeriodico(
                 "National Geographic",
                 2024,
                 "National Geographic Society",
                 150,
                 "15/05/2024",
-                TipoPeriodico.JORNAL,
-                Path.of(MaterialRepositorio.uploadsDirectory, "revista_ciencia_hoje.jpg")
+                tipo,
+                CAPA_VALIDA
+        );
+    }
+
+    // CADASTRO DE LIVROS
+
+    @Test
+    void deveCadastrarLivroComDadosValidos() throws Exception {
+        Livro livro = service.cadastrarLivro(
+                "Refactoring",
+                1999,
+                "Martin Fowler",
+                "9780201485677",
+                "Addison-Wesley",
+                CAPA_VALIDA
         );
 
-        MaterialBibliografico encontrado =
-                service.buscarMaterial(jornal.getId());
+        MaterialBibliografico encontrado = service.buscarMaterial(livro.getId());
 
         assertNotNull(encontrado);
-        assertInstanceOf(Periodico.class, encontrado);
-        assertEquals(jornal.getId(), encontrado.getId());
+        assertInstanceOf(Livro.class, encontrado);
+        assertEquals(livro.getId(), encontrado.getId());
+        assertEquals("Refactoring", encontrado.getTitulo());
     }
 
     @Test
     void deveImpedirCadastroDeLivroComTituloInvalido() {
-
         assertThrows(CredenciaisInvalidasException.class,
                 () -> service.cadastrarLivro(
                         " ",
@@ -102,41 +99,12 @@ class CatalogoServiceTest {
                         "Robert C. Martin",
                         "9780132350884",
                         "Prentice Hall",
-                        Path.of(MaterialRepositorio.uploadsDirectory, "clean_code.jpg")
-                ));
-    }
-
-    @Test
-    void deveImpedirCadastroDeLivroComAnoInvalido() {
-
-        assertThrows(CredenciaisInvalidasException.class,
-                () -> service.cadastrarLivro(
-                        "Clean Code",
-                        0,
-                        "Robert C. Martin",
-                        "9780132350884",
-                        "Prentice Hall",
-                        Path.of(MaterialRepositorio.uploadsDirectory, "clean_code.jpg")
-                ));
-    }
-
-    @Test
-    void deveImpedirCadastroDeLivroComAnoFuturo() {
-
-        assertThrows(CredenciaisInvalidasException.class,
-                () -> service.cadastrarLivro(
-                        "Clean Code",
-                        java.time.LocalDate.now().getYear() + 1,
-                        "Robert C. Martin",
-                        "9780132350884",
-                        "Prentice Hall",
-                        Path.of(MaterialRepositorio.uploadsDirectory, "clean_code.jpg")
+                        CAPA_VALIDA
                 ));
     }
 
     @Test
     void deveImpedirCadastroDeLivroComAutorInvalido() {
-
         assertThrows(CredenciaisInvalidasException.class,
                 () -> service.cadastrarLivro(
                         "Clean Code",
@@ -144,102 +112,318 @@ class CatalogoServiceTest {
                         " ",
                         "9780132350884",
                         "Prentice Hall",
-                        Path.of(MaterialRepositorio.uploadsDirectory, "clean_code.jpg")
+                        CAPA_VALIDA
                 ));
     }
 
     @Test
     void deveImpedirCadastroDeLivroComIsbnInvalido() {
-
         assertThrows(CredenciaisInvalidasException.class,
                 () -> service.cadastrarLivro(
                         "Clean Code",
                         2008,
                         "Robert C. Martin",
-                        " ",
+                        "",
                         "Prentice Hall",
-                        Path.of(MaterialRepositorio.uploadsDirectory, "clean_code.jpg")
+                        CAPA_VALIDA
                 ));
     }
 
     @Test
     void deveImpedirCadastroDeLivroComEditoraInvalida() {
-
         assertThrows(CredenciaisInvalidasException.class,
                 () -> service.cadastrarLivro(
                         "Clean Code",
                         2008,
                         "Robert C. Martin",
                         "9780132350884",
-                        "",
-                        Path.of(MaterialRepositorio.uploadsDirectory, "clean_code.jpg")
-                ));
-    }
-
-    @Test
-    void deveImpedirCadastroDeJornalComNumeroEdicaoInvalido() {
-
-        assertThrows(CredenciaisInvalidasException.class,
-                () -> service.cadastrarPeriodico(
-                        "National Geographic",
-                        2024,
-                        "National Geographic Society",
-                        0,
-                        "15/05/2024",
-                        TipoPeriodico.JORNAL,
-                        Path.of(MaterialRepositorio.uploadsDirectory, "")
-                ));
-    }
-
-    @Test
-    void deveImpedirCadastroDeJornalComDataInvalida() {
-
-        assertThrows(CredenciaisInvalidasException.class,
-                () -> service.cadastrarPeriodico(
-                        "National Geographic",
-                        2024,
-                        "National Geographic Society",
-                        150,
                         " ",
-                        TipoPeriodico.JORNAL,
-                        Path.of(MaterialRepositorio.uploadsDirectory, "")
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirCadastroDeLivroComAnoInvalido() {
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.cadastrarLivro(
+                        "Clean Code",
+                        0,
+                        "Robert C. Martin",
+                        "9780132350884",
+                        "Prentice Hall",
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirCadastroDeLivroComAnoNegativo() {
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.cadastrarLivro(
+                        "Clean Code",
+                        -1,
+                        "Robert C. Martin",
+                        "9780132350884",
+                        "Prentice Hall",
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirCadastroDeLivroComAnoFuturo() {
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.cadastrarLivro(
+                        "Clean Code",
+                        LocalDate.now().getYear() + 1,
+                        "Robert C. Martin",
+                        "9780132350884",
+                        "Prentice Hall",
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirCadastroDeLivroComCapaInexistente() {
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.cadastrarLivro(
+                        "Clean Code",
+                        2008,
+                        "Robert C. Martin",
+                        "9780132350884",
+                        "Prentice Hall",
+                        CAPA_INEXISTENTE
+                ));
+    }
+
+    // CADASTRO DE PERIÓDICOS
+
+    @Test
+    void deveCadastrarPeriodicoDoTipoJornal() throws Exception {
+        Periodico periodico = cadastrarPeriodicoValido(TipoPeriodico.JORNAL);
+
+        MaterialBibliografico encontrado = service.buscarMaterial(periodico.getId());
+
+        assertNotNull(encontrado);
+        assertInstanceOf(Periodico.class, encontrado);
+        assertEquals(periodico.getId(), encontrado.getId());
+        assertEquals(TipoPeriodico.JORNAL,
+                ((Periodico) encontrado).getTipoPeriodico());
+    }
+
+    @Test
+    void deveCadastrarPeriodicoDoTipoRevista() throws Exception {
+        Periodico periodico = service.cadastrarPeriodico(
+                "Revista Ciência Hoje",
+                2024,
+                "Instituto Ciência Hoje",
+                320,
+                "20/06/2024",
+                TipoPeriodico.REVISTA,
+                CAPA_VALIDA
+        );
+
+        MaterialBibliografico encontrado = service.buscarMaterial(periodico.getId());
+
+        assertNotNull(encontrado);
+        assertInstanceOf(Periodico.class, encontrado);
+        assertEquals(periodico.getId(), encontrado.getId());
+        assertEquals(TipoPeriodico.REVISTA,
+                ((Periodico) encontrado).getTipoPeriodico());
+    }
+
+    @Test
+    void deveImpedirCadastroDePeriodicoComTituloInvalido() {
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.cadastrarPeriodico(
+                        "",
+                        2024,
+                        "Editora",
+                        10,
+                        "15/05/24",
+                        TipoPeriodico.REVISTA,
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirCadastroDePeriodicoComEditoraInvalida() {
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.cadastrarPeriodico(
+                        "Revista Ciência Hoje",
+                        2024,
+                        " ",
+                        10,
+                        "15/05/24",
+                        TipoPeriodico.REVISTA,
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirCadastroDePeriodicoComAnoInvalido() {
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.cadastrarPeriodico(
+                        "Revista Ciência Hoje",
+                        0,
+                        "Editora",
+                        10,
+                        "15/05/24",
+                        TipoPeriodico.REVISTA,
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirCadastroDePeriodicoComAnoFuturo() {
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.cadastrarPeriodico(
+                        "Revista Ciência Hoje",
+                        LocalDate.now().getYear() + 1,
+                        "Editora",
+                        10,
+                        "15/05/24",
+                        TipoPeriodico.REVISTA,
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirCadastroDePeriodicoComNumeroDeEdicaoInvalido() {
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.cadastrarPeriodico(
+                        "Revista Ciência Hoje",
+                        2024,
+                        "Editora",
+                        0,
+                        "15/05/24",
+                        TipoPeriodico.REVISTA,
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirCadastroDePeriodicoComNumeroDeEdicaoNegativo() {
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.cadastrarPeriodico(
+                        "Revista Ciência Hoje",
+                        2024,
+                        "Editora",
+                        -1,
+                        "15/05/24",
+                        TipoPeriodico.REVISTA,
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirCadastroDePeriodicoComDataDePublicacaoVazia() {
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.cadastrarPeriodico(
+                        "Revista Ciência Hoje",
+                        2024,
+                        "Editora",
+                        10,
+                        " ",
+                        TipoPeriodico.REVISTA,
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirCadastroDePeriodicoComFormatoDeDataInvalido() {
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.cadastrarPeriodico(
+                        "Revista Ciência Hoje",
+                        2024,
+                        "Editora",
+                        10,
+                        "2024-05-15",
+                        TipoPeriodico.REVISTA,
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirCadastroDePeriodicoComDataInexistente() {
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.cadastrarPeriodico(
+                        "Revista Ciência Hoje",
+                        2024,
+                        "Editora",
+                        10,
+                        "31/02/24",
+                        TipoPeriodico.REVISTA,
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirCadastroDePeriodicoComDataFutura() {
+        String dataFutura = LocalDate.now()
+                .plusDays(1)
+                .format(DateTimeFormatter.ofPattern("dd/MM/yy"));
+
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.cadastrarPeriodico(
+                        "Revista Ciência Hoje",
+                        2024,
+                        "Editora",
+                        10,
+                        dataFutura,
+                        TipoPeriodico.REVISTA,
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirCadastroDePeriodicoComCapaInexistente() {
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.cadastrarPeriodico(
+                        "Revista Ciência Hoje",
+                        2024,
+                        "Editora",
+                        10,
+                        "15/05/24",
+                        TipoPeriodico.REVISTA,
+                        CAPA_INEXISTENTE
                 ));
     }
 
     // BUSCA E LISTAGEM
 
     @Test
-    void deveListarMateriaisCadastrados()
-            throws OperacaoNaoPermitidaException,
-            UsuarioNaoAutenticadoException {
+    void deveBuscarMaterialCadastradoPorId() throws Exception {
+        MaterialBibliografico encontrado = service.buscarMaterial(livroTeste.getId());
 
-        List<MaterialBibliografico> materiais =
-                service.listarMateriais();
+        assertNotNull(encontrado);
+        assertEquals(livroTeste.getId(), encontrado.getId());
+    }
+
+    @Test
+    void deveImpedirBuscaDeMaterialInexistente() {
+        assertThrows(RegistroNaoEncontradoException.class,
+                () -> service.buscarMaterial(Integer.MIN_VALUE));
+    }
+
+    @Test
+    void deveListarTodosOsMateriaisCadastrados() throws Exception {
+        List<MaterialBibliografico> materiais = service.listarMateriais();
 
         assertEquals(1, materiais.size());
         assertTrue(materiais.contains(livroTeste));
     }
 
     @Test
-    void deveRetornarListaVaziaQuandoNaoHouverMateriais()
-            throws OperacaoNaoPermitidaException,
-            RegistroNaoEncontradoException,
-            UsuarioNaoAutenticadoException {
-
+    void deveRetornarListaVaziaQuandoNaoHouverMateriaisCadastrados() throws Exception {
         repositorio.remover(livroTeste.getId());
 
-        List<MaterialBibliografico> materiais =
-                service.listarMateriais();
+        List<MaterialBibliografico> materiais = service.listarMateriais();
 
         assertNotNull(materiais);
         assertTrue(materiais.isEmpty());
     }
 
     @Test
-    void deveListarMateriaisPorTitulo()
-            throws OperacaoNaoPermitidaException,
-            UsuarioNaoAutenticadoException {
-
+    void deveListarMateriaisQueCorrespondemAoTitulo() throws Exception {
         List<MaterialBibliografico> materiais =
                 service.listarMateriaisPorTitulo("Clean Code");
 
@@ -248,10 +432,7 @@ class CatalogoServiceTest {
     }
 
     @Test
-    void deveRetornarListaVaziaQuandoTituloNaoForEncontrado()
-            throws OperacaoNaoPermitidaException,
-            UsuarioNaoAutenticadoException {
-
+    void deveRetornarListaVaziaQuandoNenhumTituloCorresponder() throws Exception {
         List<MaterialBibliografico> materiais =
                 service.listarMateriaisPorTitulo("Java");
 
@@ -259,157 +440,30 @@ class CatalogoServiceTest {
         assertTrue(materiais.isEmpty());
     }
 
-    @Test
-    void deveBuscarMaterialPorId()
-            throws OperacaoNaoPermitidaException,
-            RegistroNaoEncontradoException,
-            UsuarioNaoAutenticadoException {
-
-        MaterialBibliografico encontrado =
-                service.buscarMaterial(livroTeste.getId());
-
-        assertNotNull(encontrado);
-        assertEquals(livroTeste.getId(), encontrado.getId());
-    }
+    // ATUALIZAÇÃO DE LIVROS
 
     @Test
-    void deveLancarExcecaoAoBuscarMaterialInexistente() {
-
-        assertThrows(RegistroNaoEncontradoException.class,
-                () -> service.buscarMaterial(Integer.MIN_VALUE));
-    }
-
-    // ATUALIZAÇÃO
-
-    @Test
-    void deveAtualizarMaterialCadastrado()
-            throws OperacaoNaoPermitidaException,
-            RegistroNaoEncontradoException,
-            UsuarioNaoAutenticadoException,
-            TipoMaterialInvalidoException,
-            CredenciaisInvalidasException {
-
+    void deveAtualizarLivroCadastrado() throws Exception {
         service.atualizarLivro(
-                "Clean Code - Nova versão",
+                "Clean Code - Nova edição",
                 2008,
                 "Robert C. Martin",
                 "9780132350884",
                 "Prentice Hall",
                 livroTeste.getId(),
-                Path.of(MaterialRepositorio.uploadsDirectory, "clean_code.jpg")
+                CAPA_VALIDA
         );
 
-        MaterialBibliografico encontrado =
-                service.buscarMaterial(livroTeste.getId());
+        MaterialBibliografico encontrado = service.buscarMaterial(livroTeste.getId());
 
         assertNotNull(encontrado);
+        assertInstanceOf(Livro.class, encontrado);
         assertEquals(livroTeste.getId(), encontrado.getId());
-        assertEquals("Clean Code - Nova versão", encontrado.getTitulo());
-    }
-
-    @Test
-    void deveAtualizarJornalRevistaCadastrado()
-            throws OperacaoNaoPermitidaException,
-            RegistroNaoEncontradoException,
-            UsuarioNaoAutenticadoException,
-            TipoMaterialInvalidoException,
-            CredenciaisInvalidasException,
-            ItemDuplicadoException {
-
-        Periodico jornal = service.cadastrarPeriodico(
-                "National Geographic",
-                2024,
-                "National Geographic Society",
-                150,
-                "15/05/2024",
-                TipoPeriodico.JORNAL,
-                Path.of(MaterialRepositorio.uploadsDirectory, "jornal_da_cidade.jpg")
-        );
-
-        service.atualizarPeriodico(
-                "National Geographic - Nova edição",
-                2025,
-                "National Geographic Society",
-                151,
-                "15/06/2025",
-                jornal.getId(),
-                Path.of(MaterialRepositorio.uploadsDirectory, "jornal_da_cidade.jpg")
-        );
-
-        MaterialBibliografico encontrado =
-                service.buscarMaterial(jornal.getId());
-
-        assertNotNull(encontrado);
-        assertEquals(jornal.getId(), encontrado.getId());
-        assertEquals(
-                "National Geographic - Nova edição",
-                encontrado.getTitulo()
-        );
-    }
-
-    @Test
-    void deveImpedirAtualizacaoDeLivroComTipoIncorreto()
-            throws OperacaoNaoPermitidaException,
-            RegistroNaoEncontradoException,
-            UsuarioNaoAutenticadoException,
-            CredenciaisInvalidasException,
-            ItemDuplicadoException {
-
-        Periodico jornal = service.cadastrarPeriodico(
-                "National Geographic",
-                2024,
-                "National Geographic Society",
-                150,
-                "15/05/2024",
-                TipoPeriodico.JORNAL,
-                Path.of(MaterialRepositorio.uploadsDirectory, "jornal_da_cidade.jpg")
-        );
-
-        assertThrows(TipoMaterialInvalidoException.class,
-                () -> service.atualizarLivro(
-                        "Livro",
-                        2024,
-                        "Autor",
-                        "9780132350884",
-                        "Editora",
-                        jornal.getId(),
-                        Path.of(MaterialRepositorio.uploadsDirectory, "")
-                ));
-    }
-
-    @Test
-    void deveImpedirAtualizacaoDeJornalComTipoIncorreto() {
-
-        assertThrows(TipoMaterialInvalidoException.class,
-                () -> service.atualizarPeriodico(
-                        "National Geographic",
-                        2024,
-                        "National Geographic Society",
-                        150,
-                        "15/05/2024",
-                        livroTeste.getId(),
-                        Path.of(MaterialRepositorio.uploadsDirectory, "")
-                ));
-    }
-
-    @Test
-    void deveImpedirAtualizacaoDeMaterialInexistente() {
-
-        assertThrows(RegistroNaoEncontradoException.class,
-                () -> service.atualizarLivro(
-                        "Livro",
-                        2024,
-                        "Autor",
-                        "9780132350884",
-                        "Editora",
-                        Integer.MIN_VALUE,
-                        Path.of(MaterialRepositorio.uploadsDirectory, "")
-                ));
+        assertEquals("Clean Code - Nova edição", encontrado.getTitulo());
     }
 
     @Test
     void deveImpedirAtualizacaoDeLivroComDadosInvalidos() {
-
         assertThrows(CredenciaisInvalidasException.class,
                 () -> service.atualizarLivro(
                         "",
@@ -418,19 +472,199 @@ class CatalogoServiceTest {
                         "9780132350884",
                         "Prentice Hall",
                         livroTeste.getId(),
-                        Path.of(MaterialRepositorio.uploadsDirectory, "")
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirAtualizacaoDeLivroComCapaInexistente() {
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.atualizarLivro(
+                        "Clean Code",
+                        2008,
+                        "Robert C. Martin",
+                        "9780132350884",
+                        "Prentice Hall",
+                        livroTeste.getId(),
+                        CAPA_INEXISTENTE
+                ));
+    }
+
+    @Test
+    void deveImpedirAtualizacaoDeLivroComTipoDeMaterialIncorreto() throws Exception {
+        Periodico periodico = cadastrarPeriodicoValido(TipoPeriodico.JORNAL);
+
+        assertThrows(TipoMaterialInvalidoException.class,
+                () -> service.atualizarLivro(
+                        "Livro",
+                        2024,
+                        "Autor",
+                        "9780132350884",
+                        "Editora",
+                        periodico.getId(),
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirAtualizacaoDeLivroInexistente() {
+        assertThrows(RegistroNaoEncontradoException.class,
+                () -> service.atualizarLivro(
+                        "Livro",
+                        2024,
+                        "Autor",
+                        "9780132350884",
+                        "Editora",
+                        Integer.MIN_VALUE,
+                        CAPA_VALIDA
+                ));
+    }
+
+    // ATUALIZAÇÃO DE PERIÓDICOS
+
+    @Test
+    void deveAtualizarPeriodicoDoTipoJornalSemAlterarSeuTipo() throws Exception {
+        Periodico periodico = cadastrarPeriodicoValido(TipoPeriodico.JORNAL);
+
+        service.atualizarPeriodico(
+                "National Geographic - Nova edição",
+                2025,
+                "National Geographic Society",
+                151,
+                "15/06/2025",
+                periodico.getId(),
+                CAPA_VALIDA
+        );
+
+        MaterialBibliografico encontrado = service.buscarMaterial(periodico.getId());
+
+        assertNotNull(encontrado);
+        assertInstanceOf(Periodico.class, encontrado);
+        assertEquals(periodico.getId(), encontrado.getId());
+        assertEquals("National Geographic - Nova edição", encontrado.getTitulo());
+        assertEquals(TipoPeriodico.JORNAL,
+                ((Periodico) encontrado).getTipoPeriodico());
+    }
+
+    @Test
+    void deveAtualizarPeriodicoDoTipoRevistaSemAlterarSeuTipo() throws Exception {
+        Periodico periodico = cadastrarPeriodicoValido(TipoPeriodico.REVISTA);
+
+        service.atualizarPeriodico(
+                "Revista Ciência Hoje - Nova edição",
+                2025,
+                "Instituto Ciência Hoje",
+                321,
+                "15/06/2025",
+                periodico.getId(),
+                CAPA_VALIDA
+        );
+
+        MaterialBibliografico encontrado = service.buscarMaterial(periodico.getId());
+
+        assertNotNull(encontrado);
+        assertInstanceOf(Periodico.class, encontrado);
+        assertEquals("Revista Ciência Hoje - Nova edição", encontrado.getTitulo());
+        assertEquals(TipoPeriodico.REVISTA,
+                ((Periodico) encontrado).getTipoPeriodico());
+    }
+
+    @Test
+    void deveImpedirAtualizacaoDePeriodicoComTipoDeMaterialIncorreto() {
+        assertThrows(TipoMaterialInvalidoException.class,
+                () -> service.atualizarPeriodico(
+                        "National Geographic",
+                        2024,
+                        "National Geographic Society",
+                        150,
+                        "15/05/24",
+                        livroTeste.getId(),
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirAtualizacaoDePeriodicoInexistente() {
+        assertThrows(RegistroNaoEncontradoException.class,
+                () -> service.atualizarPeriodico(
+                        "National Geographic",
+                        2024,
+                        "National Geographic Society",
+                        150,
+                        "15/05/24",
+                        Integer.MIN_VALUE,
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirAtualizacaoDePeriodicoComDadosInvalidos() throws Exception {
+        Periodico periodico = cadastrarPeriodicoValido(TipoPeriodico.REVISTA);
+
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.atualizarPeriodico(
+                        " ",
+                        2024,
+                        "Editora",
+                        10,
+                        "15/05/2024",
+                        periodico.getId(),
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirAtualizacaoDePeriodicoComNumeroDeEdicaoInvalido() throws Exception {
+        Periodico periodico = cadastrarPeriodicoValido(TipoPeriodico.REVISTA);
+
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.atualizarPeriodico(
+                        "Revista Ciência Hoje",
+                        2024,
+                        "Editora",
+                        0,
+                        "15/05/2024",
+                        periodico.getId(),
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirAtualizacaoDePeriodicoComDataInvalida() throws Exception {
+        Periodico periodico = cadastrarPeriodicoValido(TipoPeriodico.REVISTA);
+
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.atualizarPeriodico(
+                        "Revista Ciência Hoje",
+                        2024,
+                        "Editora",
+                        10,
+                        "31/02/2024",
+                        periodico.getId(),
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirAtualizacaoDePeriodicoComCapaInexistente() throws Exception {
+        Periodico periodico = cadastrarPeriodicoValido(TipoPeriodico.REVISTA);
+
+        assertThrows(CredenciaisInvalidasException.class,
+                () -> service.atualizarPeriodico(
+                        "Revista Ciência Hoje",
+                        2024,
+                        "Editora",
+                        10,
+                        "15/05/2024",
+                        periodico.getId(),
+                        CAPA_INEXISTENTE
                 ));
     }
 
     // REMOÇÃO
 
     @Test
-    void deveRemoverMaterialCadastrado()
-            throws OperacaoNaoPermitidaException,
-            RegistroNaoEncontradoException,
-            UsuarioNaoAutenticadoException,
-            MaterialIndisponivelException {
-
+    void deveRemoverMaterialDisponivelCadastrado() throws Exception {
         service.removerMaterial(livroTeste.getId());
 
         assertTrue(service.listarMateriais().isEmpty());
@@ -438,29 +672,24 @@ class CatalogoServiceTest {
 
     @Test
     void deveImpedirRemocaoDeMaterialInexistente() {
-
         assertThrows(RegistroNaoEncontradoException.class,
                 () -> service.removerMaterial(Integer.MIN_VALUE));
     }
 
     @Test
     void deveImpedirRemocaoDeMaterialIndisponivel() {
-
         livroTeste.marcarComoIndisponivel();
 
         assertThrows(MaterialIndisponivelException.class,
                 () -> service.removerMaterial(livroTeste.getId()));
 
-        assertDoesNotThrow(
-                () -> repositorio.buscarPorId(livroTeste.getId())
-        );
+        assertDoesNotThrow(() -> repositorio.buscarPorId(livroTeste.getId()));
     }
 
     // AUTENTICAÇÃO
 
     @Test
-    void deveImpedirBuscaSemAutenticacao() {
-
+    void deveImpedirBuscaDeMaterialSemAutenticacao() {
         sessao.encerrarSessao();
 
         assertThrows(UsuarioNaoAutenticadoException.class,
@@ -468,8 +697,15 @@ class CatalogoServiceTest {
     }
 
     @Test
-    void deveImpedirCadastroSemAutenticacao() {
+    void deveImpedirListagemDeMateriaisSemAutenticacao() {
+        sessao.encerrarSessao();
 
+        assertThrows(UsuarioNaoAutenticadoException.class,
+                () -> service.listarMateriais());
+    }
+
+    @Test
+    void deveImpedirCadastroDeLivroSemAutenticacao() {
         sessao.encerrarSessao();
 
         assertThrows(UsuarioNaoAutenticadoException.class,
@@ -479,13 +715,28 @@ class CatalogoServiceTest {
                         "Autor",
                         "9780132350884",
                         "Editora",
-                        Path.of(MaterialRepositorio.uploadsDirectory, "")
+                        CAPA_VALIDA
                 ));
     }
 
     @Test
-    void deveImpedirRemocaoSemAutenticacao() {
+    void deveImpedirCadastroDePeriodicoSemAutenticacao() {
+        sessao.encerrarSessao();
 
+        assertThrows(UsuarioNaoAutenticadoException.class,
+                () -> service.cadastrarPeriodico(
+                        "Revista",
+                        2024,
+                        "Editora",
+                        10,
+                        "15/05/2024",
+                        TipoPeriodico.REVISTA,
+                        CAPA_VALIDA
+                ));
+    }
+
+    @Test
+    void deveImpedirRemocaoDeMaterialSemAutenticacao() {
         sessao.encerrarSessao();
 
         assertThrows(UsuarioNaoAutenticadoException.class,
@@ -495,12 +746,8 @@ class CatalogoServiceTest {
     // AUTORIZAÇÃO
 
     @Test
-    void deveImpedirCadastroPorUsuarioSemPermissao() {
-
-        Usuario leitor = new Usuario(
-                "Leitor", "leitor", "123456", Cargo.LEITOR
-        );
-
+    void deveImpedirCadastroDeLivroPorUsuarioSemPermissao() {
+        Usuario leitor = new Usuario("Leitor", "leitor", "123456", Cargo.LEITOR);
         sessao.iniciarSessao(leitor);
 
         assertThrows(OperacaoNaoPermitidaException.class,
@@ -510,17 +757,30 @@ class CatalogoServiceTest {
                         "Autor",
                         "9780132350884",
                         "Editora",
-                        Path.of(MaterialRepositorio.uploadsDirectory, "")
+                        CAPA_VALIDA
                 ));
     }
 
     @Test
-    void deveImpedirAtualizacaoPorUsuarioSemPermissao() {
+    void deveImpedirCadastroDePeriodicoPorUsuarioSemPermissao() {
+        Usuario leitor = new Usuario("Leitor", "leitor", "123456", Cargo.LEITOR);
+        sessao.iniciarSessao(leitor);
 
-        Usuario leitor = new Usuario(
-                "Leitor", "leitor", "123456", Cargo.LEITOR
-        );
+        assertThrows(OperacaoNaoPermitidaException.class,
+                () -> service.cadastrarPeriodico(
+                        "Revista",
+                        2024,
+                        "Editora",
+                        10,
+                        "15/05/2024",
+                        TipoPeriodico.REVISTA,
+                        CAPA_VALIDA
+                ));
+    }
 
+    @Test
+    void deveImpedirAtualizacaoDeLivroPorUsuarioSemPermissao() {
+        Usuario leitor = new Usuario("Leitor", "leitor", "123456", Cargo.LEITOR);
         sessao.iniciarSessao(leitor);
 
         assertThrows(OperacaoNaoPermitidaException.class,
@@ -531,17 +791,31 @@ class CatalogoServiceTest {
                         "9780132350884",
                         "Prentice Hall",
                         livroTeste.getId(),
-                        Path.of(MaterialRepositorio.uploadsDirectory, "")
+                        CAPA_VALIDA
                 ));
     }
 
     @Test
-    void deveImpedirRemocaoPorUsuarioSemPermissao() {
+    void deveImpedirAtualizacaoDePeriodicoPorUsuarioSemPermissao() throws Exception {
+        Periodico periodico = cadastrarPeriodicoValido(TipoPeriodico.REVISTA);
+        Usuario leitor = new Usuario("Leitor", "leitor", "123456", Cargo.LEITOR);
+        sessao.iniciarSessao(leitor);
 
-        Usuario leitor = new Usuario(
-                "Leitor", "leitor", "123456", Cargo.LEITOR
-        );
+        assertThrows(OperacaoNaoPermitidaException.class,
+                () -> service.atualizarPeriodico(
+                        "Novo título",
+                        2024,
+                        "Editora",
+                        11,
+                        "15/05/2024",
+                        periodico.getId(),
+                        CAPA_VALIDA
+                ));
+    }
 
+    @Test
+    void deveImpedirRemocaoDeMaterialPorUsuarioSemPermissao() {
+        Usuario leitor = new Usuario("Leitor", "leitor", "123456", Cargo.LEITOR);
         sessao.iniciarSessao(leitor);
 
         assertThrows(OperacaoNaoPermitidaException.class,
@@ -549,21 +823,24 @@ class CatalogoServiceTest {
     }
 
     @Test
-    void devePermitirConsultaPorUsuarioLeitor()
-            throws OperacaoNaoPermitidaException,
-            RegistroNaoEncontradoException,
-            UsuarioNaoAutenticadoException {
-
-        Usuario leitor = new Usuario(
-                "Leitor", "leitor", "123456", Cargo.LEITOR
-        );
-
+    void devePermitirConsultaDeCatalogoPorUsuarioLeitor() throws Exception {
+        Usuario leitor = new Usuario("Leitor", "leitor", "123456", Cargo.LEITOR);
         sessao.iniciarSessao(leitor);
 
-        MaterialBibliografico encontrado =
-                service.buscarMaterial(livroTeste.getId());
+        MaterialBibliografico encontrado = service.buscarMaterial(livroTeste.getId());
 
         assertNotNull(encontrado);
         assertEquals(livroTeste.getId(), encontrado.getId());
+    }
+
+    @Test
+    void devePermitirListagemDeCatalogoPorUsuarioLeitor() throws Exception {
+        Usuario leitor = new Usuario("Leitor", "leitor", "123456", Cargo.LEITOR);
+        sessao.iniciarSessao(leitor);
+
+        List<MaterialBibliografico> materiais = service.listarMateriais();
+
+        assertEquals(1, materiais.size());
+        assertTrue(materiais.contains(livroTeste));
     }
 }

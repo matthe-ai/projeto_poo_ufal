@@ -12,6 +12,9 @@ import biblioteca.repository.MaterialRepositorio;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.List;
 
 public class CatalogoService extends Service {
@@ -51,25 +54,44 @@ public class CatalogoService extends Service {
     }
 
     private void validarCapa(Path capa) throws CredenciaisInvalidasException{
-		if (!Files.exists(capa)) {
-			throw new CredenciaisInvalidasException();
-		} if (!Files.isRegularFile(capa)) {
-			throw new CredenciaisInvalidasException();
-		} if (!Files.isReadable(capa)) {
-			throw new CredenciaisInvalidasException();
-		}
-	}
+        if (!Files.exists(capa)) {
+            throw new CredenciaisInvalidasException();
+        } if (!Files.isRegularFile(capa)) {
+            throw new CredenciaisInvalidasException();
+        } if (!Files.isReadable(capa)) {
+            throw new CredenciaisInvalidasException();
+        }
+    }
 
-	private void validarPeriodico
+    private void validarDataPublicacao(String dataPublicacao) throws CredenciaisInvalidasException {
+
+        this.validarStrings(dataPublicacao);
+
+        DateTimeFormatter formatter = DateTimeFormatter
+                .ofPattern("dd/MM/uuuu")
+                .withResolverStyle(ResolverStyle.STRICT);
+
+        try {
+            LocalDate data = LocalDate.parse(dataPublicacao, formatter);
+            if (data.isAfter(LocalDate.now())) {
+                throw new CredenciaisInvalidasException();
+            }
+        } catch (DateTimeParseException e) {
+            throw new CredenciaisInvalidasException();
+        }
+    }
+
+    private void validarPeriodico
             (
-                String titulo, int anoPublicacao,
-                String editora, int numeroEdicao,
-                String dataPublicacao, Path capa
+                    String titulo, int anoPublicacao,
+                    String editora, int numeroEdicao,
+                    String dataPublicacao,
+                    Path capa
             ) throws CredenciaisInvalidasException {
 
         this.validarStrings(titulo);
         this.validarStrings(editora);
-        this.validarStrings(dataPublicacao);
+        this.validarDataPublicacao(dataPublicacao);
         this.validarAnoPublicacao(anoPublicacao);
         this.validarCapa(capa);
 
@@ -101,13 +123,13 @@ public class CatalogoService extends Service {
 
     public Periodico cadastrarPeriodico
             (
-                String titulo,
-                int anoPublicacao,
-                String editora,
-                int numeroEdicao,
-                String dataPublicacao,
-                TipoPeriodico tipoPeriodico,
-                Path capa
+                    String titulo,
+                    int anoPublicacao,
+                    String editora,
+                    int numeroEdicao,
+                    String dataPublicacao,
+                    TipoPeriodico tipoPeriodico,
+                    Path capa
             )
             throws OperacaoNaoPermitidaException, ItemDuplicadoException, UsuarioNaoAutenticadoException, CredenciaisInvalidasException {
 
@@ -195,20 +217,18 @@ public class CatalogoService extends Service {
 
         this.verificarAutenticacao();
         autorizacaoService.exigirPermissao(sessao.getUsuarioLogado(), Permissao.GERENCIAR_CATALOGO);
-        MaterialBibliografico periodicoParaAtualizar = repositorio.buscarPorId(periodicoId);
+        MaterialBibliografico periodico = repositorio.buscarPorId(periodicoId);
 
-        MaterialBibliografico material = repositorio.buscarPorId(periodicoId);
-
-        if (!(material instanceof Periodico)) {
-            throw new TipoMaterialInvalidoException(material);
+        if (!(periodico instanceof Periodico)) {
+            throw new TipoMaterialInvalidoException(periodico);
         }
 
         this.validarPeriodico(titulo, anoPublicacao, editora, numeroEdicao, dataPublicacao, capa);
-        TipoPeriodico tipoPeriodico = ((Periodico) material).getTipoPeriodico();
-        Periodico jornalRevistaAtualizado = new Periodico(titulo, anoPublicacao, editora, numeroEdicao, dataPublicacao, tipoPeriodico, periodicoId, capa);
-        repositorio.atualizar(jornalRevistaAtualizado);
+        TipoPeriodico tipoPeriodico = ((Periodico) periodico).getTipoPeriodico();
+        Periodico periodicoAtualizado = new Periodico(titulo, anoPublicacao, editora, numeroEdicao, dataPublicacao, tipoPeriodico, periodicoId, capa);
+        repositorio.atualizar(periodicoAtualizado);
     }
-    
+
     public void removerMaterial(int materialId) throws
             OperacaoNaoPermitidaException,
             RegistroNaoEncontradoException,
