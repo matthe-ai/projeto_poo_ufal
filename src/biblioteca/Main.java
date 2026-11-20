@@ -10,6 +10,7 @@ import biblioteca.repository.UsuarioRepositorio;
 import biblioteca.service.AutorizacaoService;
 import biblioteca.service.CatalogoService;
 import biblioteca.service.EmprestimoService;
+import biblioteca.service.MultaService;
 import biblioteca.service.SolicitacaoEmprestimoService;
 import biblioteca.service.UsuarioService;
 import biblioteca.repository.MultaRepositorio;
@@ -42,18 +43,16 @@ public class Main {
 			// services
 
 			final AutorizacaoService autorizacaoService = new AutorizacaoService();
+			
+			final MultaService multaService = new MultaService(autorizacaoService, sessao, multaRepositorio);
 
 			final UsuarioService usuarioService = new UsuarioService(usuarioRepositorio, emprestimoRepositorio, autorizacaoService, sessao);
 
 			final CatalogoService catalogoService = new CatalogoService(materialRepositorio, autorizacaoService, sessao);
 
-			final EmprestimoService emprestimoService = new EmprestimoService(emprestimoRepositorio, materialRepositorio, usuarioRepositorio, autorizacaoService, sessao);
+			final EmprestimoService emprestimoService = new EmprestimoService(emprestimoRepositorio, materialRepositorio, usuarioRepositorio, autorizacaoService, sessao, multaService);
 			
 			final SolicitacaoEmprestimoService solicitacaoService = new SolicitacaoEmprestimoService(autorizacaoService, sessao, solicitacaoRepositorio, materialRepositorio, emprestimoService);
-            
-			final MultaService multaService = new MultaService(autorizacaoService, sessao, multaRepositorio);
-
-			final EmprestimoService emprestimoService = new EmprestimoService(emprestimoRepositorio, materialRepositorio, usuarioRepositorio, autorizacaoService, sessao, multaService);
 
 			// Tela inicial
 			TelaLogin telalogin = new TelaLogin(usuarioService, catalogoService, emprestimoService, sessao, solicitacaoService);

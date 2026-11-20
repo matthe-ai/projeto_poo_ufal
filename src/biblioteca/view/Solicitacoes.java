@@ -25,6 +25,7 @@ import biblioteca.exception.RegistroNaoEncontradoException;
 import biblioteca.exception.SolicitacaoJaProcessadaException;
 import biblioteca.exception.UsuarioNaoAutenticadoException;
 import biblioteca.model.SolicitacaoEmprestimo;
+import biblioteca.model.StatusSolicitacao;
 import biblioteca.service.SolicitacaoEmprestimoService;
 
 public class Solicitacoes extends JPanel {
@@ -197,7 +198,7 @@ public class Solicitacoes extends JPanel {
     private void criarSolicitacoes() {
     	List<SolicitacaoEmprestimo> solicitacoes;
 		try {
-			solicitacoes = this.solicitacoesService.listarSolicitacoesPendentes();
+			solicitacoes = this.solicitacoesService.listarSolicitacoesPorStatus(StatusSolicitacao.PENDENTE);
 			for (SolicitacaoEmprestimo solicitacao : solicitacoes) {
 				this.adicionarSolicitacao(solicitacao);
 			}
