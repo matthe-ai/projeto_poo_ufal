@@ -94,18 +94,22 @@ public class MeusDados extends JPanel {
         campoLogin.add(inputLogin, BorderLayout.CENTER);
 
         // Campo de senha
-        JPanel campoSenha = new JPanel(new BorderLayout(0, 5));
+        JPanel campoSenha = new JPanel();
         campoSenha.setBackground(new Color(220, 220, 220));
+        campoSenha.setLayout(new BoxLayout(campoSenha, BoxLayout.Y_AXIS));
 
         JLabel labelSenha = new JLabel("Senha atual:");
         JTextField inputSenhaAtual = new JTextField();
+        JLabel labelNovaSenha = new JLabel("Nova senha: ");
         JTextField inputSenhaNova = new JTextField();
         inputSenhaAtual.setBorder(new EmptyBorder(5, 5, 5, 5));
         inputSenhaNova.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-        campoSenha.add(labelSenha, BorderLayout.NORTH);
-        campoSenha.add(inputSenhaAtual, BorderLayout.CENTER);
-        campoSenha.add(inputSenhaNova, BorderLayout.SOUTH);
+        campoSenha.add(labelSenha);
+        campoSenha.add(inputSenhaAtual);
+        campoSenha.add(Box.createVerticalStrut(10));
+        campoSenha.add(labelNovaSenha);
+        campoSenha.add(inputSenhaNova);
 
         // Campo de nome
         JPanel campoNome = new JPanel(new BorderLayout(0, 5));
@@ -294,25 +298,33 @@ public class MeusDados extends JPanel {
 	    JPanel itemEmprestimo = new JPanel(new BorderLayout());
 	
 	    itemEmprestimo.setBackground(Color.WHITE);
-	    itemEmprestimo.setBorder(new EmptyBorder(20, 30, 20, 30));
-	    itemEmprestimo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 65));
+	    itemEmprestimo.setBorder(new EmptyBorder(15, 20, 15, 20));
+	    itemEmprestimo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
 	    itemEmprestimo.setAlignmentX(Component.LEFT_ALIGNMENT);
 	    
 	    JLabel informacao;
 	    
 	    if (emprestimo.getStatus() == StatusEmprestimo.DEVOLVIDO) {
-	    	informacao = new JLabel(emprestimo.getMaterial().getTitulo() + " - devolvido em: " + emprestimo.getDataDevolucao());
+	    	informacao = new JLabel(
+	    			"<HTML>" +
+	    			emprestimo.getMaterial().getTitulo() + 
+	    			"<br>Devolvido em: " +
+	    			emprestimo.getDataDevolucao() +
+	    			"</HTML>"
+	    			);
 	    	itemEmprestimo.add(informacao, BorderLayout.CENTER);
 	    	return itemEmprestimo;
 	    }
 	
 	    // Informações do material
 	    long diasRestantes = ChronoUnit.DAYS.between(LocalDate.now(), emprestimo.getDataPrevistaDevolucao());
-	    // TODO se os dias forem negativos, formatar em vermelho
 	    
 	    informacao = new JLabel(
-	        emprestimo.getMaterial().getTitulo() + " - Tempo restante: " + String.valueOf(diasRestantes)
-	    );
+	    		"<html>" +
+	    	    emprestimo.getMaterial().getTitulo() +
+	    	    "<br>Tempo restante: " + diasRestantes + " dias" +
+	    	    "</html>"
+	    		);
 	
 	    // Botão de devolução
 	    JButton botaoDevolver = new JButton("Devolver");
