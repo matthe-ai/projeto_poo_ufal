@@ -14,6 +14,10 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -29,6 +33,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.AbstractDocument;
 
 import biblioteca.exception.CredenciaisInvalidasException;
 import biblioteca.exception.ItemDuplicadoException;
@@ -42,6 +47,7 @@ import biblioteca.model.material.MaterialBibliografico;
 import biblioteca.model.material.Periodico;
 import biblioteca.model.material.TipoPeriodico;
 import biblioteca.service.CatalogoService;
+import biblioteca.view.utils.FiltroData;
 
 public class MenuBibliotecario extends JPanel{
 	
@@ -174,6 +180,29 @@ public class MenuBibliotecario extends JPanel{
         JTextField campoAutor = new JTextField();
         JTextField campoISBN = new JTextField();
         JTextField campoDataPublicacao = new JTextField();
+        
+        ((AbstractDocument) campoDataPublicacao.getDocument()).setDocumentFilter(new FiltroData());
+        
+        campoDataPublicacao.addActionListener(e -> {
+        	String data = campoDataPublicacao.getText();
+
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/uuuu").withResolverStyle(ResolverStyle.STRICT);
+
+                LocalDate.parse(data, formatter);
+
+            } catch (DateTimeParseException ex) {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Data inválida! Utilize o formato dd/mm/aaaa.",
+                    "Erro de validação",
+                    JOptionPane.ERROR_MESSAGE
+                );
+
+                campoDataPublicacao.requestFocus();
+            }
+        });
+        
         JTextField campoNumeroEdicao = new JTextField();
 
         JComboBox<String> comboTipo = new JComboBox<String>(new String[]{ "Livro", "Revista", "Jornal"});
