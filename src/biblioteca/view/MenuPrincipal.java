@@ -78,10 +78,10 @@ public class MenuPrincipal extends JFrame{
     
     private void configurarJanela() {
         setTitle("Biblioteca");
-        setSize(800, 600);
+        setSize(800, 650);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setMinimumSize(new Dimension(700, 500));
+        setMinimumSize(new Dimension(700, 600));
         setResizable(false);
     }
     

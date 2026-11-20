@@ -52,7 +52,13 @@ public class MenuBibliotecario extends JPanel{
 	private Path caminhoCapa;
 	private String campoBuscar;
 	
+	private JLabel labelAutor = new JLabel("Autor");
+	private JLabel labelISBN = new JLabel("ISBN");
+	private JLabel labelDataPublicacao = new JLabel("Data de publicação");
+	
+	private JPanel painelPrincipal;
 	private JPanel painelListaMateriais;
+	private JScrollPane scrollMateriais;
 
 	// construtor
 	
@@ -73,7 +79,7 @@ public class MenuBibliotecario extends JPanel{
 
     private void criarComponentes() {
 
-        JPanel painelPrincipal = new JPanel();
+        this.painelPrincipal = new JPanel();
         painelPrincipal.setLayout(new BoxLayout(painelPrincipal, BoxLayout.Y_AXIS));
         painelPrincipal.setBackground(new Color(220, 220, 220));
 
@@ -109,7 +115,7 @@ public class MenuBibliotecario extends JPanel{
 
             List<MaterialBibliografico> materiais;
 			try {
-				materiais = this.catalogo.listarMateriaisPorTitulo(campoBuscar);
+				materiais = !(campoBuscar.isBlank() || campoBuscar.isEmpty())? this.catalogo.listarMateriaisPorTitulo(campoBuscar) : this.catalogo.listarMateriais();
 				this.criarMateriais(materiais);
 			} catch (OperacaoNaoPermitidaException one) {
 				JOptionPane.showMessageDialog(this, "Você não tem permissão para realizar essa operação", one.getMessage(), JOptionPane.ERROR_MESSAGE);
@@ -130,14 +136,17 @@ public class MenuBibliotecario extends JPanel{
         painelListaMateriais.setBackground(new Color(220, 220, 220));
 
         // Área de rolagem
-        JScrollPane scrollMateriais = new JScrollPane(painelListaMateriais);
-
+        scrollMateriais = new JScrollPane(painelListaMateriais);
         scrollMateriais.setBorder(null);
         scrollMateriais.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollMateriais.getVerticalScrollBar().setUnitIncrement(15);
+        scrollMateriais.setPreferredSize(new Dimension(800, 200));
+        scrollMateriais.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
+        scrollMateriais.setMinimumSize(new Dimension(0, 200));
+        scrollMateriais.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         painelPrincipal.add(scrollMateriais);
-        painelPrincipal.add(Box.createVerticalStrut(35));
+        painelPrincipal.add(Box.createVerticalStrut(15));
 
         // =================================
         // CADASTRAR OBRA
@@ -196,14 +205,21 @@ public class MenuBibliotecario extends JPanel{
         gbc.fill = GridBagConstraints.HORIZONTAL;
         formulario.add(painelAnoTipo, gbc);
 
-        // Autor
-        adicionarCampo(formulario, gbc, 3, "Autor", campoAutor);
+        comboTipo.addActionListener(e -> {
+            if (comboTipo.getSelectedItem().equals("Livro")) {
+                removerCampo(formulario, labelDataPublicacao, campoDataPublicacao);
 
-        // ISBN
-        adicionarCampo(formulario, gbc, 4, "ISBN", campoISBN);
-        
-        // Data de publicacao
-        adicionarCampo(formulario, gbc, 5, "Data de publicação", campoDataPublicacao);
+                adicionarCampo(formulario, gbc, 3, labelAutor, campoAutor);
+                adicionarCampo(formulario, gbc, 4, labelISBN, campoISBN);
+            } else {
+                removerCampo(formulario, labelAutor, campoAutor);
+                removerCampo(formulario, labelISBN, campoISBN);
+
+                adicionarCampo(formulario, gbc, 3, labelDataPublicacao, campoDataPublicacao);
+            }
+            formulario.revalidate();
+            formulario.repaint();
+        });
         
         // Numero de edição
         adicionarCampo(formulario, gbc, 6, "Número de edição", campoNumeroEdicao);
@@ -346,8 +362,8 @@ public class MenuBibliotecario extends JPanel{
 
         add(painelPrincipal, BorderLayout.NORTH);
     }
-    
-    private void limparCampos(JPanel painel) {
+
+	private void limparCampos(JPanel painel) {
     	for (Component component : painel.getComponents()) {
 			if (component instanceof JTextField) {
 				((JTextField) component).setText("");
@@ -355,27 +371,61 @@ public class MenuBibliotecario extends JPanel{
 		}
     }
 
-    private void adicionarCampo(
-        JPanel painel,
-        GridBagConstraints gbc,
-        int linha,
-        String texto,
-        JTextField campo
-    ) {
-        gbc.gridy = linha;
+	private void adicionarCampo(
+		JPanel painel,
+	    GridBagConstraints gbc,
+	    int linha,
+	    JLabel label,
+	    JTextField campo
+		) {
+	    gbc.gridy = linha;
+	    gbc.gridx = 0;
+	    gbc.weightx = 0;
+	    gbc.fill = GridBagConstraints.NONE;
 
-        gbc.gridx = 0;
-        gbc.weightx = 0;
-        gbc.fill = GridBagConstraints.NONE;
-        painel.add(new JLabel(texto), gbc);
+	    painel.add(label, gbc);
 
-        gbc.gridx = 1;
-        gbc.weightx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+	    gbc.gridx = 1;
+	    gbc.weightx = 1;
+	    gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        campo.setPreferredSize(new Dimension(400, 25));
-        painel.add(campo, gbc);
-    }
+	    campo.setPreferredSize(new Dimension(400, 25));
+	    painel.add(campo, gbc);
+	}
+	
+	private void adicionarCampo(
+			JPanel painel,
+		    GridBagConstraints gbc,
+		    int linha,
+		    String label,
+		    JTextField campo
+			) {
+		    gbc.gridy = linha;
+		    gbc.gridx = 0;
+		    gbc.weightx = 0;
+		    gbc.fill = GridBagConstraints.NONE;
+
+		    painel.add(new JLabel(label), gbc);
+
+		    gbc.gridx = 1;
+		    gbc.weightx = 1;
+		    gbc.fill = GridBagConstraints.HORIZONTAL;
+
+		    campo.setPreferredSize(new Dimension(400, 25));
+		    painel.add(campo, gbc);
+		}
+    
+    private void removerCampo(
+	    JPanel painel,
+	    JLabel label,
+	    JTextField campo
+	) {
+	    painel.remove(label);
+	    painel.remove(campo);
+
+	    painel.revalidate();
+	    painel.repaint();
+	}
     
     private void criarMateriais(List<MaterialBibliografico> materiais) {
 
@@ -465,9 +515,15 @@ public class MenuBibliotecario extends JPanel{
             painelListaMateriais.add(painelObra);
             painelListaMateriais.add(Box.createVerticalStrut(5));
         }
-
+        
         painelListaMateriais.revalidate();
         painelListaMateriais.repaint();
+
+        scrollMateriais.revalidate();
+        scrollMateriais.repaint();
+        
+        this.painelPrincipal.revalidate();
+        this.painelPrincipal.repaint();
     }
     
 
