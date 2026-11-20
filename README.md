@@ -1,3 +1,5 @@
+# Projeto final de POO 
+
 # Sistema de Gerenciamento de Biblioteca
 
 Projeto acadêmico desenvolvido em **Java 21** para a disciplina de Programação Orientada a Objetos (POO) da UFAL. O sistema tem como objetivo gerenciar as operações de uma biblioteca, incluindo usuários, catálogo de materiais bibliográficos, autenticação, controle de permissões, empréstimos, solicitações de empréstimo e multas.
