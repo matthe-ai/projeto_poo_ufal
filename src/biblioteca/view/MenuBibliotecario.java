@@ -14,6 +14,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.swing.Box;
@@ -24,7 +25,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import biblioteca.exception.CredenciaisInvalidasException;
@@ -32,6 +35,7 @@ import biblioteca.exception.ItemDuplicadoException;
 import biblioteca.exception.MaterialIndisponivelException;
 import biblioteca.exception.OperacaoNaoPermitidaException;
 import biblioteca.exception.RegistroNaoEncontradoException;
+import biblioteca.exception.TipoMaterialInvalidoException;
 import biblioteca.exception.UsuarioNaoAutenticadoException;
 import biblioteca.model.material.Livro;
 import biblioteca.model.material.MaterialBibliografico;
@@ -73,14 +77,14 @@ public class MenuBibliotecario extends JPanel{
         painelPrincipal.setBackground(new Color(220, 220, 220));
 
         // =================================
-        // REMOVER OBRA
+        // EDITAR OBRA
         // =================================
 
-        JLabel tituloRemover = new JLabel("Remover obra");
-        tituloRemover.setFont(new Font("Arial", Font.PLAIN, 16));
-        tituloRemover.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JLabel tituloEditarObras = new JLabel("Editar obra");
+        tituloEditarObras.setFont(new Font("Arial", Font.PLAIN, 16));
+        tituloEditarObras.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        painelPrincipal.add(tituloRemover);
+        painelPrincipal.add(tituloEditarObras);
         painelPrincipal.add(Box.createVerticalStrut(20));
 
         // Campo de pesquisa e botão
@@ -117,14 +121,21 @@ public class MenuBibliotecario extends JPanel{
         painelPrincipal.add(painelPesquisa);
         painelPrincipal.add(Box.createVerticalStrut(22));
         
-        // Painel que recebera os materiais
+        // Painel que receberá os materiais
         painelListaMateriais = new JPanel();
 
         painelListaMateriais.setLayout(new BoxLayout(painelListaMateriais, BoxLayout.Y_AXIS));
 
         painelListaMateriais.setBackground(new Color(220, 220, 220));
 
-        painelPrincipal.add(painelListaMateriais);
+        // Área de rolagem
+        JScrollPane scrollMateriais = new JScrollPane(painelListaMateriais);
+
+        scrollMateriais.setBorder(null);
+        scrollMateriais.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollMateriais.getVerticalScrollBar().setUnitIncrement(15);
+
+        painelPrincipal.add(scrollMateriais);
         painelPrincipal.add(Box.createVerticalStrut(35));
 
         // =================================
@@ -217,10 +228,6 @@ public class MenuBibliotecario extends JPanel{
                 try {
                     // Definindo a pasta de destino (src/biblioteca/upload)
                     Path pastaDestino = Path.of("src", "biblioteca", "upload");
-                    // Garante que a pasta de destino existe, se não, cria
-                    if (!Files.exists(pastaDestino)) {
-                        Files.createDirectories(pastaDestino);
-                    }
                     // Definindo o caminho final do arquivo na pasta de upload
                     Path destinoFinal = pastaDestino.resolve(arquivoSelecionado.getName());
                     // Copia o arquivo selecionado para a pasta do projeto
@@ -230,7 +237,18 @@ public class MenuBibliotecario extends JPanel{
                     botaoEscolherCapa.setText("Capa selecionada!");
                     JOptionPane.showMessageDialog(formulario, "Capa carregada com sucesso!");
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(formulario, "Erro ao salvar a imagem: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+                	
+                	this.caminhoCapa = MaterialBibliografico.capaDefault;
+                	
+                	botaoEscolherCapa.setText("Capa padrão utilizada");
+
+                    JOptionPane.showMessageDialog(
+                        formulario,
+                        "Não foi possível carregar a imagem.\n"
+                            + "Uma capa padrão será utilizada.",
+                        "Aviso",
+                        JOptionPane.WARNING_MESSAGE
+                    );
                 }
             }
         });
@@ -255,6 +273,9 @@ public class MenuBibliotecario extends JPanel{
         
         botaoAdicionar.addActionListener(e -> {
         	String tipo = (String) comboTipo.getSelectedItem();
+        	if (this.caminhoCapa == null) {
+				this.caminhoCapa = MaterialBibliografico.capaDefault;
+			}
         	switch (tipo) {
 	        	case "Livro": {
 	        		try {
@@ -267,6 +288,7 @@ public class MenuBibliotecario extends JPanel{
 								this.caminhoCapa
 								);
 						limparCampos(formulario);
+						botaoEscolherCapa.setText("Escolher imagem");
 						this.caminhoCapa = null;
 	        		} catch (NumberFormatException e1) {
 						JOptionPane.showMessageDialog(this, "O ano digitado deve ser númerico", "Erro de digitação", JOptionPane.ERROR_MESSAGE);
@@ -384,6 +406,26 @@ public class MenuBibliotecario extends JPanel{
             	informacoes.add(new JLabel(String.valueOf(material_temp.getNumeroEdicao())));
             }
 
+            // Painel dos botões
+            JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+            painelBotoes.setBackground(Color.WHITE);
+
+            // Botão editar
+            JButton botaoEditar = new JButton("Editar");
+
+            botaoEditar.setBackground(new Color(230, 165, 35));
+            botaoEditar.setForeground(Color.WHITE);
+            botaoEditar.setFocusPainted(false);
+            botaoEditar.setBorderPainted(false);
+
+            botaoEditar.addActionListener(e -> {
+            	if (material instanceof Livro) {
+            		abrirPopupEdicao((Livro) material);
+            	} else {
+            		abrirPopupEdicao((Periodico) material);
+            	}
+            });
+
             // Botão remover
             JButton botaoRemover = new JButton("Remover");
 
@@ -393,26 +435,32 @@ public class MenuBibliotecario extends JPanel{
             botaoRemover.setBorderPainted(false);
 
             botaoRemover.addActionListener(e -> {
-            	int opcao = JOptionPane.showConfirmDialog(this, "Deseja realmente remover esse material?", "Remover material", JOptionPane.YES_NO_OPTION);
-            	if (opcao == JOptionPane.YES_OPTION) {
-            		try {
-						this.catalogo.removerMaterial(material.getId());
-						this.criarMateriais(materiais);
-					} catch (OperacaoNaoPermitidaException one) {
-						JOptionPane.showMessageDialog(this, "Você não tem permissão para realizar essa operação", one.getMessage(), JOptionPane.ERROR_MESSAGE);
-					} catch (RegistroNaoEncontradoException e1) {
-						JOptionPane.showMessageDialog(this, "Erro ao procurar pelo material", "Erro de busca", JOptionPane.ERROR_MESSAGE);
-					} catch (UsuarioNaoAutenticadoException une) {
-						JOptionPane.showMessageDialog(this, "Você não está autenticado", une.getMessage(), JOptionPane.ERROR_MESSAGE);
-						voltarLogin.run();
-					} catch (MaterialIndisponivelException mie) {
-        			JOptionPane.showMessageDialog(this, "Este material está emprestado, não foi possível remover!", "Erro ao remover", JOptionPane.ERROR_MESSAGE);
-            		}
-            	}
+
+                int opcao = JOptionPane.showConfirmDialog(this,"Deseja realmente remover esse material?","Remover material",JOptionPane.YES_NO_OPTION);
+
+                if (opcao == JOptionPane.YES_OPTION) {
+                    try {
+                        this.catalogo.removerMaterial(material.getId());
+                        this.criarMateriais(materiais);
+
+                    } catch (OperacaoNaoPermitidaException one) {
+                        JOptionPane.showMessageDialog(this,one.getMessage(),"Erro de permissão",JOptionPane.ERROR_MESSAGE);
+                    } catch (RegistroNaoEncontradoException e1) {
+                        JOptionPane.showMessageDialog(this,e1.getMessage(),"Erro de busca",JOptionPane.ERROR_MESSAGE);
+                    } catch (UsuarioNaoAutenticadoException une) {
+                        JOptionPane.showMessageDialog(this,une.getMessage(),"Erro de autenticação",JOptionPane.ERROR_MESSAGE);
+                        voltarLogin.run();
+                    } catch (MaterialIndisponivelException mie) {
+                        JOptionPane.showMessageDialog(this,mie.getMessage(),"Erro ao remover",JOptionPane.ERROR_MESSAGE);
+                    }
+                }
             });
 
+            painelBotoes.add(botaoEditar);
+            painelBotoes.add(botaoRemover);
+
             painelObra.add(informacoes, BorderLayout.CENTER);
-            painelObra.add(botaoRemover, BorderLayout.EAST);
+            painelObra.add(painelBotoes, BorderLayout.EAST);
 
             painelListaMateriais.add(painelObra);
             painelListaMateriais.add(Box.createVerticalStrut(15));
@@ -421,4 +469,146 @@ public class MenuBibliotecario extends JPanel{
         painelListaMateriais.revalidate();
         painelListaMateriais.repaint();
     }
+    
+
+    private void abrirPopupEdicao(Livro material) {
+
+        LinkedHashMap<String, String> dados = new LinkedHashMap<>();
+
+        dados.put("Titulo", material.getTitulo());
+        dados.put("Autor", material.getAutor());
+        dados.put("Ano de publicação", String.valueOf(material.getAnoPublicacao()));
+        dados.put("Editora", material.getEditora());
+        dados.put("ISBN", material.getIsbn());
+
+        FormularioDialog popup = new FormularioDialog(
+            SwingUtilities.getWindowAncestor(this),
+            "Atualizar Material",
+            dados,
+            true
+        );
+
+        popup.setVisible(true);
+
+        if (popup.isConfirmado()) {
+
+            String titulo = popup.getValor("Titulo");
+            String autor = popup.getValor("Autor");
+            int ano = Integer.parseInt(popup.getValor("Ano de publicação"));
+            String editora = popup.getValor("Editora");
+            String isbn = popup.getValor("ISBN");
+
+            File novaCapa = popup.getImagemSelecionada();
+            
+            Path novaCapaPath = material.getCaminhoCapa();
+            
+            if (novaCapa != null && novaCapa.isFile()) {
+            	try {
+                    // Definindo a pasta de destino (src/biblioteca/upload)
+                    Path pastaDestino = Path.of("src", "biblioteca", "upload");
+                    // Definindo o caminho final do arquivo na pasta de upload
+                    Path destinoFinal = pastaDestino.resolve(novaCapa.getName());
+                    // Copia o arquivo selecionado para a pasta do projeto
+                    Files.copy(novaCapa.toPath(), destinoFinal, StandardCopyOption.REPLACE_EXISTING);
+                    // Salva o Path na sua variável
+                    novaCapaPath = destinoFinal;
+                    JOptionPane.showMessageDialog(popup, "Capa carregada com sucesso!");
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(
+                        popup,
+                        "Não foi possível carregar a imagem.\n"
+                            + "Uma capa padrão será utilizada.",
+                        "Aviso",
+                        JOptionPane.WARNING_MESSAGE
+                    );
+                }
+            }
+
+            try {
+				this.catalogo.atualizarLivro(titulo, ano, autor, isbn, editora, material.getId(), novaCapaPath);
+			} catch (OperacaoNaoPermitidaException one) {
+                JOptionPane.showMessageDialog(popup,one.getMessage(),"Erro de permissão",JOptionPane.ERROR_MESSAGE);
+            } catch (RegistroNaoEncontradoException e1) {
+                JOptionPane.showMessageDialog(popup,e1.getMessage(),"Erro de busca",JOptionPane.ERROR_MESSAGE);
+            } catch (UsuarioNaoAutenticadoException une) {
+                JOptionPane.showMessageDialog(popup,une.getMessage(),"Erro de autenticação",JOptionPane.ERROR_MESSAGE);
+                voltarLogin.run();
+            } catch (TipoMaterialInvalidoException e) {
+				JOptionPane.showMessageDialog(popup, e.getMessage(), "Erro no tipo de material", JOptionPane.ERROR_MESSAGE);
+			} catch (CredenciaisInvalidasException cie) {
+    			JOptionPane.showMessageDialog(popup, "Algum dado digitado é inválido!", "Dados inválidos", JOptionPane.ERROR_MESSAGE);
+    		}
+        }
+    }
+    
+    private void abrirPopupEdicao(Periodico material) {
+
+        LinkedHashMap<String, String> dados = new LinkedHashMap<>();
+
+        dados.put("Titulo", material.getTitulo());
+        dados.put("Ano de publicação", String.valueOf(material.getAnoPublicacao()));
+        dados.put("Editora", material.getEditora());
+        dados.put("Data de publicação", material.getDataPublicacao());
+        dados.put("N edição", String.valueOf(material.getNumeroEdicao()));
+
+        FormularioDialog popup = new FormularioDialog(
+            SwingUtilities.getWindowAncestor(this),
+            "Atualizar Material",
+            dados,
+            true
+        );
+
+        popup.setVisible(true);
+
+        if (popup.isConfirmado()) {
+
+            String titulo = popup.getValor("Titulo");
+            int ano = Integer.parseInt(popup.getValor("Ano de publicação"));
+            String editora = popup.getValor("Editora");
+            String data = popup.getValor("Data de publicação");
+            int edicao = Integer.parseInt(popup.getValor("N edição"));
+
+            File novaCapa = popup.getImagemSelecionada();
+            
+            Path novaCapaPath = material.getCaminhoCapa();
+            
+            if (novaCapa != null && novaCapa.isFile()) {
+            	try {
+                    // Definindo a pasta de destino (src/biblioteca/upload)
+                    Path pastaDestino = Path.of("src", "biblioteca", "upload");
+                    // Definindo o caminho final do arquivo na pasta de upload
+                    Path destinoFinal = pastaDestino.resolve(novaCapa.getName());
+                    // Copia o arquivo selecionado para a pasta do projeto
+                    Files.copy(novaCapa.toPath(), destinoFinal, StandardCopyOption.REPLACE_EXISTING);
+                    // Salva o Path na sua variável
+                    novaCapaPath = destinoFinal;
+                    JOptionPane.showMessageDialog(popup, "Capa carregada com sucesso!");
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(
+                        popup,
+                        "Não foi possível carregar a imagem.\n"
+                            + "Uma capa padrão será utilizada.",
+                        "Aviso",
+                        JOptionPane.WARNING_MESSAGE
+                    );
+                }
+            }
+
+            try {
+				this.catalogo.atualizarPeriodico(titulo, ano, editora, edicao, data, material.getId(), novaCapaPath);
+			} catch (OperacaoNaoPermitidaException one) {
+                JOptionPane.showMessageDialog(popup,one.getMessage(),"Erro de permissão",JOptionPane.ERROR_MESSAGE);
+            } catch (RegistroNaoEncontradoException e1) {
+                JOptionPane.showMessageDialog(popup,e1.getMessage(),"Erro de busca",JOptionPane.ERROR_MESSAGE);
+            } catch (UsuarioNaoAutenticadoException une) {
+                JOptionPane.showMessageDialog(popup,une.getMessage(),"Erro de autenticação",JOptionPane.ERROR_MESSAGE);
+                voltarLogin.run();
+            } catch (TipoMaterialInvalidoException e) {
+				JOptionPane.showMessageDialog(popup, e.getMessage(), "Erro no tipo de material", JOptionPane.ERROR_MESSAGE);
+			} catch (CredenciaisInvalidasException cie) {
+    			JOptionPane.showMessageDialog(popup, "Algum dado digitado é inválido!", "Dados inválidos", JOptionPane.ERROR_MESSAGE);
+    		}
+        }
+    }
+
 }

@@ -13,7 +13,9 @@ public abstract class MaterialBibliografico {
 
 	private String editora;
 	private boolean disponivel;
-	private Path caminhoCapa; 
+	private Path caminhoCapa;
+	
+	public final static Path capaDefault = Path.of("src", "biblioteca", "upload", "default.jpg");
 	
 	// construtor
 	
