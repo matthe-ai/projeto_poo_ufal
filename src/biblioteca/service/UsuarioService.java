@@ -237,6 +237,16 @@ public class UsuarioService extends Service  {
         this.verificarAutenticacao();
         autorizacaoService.exigirPermissao(sessao.getUsuarioLogado(), Permissao.REMOVER_USUARIO);
 
+        if (usuarioId == sessao.getUsuarioLogado().getID()) {
+            throw  new OperacaoNaoPermitidaException();
+        }
+
+        Usuario usuarioParaRemover = usuarioRepositorio.buscarPorId(usuarioId);
+
+        if (usuarioParaRemover.getCargo() == Cargo.ADMINISTRADOR) {
+            throw  new OperacaoNaoPermitidaException();
+        }
+
         List<Emprestimo> emprestimosDoUsuario = emprestimoRepositorio.listarPorUsuario(usuarioId);
         List<Emprestimo> emprestimosAtivos = new ArrayList<>();
 

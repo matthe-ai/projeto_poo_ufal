@@ -16,7 +16,6 @@ public class Emprestimo {
 	private LocalDate dataPrevistaDevolucao;
 	private LocalDate dataDevolucao;
 	private StatusEmprestimo status;
-	
 	private MaterialBibliografico material;
 	private Usuario usuario;
 	
@@ -67,6 +66,7 @@ public class Emprestimo {
 	public void setMaterial(MaterialBibliografico material) {
 		this.material = material;
 	}
+
 	public MaterialBibliografico getMaterial() {
 		return this.material;
 	}

@@ -66,24 +66,11 @@ public class SolicitacaoEmprestimoService extends Service {
         return solicitacaoEmprestimoRepositorio.listarTodos();
     }
 
-    public List<SolicitacaoEmprestimo> listarSolicitacoesPendentes() throws UsuarioNaoAutenticadoException, OperacaoNaoPermitidaException {
+    public List<SolicitacaoEmprestimo> listarSolicitacoesPorStatus(StatusSolicitacao status) throws UsuarioNaoAutenticadoException, OperacaoNaoPermitidaException {
         this.verificarAutenticacao();
         autorizacaoService.exigirPermissao(sessao.getUsuarioLogado(), Permissao.CONSULTAR_TODAS_SOLICITACOES);
 
-        return solicitacaoEmprestimoRepositorio.listarPorStatus(StatusSolicitacao.PENDENTE);
-    }
-
-    public List<SolicitacaoEmprestimo> listarSolicitacoesAprovadas() throws UsuarioNaoAutenticadoException, OperacaoNaoPermitidaException {
-        this.verificarAutenticacao();
-        autorizacaoService.exigirPermissao(sessao.getUsuarioLogado(), Permissao.CONSULTAR_TODAS_SOLICITACOES);
-
-        return solicitacaoEmprestimoRepositorio.listarPorStatus(StatusSolicitacao.APROVADA);
-    }
-    public List<SolicitacaoEmprestimo> listarSolicitacoesRejeitadas() throws UsuarioNaoAutenticadoException, OperacaoNaoPermitidaException {
-        this.verificarAutenticacao();
-        autorizacaoService.exigirPermissao(sessao.getUsuarioLogado(), Permissao.CONSULTAR_TODAS_SOLICITACOES);
-
-        return solicitacaoEmprestimoRepositorio.listarPorStatus(StatusSolicitacao.REJEITADA);
+        return solicitacaoEmprestimoRepositorio.listarPorStatus(status);
     }
 
     public List<SolicitacaoEmprestimo> listarSolicitacoesPorUsuario(int solicitanteId) throws UsuarioNaoAutenticadoException, OperacaoNaoPermitidaException {

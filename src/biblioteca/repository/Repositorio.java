@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface Repositorio<N> {
 
-	void adicionar(N objeto) throws RegistroNaoEncontradoException, ItemDuplicadoException;
+	void adicionar(N objeto) throws ItemDuplicadoException;
 
     N buscarPorId(int id) throws RegistroNaoEncontradoException;
 

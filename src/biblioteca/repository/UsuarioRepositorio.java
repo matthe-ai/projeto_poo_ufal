@@ -24,10 +24,9 @@ public class UsuarioRepositorio implements Repositorio<Usuario>, RepositorioRemo
 	        }
 
 			if (u.getLogin().equals(usuario.getLogin())) {
-				throw new ItemDuplicadoException("usuário");
+				throw new ItemDuplicadoException("usuário", "login");
 			}
 	    }
-
 	    usuarios.add(usuario);
 	}
 	

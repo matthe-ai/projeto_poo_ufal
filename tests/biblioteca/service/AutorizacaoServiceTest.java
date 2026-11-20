@@ -150,4 +150,73 @@ class AutorizacaoServiceTest {
             );
         }
     }
+
+    @Test
+    void bibliotecarioDeveTerPermissoesDeGerenciamentoDeMultas() {
+        assertDoesNotThrow(
+                () -> autorizacaoService.exigirPermissao(
+                        bibliotecario,
+                        Permissao.GERENCIAR_MULTAS
+                )
+        );
+
+        assertDoesNotThrow(
+                () -> autorizacaoService.exigirPermissao(
+                        bibliotecario,
+                        Permissao.CONSULTAR_TODAS_MULTAS
+                )
+        );
+    }
+
+    @Test
+    void bibliotecarioDeveConsultarPropriasMultas() {
+        assertDoesNotThrow(
+                () -> autorizacaoService.exigirPermissao(
+                        bibliotecario,
+                        Permissao.CONSULTAR_PROPRIAS_MULTAS
+                )
+        );
+    }
+
+    @Test
+    void leitorDeveConsultarPropriasMultas() {
+        assertDoesNotThrow(
+                () -> autorizacaoService.exigirPermissao(
+                        leitor,
+                        Permissao.CONSULTAR_PROPRIAS_MULTAS
+                )
+        );
+    }
+
+    @Test
+    void leitorNaoDeveGerenciarMultas() {
+        assertThrows(
+                OperacaoNaoPermitidaException.class,
+                () -> autorizacaoService.exigirPermissao(
+                        leitor,
+                        Permissao.GERENCIAR_MULTAS
+                )
+        );
+    }
+
+    @Test
+    void leitorNaoDeveConsultarTodasAsMultas() {
+        assertThrows(
+                OperacaoNaoPermitidaException.class,
+                () -> autorizacaoService.exigirPermissao(
+                        leitor,
+                        Permissao.CONSULTAR_TODAS_MULTAS
+                )
+        );
+    }
+
+    @Test
+    void usuarioNuloNaoDevePossuirPermissoes() {
+        assertFalse(
+                autorizacaoService.possuiPermissao(
+                        null,
+                        Permissao.CONSULTAR_PROPRIAS_MULTAS
+                )
+        );
+    }
 }

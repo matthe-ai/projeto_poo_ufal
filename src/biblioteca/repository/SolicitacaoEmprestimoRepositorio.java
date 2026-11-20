@@ -13,13 +13,12 @@ public class SolicitacaoEmprestimoRepositorio implements Repositorio<Solicitacao
     private final ArrayList<SolicitacaoEmprestimo> solitacoesEmprestimos = new ArrayList<>();
 
     @Override
-    public void adicionar(SolicitacaoEmprestimo solicitacaoEmprestimo) throws RegistroNaoEncontradoException, ItemDuplicadoException {
+    public void adicionar(SolicitacaoEmprestimo solicitacaoEmprestimo) throws ItemDuplicadoException {
         for (SolicitacaoEmprestimo e : solitacoesEmprestimos) {
             if (e.getId() == solicitacaoEmprestimo.getId()) {
                 throw new ItemDuplicadoException("solicitação");
             }
         }
-
         solitacoesEmprestimos.add(solicitacaoEmprestimo);
     }
 

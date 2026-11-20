@@ -50,15 +50,6 @@ class EmprestimoRepositorioTest {
         assertTrue(emprestimos.isEmpty());
     }
 
-//    @Test
-//    void deveRemoverEmprestimoCadastrado() throws ItemDuplicadoException, RegistroNaoEncontradoException {
-//        repositorio.adicionar(emprestimo);
-//
-//        repositorio.remover(emprestimo.getId());
-//
-//        assertTrue(repositorio.listarTodos().isEmpty());
-//    }
-
     @Test
     void deveLancarExcecaoAoBuscarEmprestimoInexistente() {
         assertThrows(
@@ -66,14 +57,6 @@ class EmprestimoRepositorioTest {
                 () -> repositorio.buscarPorId(-1)
         );
     }
-
-//    @Test
-//    void deveLancarExcecaoAoRemoverEmprestimoInexistente() {
-//        assertThrows(
-//                RegistroNaoEncontradoException.class,
-//                () -> repositorio.remover(-1)
-//        );
-//    }
 
     @Test
     void deveAtualizarEmprestimoCadastrado() throws ItemDuplicadoException, RegistroNaoEncontradoException {
