@@ -47,13 +47,16 @@ public class SolicitacaoEmprestimoService extends Service {
             throws UsuarioNaoAutenticadoException,
             OperacaoNaoPermitidaException,
             RegistroNaoEncontradoException,
-            ItemDuplicadoException {
+            ItemDuplicadoException,
+            UsuarioPossuiMultasPendentes {
 
         this.verificarAutenticacao();
         autorizacaoService.exigirPermissao(sessao.getUsuarioLogado(), Permissao.SOLICITAR_EMPRESTIMO);
 
         MaterialBibliografico materialSolicitado = materialRepositorio.buscarPorId(materialId);
         this.verificarSolicitacaoPendenteDuplicada(materialId);
+        int usuarioId = sessao.getUsuarioLogado().getID();
+        emprestimoService.verificarMultasPendentesDoUsuario(usuarioId);
 
         SolicitacaoEmprestimo novaSolicitacao = new SolicitacaoEmprestimo(sessao.getUsuarioLogado(), materialSolicitado);
         solicitacaoEmprestimoRepositorio.adicionar(novaSolicitacao);
