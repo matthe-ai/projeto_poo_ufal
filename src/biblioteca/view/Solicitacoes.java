@@ -32,7 +32,7 @@ public class Solicitacoes extends JPanel {
 
 	// atributos
 	
-	private SolicitacaoEmprestimoService solicitacoesService;
+	private final SolicitacaoEmprestimoService solicitacoesService;
 	private Runnable voltarLogin;
 	
 	private JPanel painelLista;

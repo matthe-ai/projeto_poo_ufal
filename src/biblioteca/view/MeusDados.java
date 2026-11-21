@@ -27,14 +27,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 public class MeusDados extends JPanel {
@@ -67,114 +60,212 @@ public class MeusDados extends JPanel {
         setBackground(new Color(220, 220, 220));
     }
 
-    private void criarComponentes() {
-    	setLayout(new BorderLayout(20, 20));
-        setBorder(new EmptyBorder(40, 40, 30, 40));
-        setBackground(new Color(220, 220, 220));
+	private void criarComponentes() {
 
-        // Painel superior: alteração dos dados
-        JPanel painelDados = new JPanel(new BorderLayout(0, 15));
-        painelDados.setBackground(new Color(220, 220, 220));
-        
-        JPanel campos = new JPanel(new GridLayout(1, 3, 30, 0));
-        campos.setBackground(new Color(220, 220, 220));
+		setLayout(new BorderLayout(20, 20));
+		setBorder(new EmptyBorder(40, 40, 30, 40));
+		setBackground(new Color(220, 220, 220));
 
-        // Campo de login
-        JPanel campoLogin = new JPanel(new BorderLayout(0, 5));
-        campoLogin.setBackground(new Color(220, 220, 220));
+		// Painel superior: alteração dos dados
+		JPanel painelDados = new JPanel(new BorderLayout(0, 15));
+		painelDados.setBackground(new Color(220, 220, 220));
 
-        JLabel labelLogin = new JLabel("Login atual: "+this.sessao.getUsuarioLogado().getLogin());
-        JTextField inputLogin = new JTextField();
-        inputLogin.setBorder(new EmptyBorder(5, 5, 5, 5));
+		JPanel campos = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 0));
+		campos.setBackground(new Color(220, 220, 220));
 
-        campoLogin.add(labelLogin, BorderLayout.NORTH);
-        campoLogin.add(inputLogin, BorderLayout.CENTER);
+		Dimension tamanhoCampo = new Dimension(210, 30);
 
-        // Campo de senha
-        JPanel campoSenha = new JPanel();
-        campoSenha.setBackground(new Color(220, 220, 220));
-        campoSenha.setLayout(new BoxLayout(campoSenha, BoxLayout.Y_AXIS));
+		// Campo de login
+		JPanel campoLogin = new JPanel();
+		campoLogin.setLayout(new BoxLayout(campoLogin, BoxLayout.Y_AXIS));
+		campoLogin.setBackground(new Color(220, 220, 220));
 
-        JLabel labelSenha = new JLabel("Senha atual:");
-        JTextField inputSenhaAtual = new JTextField();
-        JLabel labelNovaSenha = new JLabel("Nova senha: ");
-        JTextField inputSenhaNova = new JTextField();
-        inputSenhaAtual.setBorder(new EmptyBorder(5, 5, 5, 5));
-        inputSenhaNova.setBorder(new EmptyBorder(5, 5, 5, 5));
+		JLabel labelLogin = new JLabel(
+				"Login atual: " + this.sessao.getUsuarioLogado().getLogin());
 
-        campoSenha.add(labelSenha);
-        campoSenha.add(inputSenhaAtual);
-        campoSenha.add(Box.createVerticalStrut(10));
-        campoSenha.add(labelNovaSenha);
-        campoSenha.add(inputSenhaNova);
+		JTextField inputLogin = new JTextField();
 
-        // Campo de nome
-        JPanel campoNome = new JPanel(new BorderLayout(0, 5));
-        campoNome.setBackground(new Color(220, 220, 220));
+		inputLogin.setPreferredSize(tamanhoCampo);
+		inputLogin.setMaximumSize(tamanhoCampo);
+		inputLogin.setMinimumSize(tamanhoCampo);
+		inputLogin.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-        JLabel labelNome = new JLabel("Nome atual: "+this.sessao.getUsuarioLogado().getNome());
-        JTextField inputNome = new JTextField();
-        inputNome.setBorder(new EmptyBorder(5, 5, 5, 5));
+		labelLogin.setAlignmentX(Component.LEFT_ALIGNMENT);
+		inputLogin.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        campoNome.add(labelNome, BorderLayout.NORTH);
-        campoNome.add(inputNome, BorderLayout.CENTER);
+		campoLogin.add(labelLogin);
+		campoLogin.add(Box.createVerticalStrut(5));
+		campoLogin.add(inputLogin);
+		campoLogin.add(Box.createVerticalGlue());
 
-        campos.add(campoLogin);
-        campos.add(campoSenha);
-        campos.add(campoNome);
-        
-        JPanel painelBotao = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        painelBotao.setBackground(new Color(220, 220, 220));
-        
-        // Botão para atualizar os dados
-        JButton botaoAtualizar = new JButton("Atualizar dados");
-        
-        painelBotao.add(botaoAtualizar);
+		// Campo de senha
+		JPanel campoSenha = new JPanel();
+		campoSenha.setBackground(new Color(220, 220, 220));
+		campoSenha.setLayout(new BoxLayout(campoSenha, BoxLayout.Y_AXIS));
 
-        botaoAtualizar.addActionListener(e -> {
-            String novoLogin = inputLogin.getText();
-            String antigaSenha = inputSenhaAtual.getText();
-            String novaSenha = new String(inputSenhaNova.getText());
-            String novoNome = inputNome.getText();
-            try {
-            	if (novoLogin.isBlank() || novoLogin.isEmpty()) {
-            		novoLogin = this.sessao.getUsuarioLogado().getLogin();
-            	} if (novoNome.isBlank() || novoNome.isEmpty()) {
-            		novoNome = this.sessao.getUsuarioLogado().getNome();
-            	} if (!(novaSenha.isBlank() || novaSenha.isEmpty())) {
-            		try {
+		JLabel labelSenha = new JLabel("Senha atual:");
+		labelSenha.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+		JTextField inputSenhaAtual = new JTextField();
+		inputSenhaAtual.setAlignmentX(Component.LEFT_ALIGNMENT);
+		inputSenhaAtual.setPreferredSize(tamanhoCampo);
+		inputSenhaAtual.setMaximumSize(tamanhoCampo);
+		inputSenhaAtual.setMinimumSize(tamanhoCampo);
+
+		JLabel labelNovaSenha = new JLabel("Nova senha:");
+		labelNovaSenha.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+		JTextField inputSenhaNova = new JTextField();
+		inputSenhaNova.setAlignmentX(Component.LEFT_ALIGNMENT);
+		inputSenhaNova.setPreferredSize(tamanhoCampo);
+		inputSenhaNova.setMaximumSize(tamanhoCampo);
+		inputSenhaNova.setMinimumSize(tamanhoCampo);
+
+		inputSenhaAtual.setBorder(new EmptyBorder(5, 5, 5, 5));
+		inputSenhaNova.setBorder(new EmptyBorder(5, 5, 5, 5));
+
+		campoSenha.add(labelSenha);
+		campoSenha.add(Box.createVerticalStrut(5));
+		campoSenha.add(inputSenhaAtual);
+		campoSenha.add(Box.createVerticalStrut(10));
+		campoSenha.add(labelNovaSenha);
+		campoSenha.add(Box.createVerticalStrut(5));
+		campoSenha.add(inputSenhaNova);
+
+		// Campo de nome
+		JPanel campoNome = new JPanel();
+		campoNome.setLayout(new BoxLayout(campoNome, BoxLayout.Y_AXIS));
+		campoNome.setBackground(new Color(220, 220, 220));
+
+		JLabel labelNome = new JLabel(
+				"Nome atual: " + this.sessao.getUsuarioLogado().getNome());
+
+		JTextField inputNome = new JTextField();
+
+		inputNome.setPreferredSize(tamanhoCampo);
+		inputNome.setMaximumSize(tamanhoCampo);
+		inputNome.setMinimumSize(tamanhoCampo);
+		inputNome.setBorder(new EmptyBorder(5, 5, 5, 5));
+
+		labelNome.setAlignmentX(Component.LEFT_ALIGNMENT);
+		inputNome.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+		campoNome.add(labelNome);
+		campoNome.add(Box.createVerticalStrut(5));
+		campoNome.add(inputNome);
+		campoNome.add(Box.createVerticalGlue());
+
+		// Padronização da altura dos três grupos
+		Dimension tamanhoGrupo = new Dimension(
+				tamanhoCampo.width,
+				campoSenha.getPreferredSize().height
+		);
+
+		campoLogin.setPreferredSize(tamanhoGrupo);
+		campoLogin.setMinimumSize(tamanhoGrupo);
+		campoLogin.setMaximumSize(tamanhoGrupo);
+
+		campoSenha.setPreferredSize(tamanhoGrupo);
+		campoSenha.setMinimumSize(tamanhoGrupo);
+		campoSenha.setMaximumSize(tamanhoGrupo);
+
+		campoNome.setPreferredSize(tamanhoGrupo);
+		campoNome.setMinimumSize(tamanhoGrupo);
+		campoNome.setMaximumSize(tamanhoGrupo);
+
+		// Adicionando os grupos ao painel
+		campos.add(campoLogin);
+		campos.add(campoSenha);
+		campos.add(campoNome);
+
+		JPanel painelBotao = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		painelBotao.setBackground(new Color(220, 220, 220));
+
+		// Botão para atualizar os dados
+		JButton botaoAtualizar = new JButton("Atualizar dados");
+
+		painelBotao.add(botaoAtualizar);
+
+		botaoAtualizar.addActionListener(e -> {
+
+			String novoLogin = inputLogin.getText();
+			String antigaSenha = inputSenhaAtual.getText();
+			String novaSenha = inputSenhaNova.getText();
+			String novoNome = inputNome.getText();
+
+			try {
+
+				if (novoLogin.isBlank()) {
+					novoLogin = this.sessao.getUsuarioLogado().getLogin();
+				}
+
+				if (novoNome.isBlank()) {
+					novoNome = this.sessao.getUsuarioLogado().getNome();
+				}
+
+				if (!novaSenha.isBlank()) {
+					try {
 						this.usuarioService.atualizarMinhaSenha(antigaSenha, novaSenha);
-					} catch (NoSuchAlgorithmException e1) {
-						JOptionPane.showMessageDialog(this, "Ocorreu um erro ao atualizar a senha", "Erro ao atualizar dados", JOptionPane.ERROR_MESSAGE);
-					} catch (InvalidKeySpecException e1) {
-						JOptionPane.showMessageDialog(this, "Ocorreu um erro ao atualizar a senha", "Erro ao atualizar dados", JOptionPane.ERROR_MESSAGE);
+
+					} catch (NoSuchAlgorithmException | InvalidKeySpecException e1) {
+						JOptionPane.showMessageDialog(
+								this,
+								"Ocorreu um erro ao atualizar a senha",
+								"Erro ao atualizar dados",
+								JOptionPane.ERROR_MESSAGE
+						);
 					}
-            	}
-            	JOptionPane.showMessageDialog(this, "Seus dados serão atualizados no próximo login", "Dados atualizados com sucesso", JOptionPane.INFORMATION_MESSAGE);
+				}
+
+				JOptionPane.showMessageDialog(
+						this,
+						"Seus dados serão atualizados no próximo login",
+						"Dados atualizados com sucesso",
+						JOptionPane.INFORMATION_MESSAGE
+				);
+
 				this.usuarioService.atualizarMeusDados(novoNome, novoLogin);
 				this.criarComponentes();
+
 			} catch (OperacaoNaoPermitidaException one) {
-				JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);
-			} catch (RegistroNaoEncontradoException e1) {
-				JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao atualizar dados", JOptionPane.ERROR_MESSAGE);
+
+				JOptionPane.showMessageDialog(
+						this,
+						one.getMessage(),
+						"Erro de permissão",
+						JOptionPane.ERROR_MESSAGE
+				);
+
+			} catch (RegistroNaoEncontradoException | CredenciaisInvalidasException
+			         | ItemDuplicadoException e1) {
+
+				JOptionPane.showMessageDialog(
+						this,
+						e1.getMessage(),
+						"Erro ao atualizar dados",
+						JOptionPane.ERROR_MESSAGE
+				);
+
 			} catch (UsuarioNaoAutenticadoException une) {
-				JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação", JOptionPane.ERROR_MESSAGE);
+
+				JOptionPane.showMessageDialog(
+						this,
+						une.getMessage(),
+						"Erro de autenticação",
+						JOptionPane.ERROR_MESSAGE
+				);
+
 				voltarLogin.run();
-			} catch (CredenciaisInvalidasException e1) {
-				JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao atualizar dados", JOptionPane.ERROR_MESSAGE);
-			} catch (ItemDuplicadoException e1) {
-				JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao atualizar dados", JOptionPane.ERROR_MESSAGE);
 			}
-        });
-        
-        painelDados.add(campos, BorderLayout.CENTER);
-        painelDados.add(painelBotao, BorderLayout.SOUTH);
+		});
 
-        add(painelDados, BorderLayout.NORTH);
+		painelDados.add(campos, BorderLayout.CENTER);
+		painelDados.add(painelBotao, BorderLayout.SOUTH);
 
+		add(painelDados, BorderLayout.NORTH);
 
-        criarPainelEmprestimos();
-    }
+		criarPainelEmprestimos();
+	}
 
 
 	private void criarPainelEmprestimos() {

@@ -20,6 +20,7 @@ import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -53,14 +54,14 @@ public class MenuBibliotecario extends JPanel{
 	
 	// atributos
 	
-	private CatalogoService catalogo;
-	private Runnable voltarLogin;
+	private final CatalogoService catalogo;
+	private final Runnable voltarLogin;
 	private Path caminhoCapa;
 	private String campoBuscar;
 	
-	private JLabel labelAutor = new JLabel("Autor");
-	private JLabel labelISBN = new JLabel("ISBN");
-	private JLabel labelDataPublicacao = new JLabel("Data de publicação");
+	private final JLabel labelAutor = new JLabel("Autor");
+	private final JLabel labelISBN = new JLabel("ISBN");
+	private final JLabel labelDataPublicacao = new JLabel("Data de publicação");
 	
 	private JPanel painelPrincipal;
 	private JPanel painelListaMateriais;
@@ -259,7 +260,7 @@ public class MenuBibliotecario extends JPanel{
         formulario.add(painelAnoTipo, gbc);
 
         comboTipo.addActionListener(e -> {
-            if (comboTipo.getSelectedItem().equals("Livro")) {
+            if (Objects.equals(comboTipo.getSelectedItem(), "Livro")) {
                 removerCampo(formulario, labelDataPublicacao, campoDataPublicacao);
 
                 adicionarCampo(formulario, gbc, 3, labelAutor, campoAutor);
@@ -367,12 +368,10 @@ public class MenuBibliotecario extends JPanel{
 					} catch (UsuarioNaoAutenticadoException une) {
 						JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação", JOptionPane.ERROR_MESSAGE);
 						voltarLogin.run();
-	        		} catch (ItemDuplicadoException ide) {
+	        		} catch (ItemDuplicadoException | CredenciaisInvalidasException ide) {
         				JOptionPane.showMessageDialog(this, ide.getMessage(), "Erro de cadastro/atualização", JOptionPane.ERROR_MESSAGE);
-	        		} catch (CredenciaisInvalidasException cie) {
-        				JOptionPane.showMessageDialog(this, cie.getMessage(), "Erro de cadastro/atualização", JOptionPane.ERROR_MESSAGE);
 	        		}
-	        		break;
+                    break;
 	        	} case "Revista", "Jornal": {
 	        		try {
 	        			TipoPeriodico tipoP;
@@ -399,12 +398,10 @@ public class MenuBibliotecario extends JPanel{
 					} catch (UsuarioNaoAutenticadoException une) {
 						JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação", JOptionPane.ERROR_MESSAGE);
 						voltarLogin.run();
-	        		} catch (ItemDuplicadoException ide) {
+	        		} catch (ItemDuplicadoException | CredenciaisInvalidasException ide) {
         				JOptionPane.showMessageDialog(this, ide.getMessage(), "Erro de cadastro/atualização", JOptionPane.ERROR_MESSAGE);
-	        		} catch (CredenciaisInvalidasException cie) {
-        				JOptionPane.showMessageDialog(this, cie.getMessage(), "Erro de cadastro/atualização", JOptionPane.ERROR_MESSAGE);
 	        		}
-	        		break;
+                    break;
 	        	}
         	}
         });
@@ -511,56 +508,7 @@ public class MenuBibliotecario extends JPanel{
             }
 
             // Painel dos botões
-            JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
-            painelBotoes.setBackground(Color.WHITE);
-
-            // Botão editar
-            JButton botaoEditar = new JButton("Editar");
-
-            botaoEditar.setBackground(new Color(230, 165, 35));
-            botaoEditar.setForeground(Color.WHITE);
-            botaoEditar.setFocusPainted(false);
-            botaoEditar.setBorderPainted(false);
-
-            botaoEditar.addActionListener(e -> {
-            	if (material instanceof Livro) {
-            		abrirPopupEdicao((Livro) material);
-            	} else {
-            		abrirPopupEdicao((Periodico) material);
-            	}
-            });
-
-            // Botão remover
-            JButton botaoRemover = new JButton("Remover");
-
-            botaoRemover.setBackground(new Color(220, 20, 30));
-            botaoRemover.setForeground(Color.WHITE);
-            botaoRemover.setFocusPainted(false);
-            botaoRemover.setBorderPainted(false);
-
-            botaoRemover.addActionListener(e -> {
-
-                int opcao = JOptionPane.showConfirmDialog(this,"Deseja realmente remover esse material?","Remover material",JOptionPane.YES_NO_OPTION);
-
-                if (opcao == JOptionPane.YES_OPTION) {
-                    try {
-                        this.catalogo.removerMaterial(material.getId());
-                        this.criarMateriais(this.catalogo.listarMateriaisPorTitulo(this.campoBuscar));
-                    } catch (OperacaoNaoPermitidaException one) {
-                        JOptionPane.showMessageDialog(this, one.getMessage(),"Erro de permissão",JOptionPane.ERROR_MESSAGE);
-                    } catch (RegistroNaoEncontradoException e1) {
-                        JOptionPane.showMessageDialog(this, e1.getMessage(),"Erro de busca",JOptionPane.ERROR_MESSAGE);
-                    } catch (UsuarioNaoAutenticadoException une) {
-                        JOptionPane.showMessageDialog(this, une.getMessage(),"Erro de autenticação",JOptionPane.ERROR_MESSAGE);
-                        voltarLogin.run();
-                    } catch (MaterialIndisponivelException mie) {
-                        JOptionPane.showMessageDialog(this, mie.getMessage(),"Erro ao remover",JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            });
-
-            painelBotoes.add(botaoEditar);
-            painelBotoes.add(botaoRemover);
+            JPanel painelBotoes = this.createPainelBotoes(material);
 
             painelObra.add(informacoes, BorderLayout.CENTER);
             painelObra.add(painelBotoes, BorderLayout.EAST);
@@ -578,7 +526,61 @@ public class MenuBibliotecario extends JPanel{
         this.painelPrincipal.revalidate();
         this.painelPrincipal.repaint();
     }
-    
+
+    private JPanel createPainelBotoes(MaterialBibliografico material) {
+        JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        painelBotoes.setBackground(Color.WHITE);
+
+        // Botão editar
+        JButton botaoEditar = new JButton("Editar");
+
+        botaoEditar.setBackground(new Color(230, 165, 35));
+        botaoEditar.setForeground(Color.WHITE);
+        botaoEditar.setFocusPainted(false);
+        botaoEditar.setBorderPainted(false);
+
+        botaoEditar.addActionListener(e -> {
+            if (material instanceof Livro) {
+                abrirPopupEdicao((Livro) material);
+            } else {
+                abrirPopupEdicao((Periodico) material);
+            }
+        });
+
+        // Botão remover
+        JButton botaoRemover = new JButton("Remover");
+
+        botaoRemover.setBackground(new Color(220, 20, 30));
+        botaoRemover.setForeground(Color.WHITE);
+        botaoRemover.setFocusPainted(false);
+        botaoRemover.setBorderPainted(false);
+
+        botaoRemover.addActionListener(e -> {
+
+            int opcao = JOptionPane.showConfirmDialog(this,"Deseja realmente remover esse material?","Remover material",JOptionPane.YES_NO_OPTION);
+
+            if (opcao == JOptionPane.YES_OPTION) {
+                try {
+                    this.catalogo.removerMaterial(material.getId());
+                    this.criarMateriais(this.catalogo.listarMateriaisPorTitulo(this.campoBuscar));
+                } catch (OperacaoNaoPermitidaException one) {
+                    JOptionPane.showMessageDialog(this, one.getMessage(),"Erro de permissão",JOptionPane.ERROR_MESSAGE);
+                } catch (RegistroNaoEncontradoException e1) {
+                    JOptionPane.showMessageDialog(this, e1.getMessage(),"Erro de busca",JOptionPane.ERROR_MESSAGE);
+                } catch (UsuarioNaoAutenticadoException une) {
+                    JOptionPane.showMessageDialog(this, une.getMessage(),"Erro de autenticação",JOptionPane.ERROR_MESSAGE);
+                    voltarLogin.run();
+                } catch (MaterialIndisponivelException mie) {
+                    JOptionPane.showMessageDialog(this, mie.getMessage(),"Erro ao remover",JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        painelBotoes.add(botaoEditar);
+        painelBotoes.add(botaoRemover);
+        return painelBotoes;
+    }
+
 
     private void abrirPopupEdicao(Livro material) {
 

@@ -40,8 +40,8 @@ public class MenuAdministrador extends JPanel{
 
 	// atributos
 	
-	private UsuarioService usuarios;
-	private Runnable voltarLogin;
+	private final UsuarioService usuarios;
+	private final Runnable voltarLogin;
 	private JPanel painelListaUsuarios;
 
 	public MenuAdministrador(UsuarioService usuarios, Runnable voltarLogin) {
@@ -203,7 +203,7 @@ public class MenuAdministrador extends JPanel{
 	    	String nome = campoNome.getText();
 	    	String login = campoLogin.getText();
 	    	String tipo = (String) comboTipo.getSelectedItem();
-	    	String senha = new String(campoSenha.getText());
+	    	String senha = campoSenha.getText();
 	    	Cargo cargo;
 	    	switch (tipo) {
 	    		case "Administrador":
@@ -216,9 +216,7 @@ public class MenuAdministrador extends JPanel{
 	    	try {
 				this.usuarios.cadastrarUsuario(nome, login, senha, cargo);
 				this.limparCampos(formulario);
-			} catch (NoSuchAlgorithmException e1) {
-				JOptionPane.showMessageDialog(this, "Algum erro aconteceu", "ERRO", JOptionPane.ERROR_MESSAGE);
-			} catch (InvalidKeySpecException e1) {
+			} catch (NoSuchAlgorithmException | InvalidKeySpecException e1) {
 				JOptionPane.showMessageDialog(this, "Algum erro aconteceu", "ERRO", JOptionPane.ERROR_MESSAGE);
 			} catch (CredenciaisInvalidasException e1) {
 				JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro nas credenciais digitadas", JOptionPane.ERROR_MESSAGE);
@@ -323,17 +321,15 @@ public class MenuAdministrador extends JPanel{
 						} else {
 							this.criarUsuarios(this.usuarios.listarUsuariosPorLogin(busca), busca, criterio);
 						}
-					} catch (RegistroNaoEncontradoException e1) {
+					} catch (RegistroNaoEncontradoException | UsuarioPossuiEmprestimosAtivosException e1) {
 						JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao remover usuario", JOptionPane.ERROR_MESSAGE);
 					} catch (OperacaoNaoPermitidaException one) {
 						JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);
 					} catch (UsuarioNaoAutenticadoException une) {
 						JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação", JOptionPane.ERROR_MESSAGE);
 						voltarLogin.run();
-					} catch (UsuarioPossuiEmprestimosAtivosException e1) {
-						JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao remover usuario", JOptionPane.ERROR_MESSAGE);
 					}
-            	}
+                }
             });
             
             painelBotoes.add(botaoEditar);
@@ -388,9 +384,7 @@ public class MenuAdministrador extends JPanel{
 					JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro nas credenciais digitadas", JOptionPane.ERROR_MESSAGE);
 				} catch (ItemDuplicadoException e1) {
 					JOptionPane.showMessageDialog(this, e1.getMessage(), "Login já usado", JOptionPane.ERROR_MESSAGE);
-				} catch (NoSuchAlgorithmException e1) {
-					JOptionPane.showMessageDialog(this, "Algum erro aconteceu ao atualizar a senha", "ERRO", JOptionPane.ERROR_MESSAGE);
-				} catch (InvalidKeySpecException e1) {
+				} catch (NoSuchAlgorithmException | InvalidKeySpecException e1) {
 					JOptionPane.showMessageDialog(this, "Algum erro aconteceu ao atualizar a senha", "ERRO", JOptionPane.ERROR_MESSAGE);
 				}
             }

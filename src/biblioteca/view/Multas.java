@@ -29,7 +29,7 @@ public class Multas extends JPanel {
 
 	// atributos
 	
-	private MultaService multaService;
+	private final MultaService multaService;
 	private Runnable voltarLogin;
 	
 	private JPanel painelLista;

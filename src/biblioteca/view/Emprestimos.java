@@ -29,7 +29,7 @@ public class Emprestimos extends JPanel {
 
 	// atributos
 	
-	private EmprestimoService emprestimoService;
+	private final EmprestimoService emprestimoService;
 	private Runnable voltarLogin;
 	
 	private JPanel painelLista;
@@ -121,6 +121,15 @@ public class Emprestimos extends JPanel {
         informacoes.add(Box.createVerticalStrut(3));
         informacoes.add(labelEmprestadoPara);
 
+        JButton botaoAprovar = this.createBotaoAprovar(emprestimo);
+
+        item.add(informacoes, BorderLayout.CENTER);
+        item.add(botaoAprovar, BorderLayout.EAST);
+
+        return item;
+    }
+
+    private JButton createBotaoAprovar(Emprestimo emprestimo) {
         JButton botaoAprovar = new JButton("Registrar devolução");
         botaoAprovar.setBackground(new Color(80, 240, 30));
         botaoAprovar.setForeground(Color.BLACK);
@@ -145,16 +154,12 @@ public class Emprestimos extends JPanel {
 					JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro de registro", JOptionPane.ERROR_MESSAGE);
 				} catch (ItemDuplicadoException e1) {
 					JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro de duplicação", JOptionPane.ERROR_MESSAGE);
-				} 
+				}
             }
         });
-
-        item.add(informacoes, BorderLayout.CENTER);
-        item.add(botaoAprovar, BorderLayout.EAST);
-
-        return item;
+        return botaoAprovar;
     }
-    
+
     private void criarSolicitacoes() {
     	List<Emprestimo> emprestimos;
 		try {

@@ -34,11 +34,8 @@ public class TelaLogin extends JFrame{
 	
 	private JTextField login;
 	private JPasswordField senha;
-	
-	private JButton blogin;
-	private JButton bsair;
-	
-	final private UsuarioService usuarios;
+
+    final private UsuarioService usuarios;
 	final private CatalogoService catalogo;
 	final private Sessao sessao;
 	final private EmprestimoService emprestimoService;
@@ -123,7 +120,7 @@ public class TelaLogin extends JFrame{
         gbc.gridwidth = 1;
         gbc.weighty = 0;
 
-        bsair = new JButton("Sair");
+        JButton bsair = new JButton("Sair");
         estilizarBotao(bsair);
 
         bsair.addActionListener(e -> {
@@ -135,7 +132,7 @@ public class TelaLogin extends JFrame{
         // Botão fazer login
         gbc.gridx = 1;
 
-        blogin = new JButton("Fazer login");
+        JButton blogin = new JButton("Fazer login");
         estilizarBotao(blogin);
 
         blogin.addActionListener(e -> {
@@ -155,9 +152,7 @@ public class TelaLogin extends JFrame{
 
                 this.setVisible(false);
                 tela.setVisible(true);
-			} catch (NoSuchAlgorithmException e1) {
-				JOptionPane.showMessageDialog(this, "Algum erro aconteceu", "ERRO", JOptionPane.ERROR_MESSAGE);
-			} catch (InvalidKeySpecException e1) {
+			} catch (NoSuchAlgorithmException | InvalidKeySpecException e1) {
 				JOptionPane.showMessageDialog(this, "Algum erro aconteceu", "ERRO", JOptionPane.ERROR_MESSAGE);
 			} catch (CredenciaisInvalidasException e1) {
 				JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro de credenciais", JOptionPane.ERROR_MESSAGE);

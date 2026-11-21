@@ -60,7 +60,7 @@ public class MenuPrincipal extends JFrame {
 	final private SolicitacaoEmprestimoService solicitacaoEmprestimos;
 	final private MultaService multaService;
 
-	private Runnable voltarLogin;
+	private final Runnable voltarLogin;
 
 	// construtor
 
@@ -135,25 +135,7 @@ public class MenuPrincipal extends JFrame {
 
 		// LEITOR
 		if (this.sessao.getUsuarioLogado().getCargo() == Cargo.LEITOR) {
-			JMenuItem minhasMultas = new JMenuItem("Minhas multas");
-			minhasMultas.addActionListener(e -> {
-				try {
-					if (this.multaService.listarMinhasMultasPorStatus(StatusMulta.PENDENTE).size() == 0) {
-						JOptionPane.showMessageDialog(this, "Você não possui pendências.", "Sem multas",
-								JOptionPane.INFORMATION_MESSAGE);
-					} else {
-						JOptionPane.showMessageDialog(this, "Você possui R$"+this.calcularTotal(this.multaService.listarMinhasMultasPorStatus(StatusMulta.PENDENTE))+" pendente.", "Valor pendente", JOptionPane.INFORMATION_MESSAGE);
-					}
-				} catch (UsuarioNaoAutenticadoException e1) {
-					JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro de autenticação",
-							JOptionPane.ERROR_MESSAGE);
-					dispose();
-					voltarLogin.run();
-				} catch (OperacaoNaoPermitidaException one) {
-					JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão",
-							JOptionPane.ERROR_MESSAGE);
-				}
-			});
+			JMenuItem minhasMultas = this.createMinhasMultas();
 			multas.add(minhasMultas);
 		}
 
@@ -206,6 +188,29 @@ public class MenuPrincipal extends JFrame {
 		menuPrincipal.add(itemSair);
 
 		setJMenuBar(barraMenu);
+	}
+
+	private JMenuItem createMinhasMultas() {
+		JMenuItem minhasMultas = new JMenuItem("Minhas multas");
+		minhasMultas.addActionListener(e -> {
+			try {
+				if (this.multaService.listarMinhasMultasPorStatus(StatusMulta.PENDENTE).isEmpty()) {
+					JOptionPane.showMessageDialog(this, "Você não possui pendências.", "Sem multas",
+							JOptionPane.INFORMATION_MESSAGE);
+				} else {
+					JOptionPane.showMessageDialog(this, "Você possui R$"+this.calcularTotal(this.multaService.listarMinhasMultasPorStatus(StatusMulta.PENDENTE))+" pendente.", "Valor pendente", JOptionPane.INFORMATION_MESSAGE);
+				}
+			} catch (UsuarioNaoAutenticadoException e1) {
+				JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro de autenticação",
+						JOptionPane.ERROR_MESSAGE);
+				dispose();
+				voltarLogin.run();
+			} catch (OperacaoNaoPermitidaException one) {
+				JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão",
+						JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		return minhasMultas;
 	}
 
 	private String calcularTotal(List<Multa> listarMinhasMultasPorStatus) {
@@ -261,28 +266,7 @@ public class MenuPrincipal extends JFrame {
 		campoPesquisa = new JTextField(25);
 		campoPesquisa.setPreferredSize(new Dimension(250, 35));
 
-		JButton botaoBuscar = new JButton("Buscar obra");
-
-		botaoBuscar.addActionListener(e -> {
-			String tituloBusca = this.campoPesquisa.getText();
-			if (tituloBusca.isBlank() || tituloBusca.isEmpty()) {
-				this.atualizarMateriais();
-			} else {
-				List<MaterialBibliografico> resultadoBusca;
-				try {
-					resultadoBusca = this.catalogo.listarMateriaisPorTitulo(tituloBusca);
-					this.carregarMateriais(resultadoBusca);
-				} catch (OperacaoNaoPermitidaException one) {
-					JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão",
-							JOptionPane.ERROR_MESSAGE);
-				} catch (UsuarioNaoAutenticadoException une) {
-					JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação",
-							JOptionPane.ERROR_MESSAGE);
-					dispose();
-					voltarLogin.run();
-				}
-			}
-		});
+		JButton botaoBuscar = this.createBotaoBuscar();
 
 		painelPesquisa.add(campoPesquisa);
 		painelPesquisa.add(botaoBuscar);
@@ -303,6 +287,32 @@ public class MenuPrincipal extends JFrame {
 		painelCatalogo.add(scroll, BorderLayout.CENTER);
 
 		return painelCatalogo;
+	}
+
+	private JButton createBotaoBuscar() {
+		JButton botaoBuscar = new JButton("Buscar obra");
+
+		botaoBuscar.addActionListener(e -> {
+			String tituloBusca = this.campoPesquisa.getText();
+			if (tituloBusca.isBlank()) {
+				this.atualizarMateriais();
+			} else {
+				List<MaterialBibliografico> resultadoBusca;
+				try {
+					resultadoBusca = this.catalogo.listarMateriaisPorTitulo(tituloBusca);
+					this.carregarMateriais(resultadoBusca);
+				} catch (OperacaoNaoPermitidaException one) {
+					JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão",
+							JOptionPane.ERROR_MESSAGE);
+				} catch (UsuarioNaoAutenticadoException une) {
+					JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação",
+							JOptionPane.ERROR_MESSAGE);
+					dispose();
+					voltarLogin.run();
+				}
+			}
+		});
+		return botaoBuscar;
 	}
 
 	private void carregarMateriais(List<MaterialBibliografico> materiais) {

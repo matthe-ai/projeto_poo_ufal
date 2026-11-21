@@ -52,9 +52,7 @@ public class FormularioDialog extends JDialog {
         cabecalho.setPreferredSize(new Dimension(631, 53));
 
         JLabel labelTitulo = new JLabel(
-            getTitle().startsWith("Atualizar")
-                ? getTitle()
-                : getTitle()
+                getTitle()
         );
 
         labelTitulo.setFont(new Font("Arial", Font.BOLD, 30));
@@ -84,23 +82,7 @@ public class FormularioDialog extends JDialog {
             imagem.setMaximumSize(new Dimension(109, 143));
             imagem.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            JButton botaoImagem = new JButton("Editar");
-            botaoImagem.setBackground(amarelo);
-            botaoImagem.setForeground(Color.WHITE);
-            botaoImagem.setFocusPainted(false);
-            botaoImagem.setBorderPainted(false);
-            botaoImagem.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-            botaoImagem.addActionListener(e -> {
-                JFileChooser chooser = new JFileChooser();
-
-                chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Imagens (JPG, PNG)", "jpg", "png", "jpeg"));
-
-                if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-                    imagemSelecionada = chooser.getSelectedFile();
-                    imagem.setText("Imagem selecionada");
-                }
-            });
+            JButton botaoImagem = this.createBotaoImagem(imagem);
 
             painelImagem.add(imagem);
             painelImagem.add(Box.createVerticalStrut(12));
@@ -182,6 +164,27 @@ public class FormularioDialog extends JDialog {
         painelBotoes.add(botaoConfirmar, BorderLayout.EAST);
 
         add(painelBotoes, BorderLayout.SOUTH);
+    }
+
+    private JButton createBotaoImagem(JLabel imagem) {
+        JButton botaoImagem = new JButton("Editar");
+        botaoImagem.setBackground(amarelo);
+        botaoImagem.setForeground(Color.WHITE);
+        botaoImagem.setFocusPainted(false);
+        botaoImagem.setBorderPainted(false);
+        botaoImagem.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        botaoImagem.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+
+            chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Imagens (JPG, PNG)", "jpg", "png", "jpeg"));
+
+            if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                imagemSelecionada = chooser.getSelectedFile();
+                imagem.setText("Imagem selecionada");
+            }
+        });
+        return botaoImagem;
     }
 
     public boolean isConfirmado() {
