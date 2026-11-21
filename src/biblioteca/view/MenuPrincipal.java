@@ -326,7 +326,6 @@ public class MenuPrincipal extends JFrame {
 
 		// CAPA
 		JPanel capa = new JPanel(new GridBagLayout());
-
 		capa.setPreferredSize(new Dimension(75, 90));
 		capa.setBackground(new Color(210, 210, 210));
 
@@ -335,16 +334,12 @@ public class MenuPrincipal extends JFrame {
 		capa_material = new ImageIcon(imagemRedimencionada);
 
 		capa.add(new JLabel(capa_material));
-
 		card.add(capa, BorderLayout.WEST);
 
 		// INFORMACOES
 		JPanel informacoes = new JPanel();
-
 		informacoes.setLayout(new BoxLayout(informacoes, BoxLayout.Y_AXIS));
-
 		informacoes.setBackground(Color.WHITE);
-
 		informacoes.add(new JLabel("Título: " + material.getTitulo()));
 		informacoes.add(Box.createVerticalStrut(5));
 
@@ -361,6 +356,8 @@ public class MenuPrincipal extends JFrame {
 
 		// DISPONIBILIDADE E EMPRESTIMO
 		JPanel painelAcao = new JPanel();
+		painelAcao.setPreferredSize(new Dimension(155, 100));
+		painelAcao.setMinimumSize(new Dimension(155, 100));
 
 		painelAcao.setLayout(new BoxLayout(painelAcao, BoxLayout.Y_AXIS));
 
@@ -377,44 +374,29 @@ public class MenuPrincipal extends JFrame {
 		status.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 		painelAcao.add(status);
+		painelAcao.add(Box.createVerticalStrut(8));
 
 		// O BOTAO SO APARECE SE O MATERIAL ESTIVER DISPONIVEL
 		if (material.estaDisponivel()) {
 
-			JButton botaoEmprestar = new JButton("Pedir emprestado");
+			boolean existeSolicitacaoPendente = solicitacaoEmprestimos.verificarSolicitacaoPendenteDuplicada(material.getId());
 
-			botaoEmprestar.setAlignmentX(Component.CENTER_ALIGNMENT);
+			if (existeSolicitacaoPendente) {
 
-			botaoEmprestar.addActionListener(e -> {
+				JLabel solicitadoFlag = new JLabel("Solicitado");
 
-				int opcao = JOptionPane.showConfirmDialog(this,
-						"Deseja solicitar o material \"" + material.getTitulo() + "\" para pegar emprestado?",
-						"Confirmar empréstimo", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				solicitadoFlag.setOpaque(true);
+				solicitadoFlag.setForeground(Color.BLACK);
+				solicitadoFlag.setBackground(material.estaDisponivel() ? new Color(210, 195, 100) : new Color(240, 70, 70));
+				solicitadoFlag.setBorder(new EmptyBorder(8, 10, 8, 10));
+				solicitadoFlag.setAlignmentX(Component.CENTER_ALIGNMENT);
+				painelAcao.add(solicitadoFlag);
+			} else {
 
-				if (opcao == JOptionPane.YES_OPTION) {
-					try {
-						this.solicitacaoEmprestimos.solicitarEmprestimo(material.getId());
-						this.atualizarMateriais();
-					} catch (OperacaoNaoPermitidaException one) {
-						JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão",
-								JOptionPane.ERROR_MESSAGE);
-					} catch (UsuarioNaoAutenticadoException une) {
-						JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação",
-								JOptionPane.ERROR_MESSAGE);
-						dispose();
-						voltarLogin.run();
-					} catch (RegistroNaoEncontradoException e1) {
-						JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao emprestar",
-								JOptionPane.ERROR_MESSAGE);
-					} catch (ItemDuplicadoException e1) {
-						JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao emprestar",
-								JOptionPane.ERROR_MESSAGE);
-					}
-				}
-			});
+				JButton botaoEmprestar = this.createBotaoEmprestar(material);
+				painelAcao.add(botaoEmprestar);
+			}
 
-			painelAcao.add(Box.createVerticalStrut(8));
-			painelAcao.add(botaoEmprestar);
 		}
 
 		card.add(painelAcao, BorderLayout.EAST);
@@ -426,18 +408,52 @@ public class MenuPrincipal extends JFrame {
 		painelMateriais.repaint();
 	}
 
+	private JButton createBotaoEmprestar(MaterialBibliografico material) {
+		JButton botaoEmprestar = new JButton("Pedir emprestado");
+
+		botaoEmprestar.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+		botaoEmprestar.addActionListener(e -> {
+
+			int opcao = JOptionPane.showConfirmDialog(this,
+					"Deseja solicitar o material \"" + material.getTitulo() + "\" para pegar emprestado?",
+					"Confirmar empréstimo", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+			if (opcao == JOptionPane.YES_OPTION) {
+				try {
+					this.solicitacaoEmprestimos.solicitarEmprestimo(material.getId());
+					this.atualizarMateriais();
+				} catch (OperacaoNaoPermitidaException one) {
+					JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão",
+							JOptionPane.ERROR_MESSAGE);
+				} catch (UsuarioNaoAutenticadoException une) {
+					JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação",
+							JOptionPane.ERROR_MESSAGE);
+					dispose();
+					voltarLogin.run();
+				} catch (RegistroNaoEncontradoException | ItemDuplicadoException e1) {
+					JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao emprestar",
+							JOptionPane.ERROR_MESSAGE);
+				}
+            }
+		});
+		return botaoEmprestar;
+	}
+
 	private void criarInformacoes(JPanel informacoes, Livro material) {
 		informacoes.add(new JLabel("Autor: " + material.getAutor()));
-		informacoes.add(Box.createVerticalStrut(2));
+		informacoes.add(Box.createVerticalStrut(5));
 		informacoes.add(new JLabel("Ano de publicação: " + material.getAnoPublicacao()));
-		informacoes.add(Box.createVerticalStrut(2));
-		informacoes.add(new JLabel("ISBN / Edição: " + material.getIsbn()));
+		informacoes.add(Box.createVerticalStrut(5));
+		informacoes.add(new JLabel("ISBN: " + material.getIsbn()));
 	}
 
 	private void criarInformacoes(JPanel informacoes, Periodico material) {
 		informacoes.add(new JLabel("Ano de publicação: " + material.getAnoPublicacao()));
 		informacoes.add(Box.createVerticalStrut(5));
-		informacoes.add(new JLabel("ISBN / Edição: " + material.getNumeroEdicao()));
+		informacoes.add(new JLabel("Número de edição: " + material.getNumeroEdicao()));
+		informacoes.add(Box.createVerticalStrut(5));
+		informacoes.add(new JLabel("Data de publicação: " + material.getDataPublicacao()));
 	}
 
 	private void atualizarMateriais() {

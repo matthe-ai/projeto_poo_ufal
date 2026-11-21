@@ -37,15 +37,16 @@ public class SolicitacaoEmprestimoService extends Service {
     }
 
     // Impede que o usuário spame solicitações para um mesmo material.
-    private void verificarSolicitacaoPendenteDuplicada(int materialId) throws ItemDuplicadoException {
+    public boolean verificarSolicitacaoPendenteDuplicada(int materialId) {
         List<SolicitacaoEmprestimo> solicitacoesPendentesDoUsuario =
                 solicitacaoEmprestimoRepositorio.listarPorUsuarioEStatus(sessao.getUsuarioLogado().getID(), StatusSolicitacao.PENDENTE);
 
         for (SolicitacaoEmprestimo solicitacaoEmprestimo : solicitacoesPendentesDoUsuario) {
             if (solicitacaoEmprestimo.getMaterialSolicitado().getId() == materialId) {
-                throw new ItemDuplicadoException("solicitação pendente", "material");
+                return true;
             }
         }
+        return false;
     }
 
         private void verificarMinhasMultasPendentes() throws OperacaoNaoPermitidaException, UsuarioNaoAutenticadoException, UsuarioPossuiMultasPendentes {
@@ -67,7 +68,12 @@ public class SolicitacaoEmprestimoService extends Service {
             autorizacaoService.exigirPermissao(sessao.getUsuarioLogado(), Permissao.SOLICITAR_EMPRESTIMO);
 
             MaterialBibliografico materialSolicitado = materialRepositorio.buscarPorId(materialId);
-            this.verificarSolicitacaoPendenteDuplicada(materialId);
+
+            boolean existeSolicitacaoPendenteDuplicada = this.verificarSolicitacaoPendenteDuplicada(materialId);
+            if (existeSolicitacaoPendenteDuplicada) {
+                throw new ItemDuplicadoException("solicitação pendente", "material");
+            }
+
             this.verificarMinhasMultasPendentes();
 
             SolicitacaoEmprestimo novaSolicitacao = new SolicitacaoEmprestimo(sessao.getUsuarioLogado(), materialSolicitado);
