@@ -23,10 +23,13 @@ import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -199,8 +202,34 @@ public class MenuBibliotecario extends JPanel{
         });
         
         JTextField campoNumeroEdicao = new JTextField();
+        
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<String>(new String[]{ "Tipo", "Livro", "Revista", "Jornal"}) {
+        	@Override
+        	public void setSelectedItem(Object anObject) {
+        		if ("Tipo".equals(anObject)) {
+        			return;
+        		}
+        		super.setSelectedItem(anObject);
+        	}
+        };
 
-        JComboBox<String> comboTipo = new JComboBox<String>(new String[]{ "Livro", "Revista", "Jornal"});
+        JComboBox<String> comboTipo = new JComboBox<String>(model);
+        
+        comboTipo.setRenderer(new DefaultListCellRenderer() {
+        	@Override
+        	public Component getListCellRendererComponent(
+        			JList<?> list, Object value, int index,
+        			boolean isSelected, boolean cellHasFocus) {
+        		boolean destacar = isSelected && !"Tipo".equals(value);
+        		super.getListCellRendererComponent(list, value, index, destacar, cellHasFocus);
+        		if ("Tipo".equals(value)) {
+        			setForeground(Color.GRAY);
+        		} else {
+        			setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());
+        		}
+        		return this;
+        	}
+        });
 
         // Título
         adicionarCampo(formulario, gbc, 0, "Título", campoTitulo);
