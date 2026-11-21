@@ -59,7 +59,7 @@ public class Multas extends JPanel {
         cabecalho.setOpaque(false);
         cabecalho.setBorder(new EmptyBorder(5, 0, 20, 0));
 
-        JLabel titulo = new JLabel("Solicitações");
+        JLabel titulo = new JLabel("Multas");
         titulo.setFont(new Font("Arial", Font.PLAIN, 16));
 
         JButton btnAtualizar = new JButton("Atualizar");

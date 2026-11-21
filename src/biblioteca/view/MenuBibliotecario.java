@@ -122,7 +122,7 @@ public class MenuBibliotecario extends JPanel{
 
             List<MaterialBibliografico> materiais;
 			try {
-				materiais = !(campoBuscar.isBlank() || campoBuscar.isEmpty())? this.catalogo.listarMateriaisPorTitulo(campoBuscar) : this.catalogo.listarMateriais();
+				materiais = !campoBuscar.isBlank() ? this.catalogo.listarMateriaisPorTitulo(campoBuscar) : this.catalogo.listarMateriais();
 				this.criarMateriais(materiais);
 			} catch (OperacaoNaoPermitidaException one) {
 				JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);

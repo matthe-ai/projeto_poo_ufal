@@ -37,6 +37,7 @@ import biblioteca.model.material.Livro;
 import biblioteca.model.material.MaterialBibliografico;
 import biblioteca.model.material.Periodico;
 import biblioteca.model.usuario.Cargo;
+import biblioteca.model.usuario.Usuario;
 import biblioteca.service.CatalogoService;
 import biblioteca.service.EmprestimoService;
 import biblioteca.service.MultaService;
@@ -144,7 +145,7 @@ public class MenuPrincipal extends JFrame {
 				|| this.sessao.getUsuarioLogado().getCargo() == Cargo.ADMINISTRADOR) {
 
 			JMenuItem itemGerenciar = new JMenuItem("Gerenciar materiais");
-			JMenuItem solicitacoes = new JMenuItem("Gerenciar solicitacoes");
+			JMenuItem solicitacoes = new JMenuItem("Gerenciar solicitacões");
 			JMenuItem emprestimos = new JMenuItem("Gerenciar emprestimos");
 			JMenuItem multasGerenciar = new JMenuItem("Gerenciar multas");
 
@@ -382,7 +383,7 @@ public class MenuPrincipal extends JFrame {
 
 		status.setBorder(new EmptyBorder(8, 10, 8, 10));
 		status.setAlignmentX(Component.CENTER_ALIGNMENT);
-
+		status.setAlignmentY(Component.CENTER_ALIGNMENT);
 		painelAcao.add(status);
 		painelAcao.add(Box.createVerticalStrut(8));
 
@@ -403,10 +404,13 @@ public class MenuPrincipal extends JFrame {
 				painelAcao.add(solicitadoFlag);
 			} else {
 
-				JButton botaoEmprestar = this.createBotaoEmprestar(material);
-				painelAcao.add(botaoEmprestar);
-			}
+				Cargo cargoUsuarioLogado = this.sessao.getUsuarioLogado().getCargo();
 
+				if (cargoUsuarioLogado == Cargo.LEITOR) {
+					JButton botaoEmprestar = this.createBotaoEmprestar(material);
+					painelAcao.add(botaoEmprestar);
+				}
+			}
 		}
 
 		card.add(painelAcao, BorderLayout.EAST);
