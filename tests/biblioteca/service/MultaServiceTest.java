@@ -156,7 +156,7 @@ class MultaServiceTest {
         service.pagarMulta(multa.getId());
 
         assertThrows(
-                MultaJaProcessada.class,
+                MultaJaProcessadaException.class,
                 () -> service.pagarMulta(multa.getId())
         );
     }
@@ -170,7 +170,7 @@ class MultaServiceTest {
         service.cancelarMulta(multa.getId());
 
         assertThrows(
-                MultaJaProcessada.class,
+                MultaJaProcessadaException.class,
                 () -> service.pagarMulta(multa.getId())
         );
     }
@@ -205,7 +205,7 @@ class MultaServiceTest {
         service.cancelarMulta(multa.getId());
 
         assertThrows(
-                MultaJaProcessada.class,
+                MultaJaProcessadaException.class,
                 () -> service.cancelarMulta(multa.getId())
         );
     }
@@ -219,7 +219,7 @@ class MultaServiceTest {
         service.pagarMulta(multa.getId());
 
         assertThrows(
-                MultaJaProcessada.class,
+                MultaJaProcessadaException.class,
                 () -> service.cancelarMulta(multa.getId())
         );
     }

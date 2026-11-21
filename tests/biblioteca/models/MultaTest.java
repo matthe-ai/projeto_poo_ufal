@@ -1,5 +1,5 @@
 package biblioteca.models;
-import biblioteca.exception.MultaJaProcessada;
+import biblioteca.exception.MultaJaProcessadaException;
 import biblioteca.model.Emprestimo;
 import biblioteca.model.Multa;
 import biblioteca.model.StatusEnums.StatusMulta;
@@ -105,7 +105,7 @@ class MultaTest {
         multa.registrarPagamento();
 
         assertThrows(
-                MultaJaProcessada.class,
+                MultaJaProcessadaException.class,
                 multa::registrarPagamento
         );
     }
@@ -135,7 +135,7 @@ class MultaTest {
         multa.registrarCancelamento();
 
         assertThrows(
-                MultaJaProcessada.class,
+                MultaJaProcessadaException.class,
                 multa::registrarCancelamento
         );
     }
@@ -151,7 +151,7 @@ class MultaTest {
         multa.registrarCancelamento();
 
         assertThrows(
-                MultaJaProcessada.class,
+                MultaJaProcessadaException.class,
                 multa::registrarPagamento
         );
     }
@@ -167,7 +167,7 @@ class MultaTest {
         multa.registrarPagamento();
 
         assertThrows(
-                MultaJaProcessada.class,
+                MultaJaProcessadaException.class,
                 multa::registrarCancelamento
         );
     }
