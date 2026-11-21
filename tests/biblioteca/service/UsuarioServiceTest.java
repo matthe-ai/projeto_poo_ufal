@@ -234,7 +234,7 @@ class UsuarioServiceTest {
     @Test
     void deveImpedirLoginComUsuarioInexistente() {
         assertThrowsExactly(
-                RegistroNaoEncontradoException.class,
+                CredenciaisInvalidasException.class,
                 () -> service.logar("inexistente", "123456")
         );
     }

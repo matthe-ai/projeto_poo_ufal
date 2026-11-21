@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import biblioteca.auth.SenhaHashUtil;
+import biblioteca.exception.CredenciaisInvalidasException;
 import biblioteca.exception.ItemDuplicadoException;
 import biblioteca.exception.RegistroNaoEncontradoException;
 import biblioteca.model.usuario.Cargo;
@@ -42,7 +43,7 @@ public class UsuarioRepositorio implements Repositorio<Usuario>, RepositorioRemo
 	    throw new RegistroNaoEncontradoException();
 	}
 
-	public Usuario buscarPorLogin(String login) throws RegistroNaoEncontradoException {
+	public Usuario buscarPorLogin(String login) throws CredenciaisInvalidasException {
 
 		for (Usuario usuario : usuarios) {
 			if (usuario.getLogin().equals(login)) {
@@ -50,7 +51,7 @@ public class UsuarioRepositorio implements Repositorio<Usuario>, RepositorioRemo
 			}
 		}
 
-		throw new RegistroNaoEncontradoException();
+		throw new CredenciaisInvalidasException();
 	}
 
 	public boolean existeOutroUsuarioComLogin(String login, int usuarioId) {

@@ -24,6 +24,8 @@ import biblioteca.exception.CredenciaisInvalidasException;
 import biblioteca.exception.RegistroNaoEncontradoException;
 import biblioteca.service.CatalogoService;
 import biblioteca.service.EmprestimoService;
+import biblioteca.service.MultaService;
+import biblioteca.service.SolicitacaoEmprestimoService;
 import biblioteca.service.UsuarioService;
 
 public class TelaLogin extends JFrame{
@@ -38,18 +40,22 @@ public class TelaLogin extends JFrame{
 	
 	final private UsuarioService usuarios;
 	final private CatalogoService catalogo;
-	final private EmprestimoService emprestimos;
 	final private Sessao sessao;
+	final private EmprestimoService emprestimoService;
+	final private SolicitacaoEmprestimoService solicitacaoEmprestimos;
+	final private MultaService multaService;
 	
 	// construtor
 	
-	public TelaLogin(UsuarioService usuarios, CatalogoService catalogo, EmprestimoService emprestimos, Sessao sessao) {
+	public TelaLogin(UsuarioService usuarios, CatalogoService catalogo, EmprestimoService emp, Sessao sessao, SolicitacaoEmprestimoService sol, MultaService mus) {
 		configurarJanela();
 		inicializarComponentes();
 		this.usuarios = usuarios;
 		this.catalogo = catalogo;
-		this.emprestimos = emprestimos;
+		this.emprestimoService = emp;
 		this.sessao = sessao;
+		this.solicitacaoEmprestimos = sol;
+		this.multaService = mus;
 	}
 	
 	private void configurarJanela() {
@@ -137,7 +143,15 @@ public class TelaLogin extends JFrame{
         	String senhaDigitada = new String(this.senha.getPassword());
         	try {
 				this.usuarios.logar(loginDigitado, senhaDigitada);
-				MenuPrincipal tela = new MenuPrincipal(this.sessao, this.usuarios, this.catalogo, this.emprestimos, () -> this.setVisible(true));
+				MenuPrincipal tela = new MenuPrincipal(
+						this.sessao,
+						this.usuarios,
+						this.catalogo,
+						this.emprestimoService,
+						() -> this.setVisible(true),
+						this.solicitacaoEmprestimos,
+						this.multaService
+						);
 
                 this.setVisible(false);
                 tela.setVisible(true);
@@ -146,9 +160,9 @@ public class TelaLogin extends JFrame{
 			} catch (InvalidKeySpecException e1) {
 				JOptionPane.showMessageDialog(this, "Algum erro aconteceu", "ERRO", JOptionPane.ERROR_MESSAGE);
 			} catch (CredenciaisInvalidasException e1) {
-				JOptionPane.showMessageDialog(this, "Credenciais inválidas", e1.getMessage(), JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro de credenciais", JOptionPane.ERROR_MESSAGE);
 			} catch (RegistroNaoEncontradoException e1) {
-				JOptionPane.showMessageDialog(this, "Registro não encontrado", e1.getMessage(), JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao buscar registro", JOptionPane.ERROR_MESSAGE);
 			}
         });
 

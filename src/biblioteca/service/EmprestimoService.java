@@ -4,8 +4,8 @@ import biblioteca.auth.Sessao;
 import biblioteca.exception.*;
 import biblioteca.model.Emprestimo;
 import biblioteca.model.Multa;
-import biblioteca.model.StatusEmprestimo;
-import biblioteca.model.StatusMulta;
+import biblioteca.model.StatusEnums.StatusEmprestimo;
+import biblioteca.model.StatusEnums.StatusMulta;
 import biblioteca.model.material.Livro;
 import biblioteca.model.material.MaterialBibliografico;
 import biblioteca.model.material.Periodico;
@@ -100,7 +100,7 @@ public class EmprestimoService extends Service {
             RegistroNaoEncontradoException,
             MaterialIndisponivelException,
             LimiteEmprestimosException,
-            ItemDuplicadoException {
+            ItemDuplicadoException, UsuarioPossuiMultasPendentes {
 
         this.verificarAutenticacao();
         autorizacaoService.exigirPermissao(sessao.getUsuarioLogado(), Permissao.REGISTRAR_EMPRESTIMO);

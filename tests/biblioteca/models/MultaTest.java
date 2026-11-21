@@ -1,8 +1,8 @@
 package biblioteca.models;
-import biblioteca.exception.MultaJaProcessada;
+import biblioteca.exception.MultaJaProcessadaException;
 import biblioteca.model.Emprestimo;
 import biblioteca.model.Multa;
-import biblioteca.model.StatusMulta;
+import biblioteca.model.StatusEnums.StatusMulta;
 import biblioteca.model.material.Livro;
 import biblioteca.model.usuario.Cargo;
 import biblioteca.model.usuario.Usuario;
@@ -81,7 +81,7 @@ class MultaTest {
     }
 
     @Test
-    void deveRegistrarPagamento() {
+    void deveRegistrarPagamento() throws MultaJaProcessadaException {
         Multa multa = new Multa(
                 5,
                 new BigDecimal("10.00"),
@@ -95,7 +95,7 @@ class MultaTest {
     }
 
     @Test
-    void naoDeveRegistrarPagamentoDuasVezes() {
+    void naoDeveRegistrarPagamentoDuasVezes() throws MultaJaProcessadaException {
         Multa multa = new Multa(
                 5,
                 new BigDecimal("10.00"),
@@ -105,13 +105,13 @@ class MultaTest {
         multa.registrarPagamento();
 
         assertThrows(
-                MultaJaProcessada.class,
+                MultaJaProcessadaException.class,
                 multa::registrarPagamento
         );
     }
 
     @Test
-    void deveRegistrarCancelamento() {
+    void deveRegistrarCancelamento() throws MultaJaProcessadaException {
         Multa multa = new Multa(
                 5,
                 new BigDecimal("10.00"),
@@ -125,7 +125,7 @@ class MultaTest {
     }
 
     @Test
-    void naoDeveCancelarMultaDuasVezes() {
+    void naoDeveCancelarMultaDuasVezes() throws MultaJaProcessadaException {
         Multa multa = new Multa(
                 5,
                 new BigDecimal("10.00"),
@@ -135,13 +135,13 @@ class MultaTest {
         multa.registrarCancelamento();
 
         assertThrows(
-                MultaJaProcessada.class,
+                MultaJaProcessadaException.class,
                 multa::registrarCancelamento
         );
     }
 
     @Test
-    void naoDevePagarMultaCancelada() {
+    void naoDevePagarMultaCancelada() throws MultaJaProcessadaException {
         Multa multa = new Multa(
                 5,
                 new BigDecimal("10.00"),
@@ -151,13 +151,13 @@ class MultaTest {
         multa.registrarCancelamento();
 
         assertThrows(
-                MultaJaProcessada.class,
+                MultaJaProcessadaException.class,
                 multa::registrarPagamento
         );
     }
 
     @Test
-    void naoDeveCancelarMultaPaga() {
+    void naoDeveCancelarMultaPaga() throws MultaJaProcessadaException {
         Multa multa = new Multa(
                 5,
                 new BigDecimal("10.00"),
@@ -167,7 +167,7 @@ class MultaTest {
         multa.registrarPagamento();
 
         assertThrows(
-                MultaJaProcessada.class,
+                MultaJaProcessadaException.class,
                 multa::registrarCancelamento
         );
     }
