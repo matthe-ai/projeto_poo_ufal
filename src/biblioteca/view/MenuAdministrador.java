@@ -105,9 +105,9 @@ public class MenuAdministrador extends JPanel{
 						resultado = this.usuarios.listarUsuariosPorNome(pesquisa);
 						this.criarUsuarios(resultado, pesquisa, "nome");
 					} catch (OperacaoNaoPermitidaException one) {
-						JOptionPane.showMessageDialog(this, "Você não tem permissão para realizar essa operação", one.getMessage(), JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);
 					} catch (UsuarioNaoAutenticadoException une) {
-						JOptionPane.showMessageDialog(this, "Você não está autenticado", une.getMessage(), JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação", JOptionPane.ERROR_MESSAGE);
 						voltarLogin.run();
 					}
             		break;
@@ -116,9 +116,9 @@ public class MenuAdministrador extends JPanel{
 						resultado = this.usuarios.listarUsuariosPorLogin(pesquisa);
 						this.criarUsuarios(resultado, pesquisa, "login");
 					} catch (OperacaoNaoPermitidaException one) {
-						JOptionPane.showMessageDialog(this, "Você não tem permissão para realizar essa operação", one.getMessage(), JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);
 					} catch (UsuarioNaoAutenticadoException une) {
-						JOptionPane.showMessageDialog(this, "Você não está autenticado", une.getMessage(), JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação", JOptionPane.ERROR_MESSAGE);
 						voltarLogin.run();
 					}
             		break;
@@ -223,11 +223,11 @@ public class MenuAdministrador extends JPanel{
 			} catch (CredenciaisInvalidasException e1) {
 				JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro nas credenciais digitadas", JOptionPane.ERROR_MESSAGE);
 			} catch (ItemDuplicadoException e1) {
-				JOptionPane.showMessageDialog(this, "Este login já está em uso, escolha outro", "Login já usado", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao cadastrar/atualizar", JOptionPane.ERROR_MESSAGE);
 			} catch (OperacaoNaoPermitidaException one) {
-				JOptionPane.showMessageDialog(this, "Você não tem permissão para realizar essa operação", one.getMessage(), JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);
 			} catch (UsuarioNaoAutenticadoException une) {
-				JOptionPane.showMessageDialog(this, "Você não está autenticado", une.getMessage(), JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação", JOptionPane.ERROR_MESSAGE);
 				voltarLogin.run();
 			}
 	    });
@@ -324,14 +324,14 @@ public class MenuAdministrador extends JPanel{
 							this.criarUsuarios(this.usuarios.listarUsuariosPorLogin(busca), busca, criterio);
 						}
 					} catch (RegistroNaoEncontradoException e1) {
-						JOptionPane.showMessageDialog(this, "Não foi foi possível encontrar o usuario para deletar", "Erro ao remover usuario", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao remover usuario", JOptionPane.ERROR_MESSAGE);
 					} catch (OperacaoNaoPermitidaException one) {
-						JOptionPane.showMessageDialog(this, "Você não tem permissão para realizar essa operação", one.getMessage(), JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);
 					} catch (UsuarioNaoAutenticadoException une) {
-						JOptionPane.showMessageDialog(this, "Você não está autenticado", une.getMessage(), JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação", JOptionPane.ERROR_MESSAGE);
 						voltarLogin.run();
 					} catch (UsuarioPossuiEmprestimosAtivosException e1) {
-						JOptionPane.showMessageDialog(this, "Não é possivel remover este usuario pois ele possui emprestimos ativos", "Erro ao remover usuario", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao remover usuario", JOptionPane.ERROR_MESSAGE);
 					}
             	}
             });

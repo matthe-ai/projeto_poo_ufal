@@ -33,8 +33,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
-import javax.swing.text.AbstractDocument;
-
 import biblioteca.exception.CredenciaisInvalidasException;
 import biblioteca.exception.ItemDuplicadoException;
 import biblioteca.exception.MaterialIndisponivelException;
@@ -47,7 +45,6 @@ import biblioteca.model.material.MaterialBibliografico;
 import biblioteca.model.material.Periodico;
 import biblioteca.model.material.TipoPeriodico;
 import biblioteca.service.CatalogoService;
-import biblioteca.view.utils.FiltroData;
 
 public class MenuBibliotecario extends JPanel{
 	
@@ -124,9 +121,9 @@ public class MenuBibliotecario extends JPanel{
 				materiais = !(campoBuscar.isBlank() || campoBuscar.isEmpty())? this.catalogo.listarMateriaisPorTitulo(campoBuscar) : this.catalogo.listarMateriais();
 				this.criarMateriais(materiais);
 			} catch (OperacaoNaoPermitidaException one) {
-				JOptionPane.showMessageDialog(this, "Você não tem permissão para realizar essa operação", one.getMessage(), JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);
 			} catch (UsuarioNaoAutenticadoException une) {
-				JOptionPane.showMessageDialog(this, "Você não está autenticado", une.getMessage(), JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação", JOptionPane.ERROR_MESSAGE);
 				voltarLogin.run();
 			}
         });
@@ -180,8 +177,6 @@ public class MenuBibliotecario extends JPanel{
         JTextField campoAutor = new JTextField();
         JTextField campoISBN = new JTextField();
         JTextField campoDataPublicacao = new JTextField();
-        
-        ((AbstractDocument) campoDataPublicacao.getDocument()).setDocumentFilter(new FiltroData());
         
         campoDataPublicacao.addActionListener(e -> {
         	String data = campoDataPublicacao.getText();
@@ -339,14 +334,14 @@ public class MenuBibliotecario extends JPanel{
 	        		} catch (NumberFormatException e1) {
 						JOptionPane.showMessageDialog(this, "O ano digitado deve ser númerico", "Erro de digitação", JOptionPane.ERROR_MESSAGE);
 					} catch (OperacaoNaoPermitidaException one) {
-						JOptionPane.showMessageDialog(this, "Você não tem permissão para realizar essa operação", one.getMessage(), JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);
 					} catch (UsuarioNaoAutenticadoException une) {
-						JOptionPane.showMessageDialog(this, "Você não está autenticado", une.getMessage(), JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação", JOptionPane.ERROR_MESSAGE);
 						voltarLogin.run();
 	        		} catch (ItemDuplicadoException ide) {
-        				JOptionPane.showMessageDialog(this, "Esta obra já existe!", "Obra duplicada", JOptionPane.ERROR_MESSAGE);
+        				JOptionPane.showMessageDialog(this, ide.getMessage(), "Erro de cadastro/atualização", JOptionPane.ERROR_MESSAGE);
 	        		} catch (CredenciaisInvalidasException cie) {
-        				JOptionPane.showMessageDialog(this, "Algum dado digitado é inválido!", "Dados inválidos", JOptionPane.ERROR_MESSAGE);
+        				JOptionPane.showMessageDialog(this, cie.getMessage(), "Erro de cadastro/atualização", JOptionPane.ERROR_MESSAGE);
 	        		}
 	        		break;
 	        	} case "Revista", "Jornal": {
@@ -371,14 +366,14 @@ public class MenuBibliotecario extends JPanel{
 	        		} catch (NumberFormatException e1) {
 						JOptionPane.showMessageDialog(this, "O ano digitado e o número de edição devem ser númerico", "Erro de digitação", JOptionPane.ERROR_MESSAGE);
 					} catch (OperacaoNaoPermitidaException one) {
-						JOptionPane.showMessageDialog(this, "Você não tem permissão para realizar essa operação", one.getMessage(), JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);
 					} catch (UsuarioNaoAutenticadoException une) {
-						JOptionPane.showMessageDialog(this, "Você não está autenticado", une.getMessage(), JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação", JOptionPane.ERROR_MESSAGE);
 						voltarLogin.run();
 	        		} catch (ItemDuplicadoException ide) {
-	        			JOptionPane.showMessageDialog(this, "Esta obra já existe!", "Obra duplicada", JOptionPane.ERROR_MESSAGE);
+        				JOptionPane.showMessageDialog(this, ide.getMessage(), "Erro de cadastro/atualização", JOptionPane.ERROR_MESSAGE);
 	        		} catch (CredenciaisInvalidasException cie) {
-	        			JOptionPane.showMessageDialog(this, "Algum dado digitado é inválido!", "Dados inválidos", JOptionPane.ERROR_MESSAGE);
+        				JOptionPane.showMessageDialog(this, cie.getMessage(), "Erro de cadastro/atualização", JOptionPane.ERROR_MESSAGE);
 	        		}
 	        		break;
 	        	}
@@ -523,14 +518,14 @@ public class MenuBibliotecario extends JPanel{
                         this.catalogo.removerMaterial(material.getId());
                         this.criarMateriais(this.catalogo.listarMateriaisPorTitulo(this.campoBuscar));
                     } catch (OperacaoNaoPermitidaException one) {
-                        JOptionPane.showMessageDialog(this,one.getMessage(),"Erro de permissão",JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this, one.getMessage(),"Erro de permissão",JOptionPane.ERROR_MESSAGE);
                     } catch (RegistroNaoEncontradoException e1) {
-                        JOptionPane.showMessageDialog(this,e1.getMessage(),"Erro de busca",JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this, e1.getMessage(),"Erro de busca",JOptionPane.ERROR_MESSAGE);
                     } catch (UsuarioNaoAutenticadoException une) {
-                        JOptionPane.showMessageDialog(this,une.getMessage(),"Erro de autenticação",JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this, une.getMessage(),"Erro de autenticação",JOptionPane.ERROR_MESSAGE);
                         voltarLogin.run();
                     } catch (MaterialIndisponivelException mie) {
-                        JOptionPane.showMessageDialog(this,mie.getMessage(),"Erro ao remover",JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this, mie.getMessage(),"Erro ao remover",JOptionPane.ERROR_MESSAGE);
                     }
                 }
             });
@@ -612,16 +607,16 @@ public class MenuBibliotecario extends JPanel{
             try {
 				this.catalogo.atualizarLivro(titulo, ano, autor, isbn, editora, material.getId(), novaCapaPath);
 			} catch (OperacaoNaoPermitidaException one) {
-                JOptionPane.showMessageDialog(popup,one.getMessage(),"Erro de permissão",JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(popup, one.getMessage(),"Erro de permissão",JOptionPane.ERROR_MESSAGE);
             } catch (RegistroNaoEncontradoException e1) {
-                JOptionPane.showMessageDialog(popup,e1.getMessage(),"Erro de busca",JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(popup, e1.getMessage(),"Erro de busca",JOptionPane.ERROR_MESSAGE);
             } catch (UsuarioNaoAutenticadoException une) {
-                JOptionPane.showMessageDialog(popup,une.getMessage(),"Erro de autenticação",JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(popup, une.getMessage(),"Erro de autenticação",JOptionPane.ERROR_MESSAGE);
                 voltarLogin.run();
             } catch (TipoMaterialInvalidoException e) {
 				JOptionPane.showMessageDialog(popup, e.getMessage(), "Erro no tipo de material", JOptionPane.ERROR_MESSAGE);
 			} catch (CredenciaisInvalidasException cie) {
-    			JOptionPane.showMessageDialog(popup, "Algum dado digitado é inválido!", "Dados inválidos", JOptionPane.ERROR_MESSAGE);
+    			JOptionPane.showMessageDialog(popup, cie.getMessage(), "Erro de cadastro/atualização", JOptionPane.ERROR_MESSAGE);
     		}
         }
     }
@@ -691,7 +686,7 @@ public class MenuBibliotecario extends JPanel{
             } catch (TipoMaterialInvalidoException e) {
 				JOptionPane.showMessageDialog(popup, e.getMessage(), "Erro no tipo de material", JOptionPane.ERROR_MESSAGE);
 			} catch (CredenciaisInvalidasException cie) {
-    			JOptionPane.showMessageDialog(popup, "Algum dado digitado é inválido!", "Dados inválidos", JOptionPane.ERROR_MESSAGE);
+    			JOptionPane.showMessageDialog(popup, cie.getMessage(), "Erro de cadastro/atualização", JOptionPane.ERROR_MESSAGE);
     		}
         }
     }

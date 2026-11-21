@@ -157,11 +157,11 @@ public class MeusDados extends JPanel {
 				this.usuarioService.atualizarMeusDados(novoNome, novoLogin);
 				this.criarComponentes();
 			} catch (OperacaoNaoPermitidaException one) {
-				JOptionPane.showMessageDialog(this, "Você não tem permissão para realizar essa operação", one.getMessage(), JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);
 			} catch (RegistroNaoEncontradoException e1) {
 				JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao atualizar dados", JOptionPane.ERROR_MESSAGE);
 			} catch (UsuarioNaoAutenticadoException une) {
-				JOptionPane.showMessageDialog(this, "Você não está autenticado", une.getMessage(), JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação", JOptionPane.ERROR_MESSAGE);
 				voltarLogin.run();
 			} catch (CredenciaisInvalidasException e1) {
 				JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao atualizar dados", JOptionPane.ERROR_MESSAGE);
@@ -271,9 +271,9 @@ public class MeusDados extends JPanel {
 				}
 			}
 		} catch (OperacaoNaoPermitidaException one) {
-			JOptionPane.showMessageDialog(this, "Você não tem permissão para realizar essa operação", one.getMessage(), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);
 		} catch (UsuarioNaoAutenticadoException une) {
-			JOptionPane.showMessageDialog(this, "Você não está autenticado", une.getMessage(), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação", JOptionPane.ERROR_MESSAGE);
 			voltarLogin.run();
 		}
 	}
@@ -340,13 +340,13 @@ public class MeusDados extends JPanel {
 					this.emprestimos.registrarDevolucao(emprestimo.getId());
 					this.criarComponentes();
 				} catch (OperacaoNaoPermitidaException one) {
-					JOptionPane.showMessageDialog(this, "Você não tem permissão para realizar essa operação", one.getMessage(), JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);
 				} catch (RegistroNaoEncontradoException e1) {
 					JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao devolver", JOptionPane.ERROR_MESSAGE);
 				} catch (MaterialDevolvidoException e1) {
 					JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao devolver", JOptionPane.ERROR_MESSAGE);
 				} catch (UsuarioNaoAutenticadoException une) {
-					JOptionPane.showMessageDialog(this, "Você não está autenticado", une.getMessage(), JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação", JOptionPane.ERROR_MESSAGE);
 					voltarLogin.run();
 				} catch (ItemDuplicadoException ex) {
                     throw new RuntimeException(ex);
