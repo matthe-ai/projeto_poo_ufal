@@ -64,7 +64,7 @@ public class EmprestimoService extends Service {
         }
     }
 
-    private void verificarMultasPendentesDoUsuario(int usuarioId) throws UsuarioPossuiMultasPendentes, OperacaoNaoPermitidaException, UsuarioNaoAutenticadoException {
+    protected void verificarMultasPendentesDoUsuario(int usuarioId) throws UsuarioPossuiMultasPendentes, OperacaoNaoPermitidaException, UsuarioNaoAutenticadoException {
 
         List<Multa> multasPendentesDoUsuario = multaService.listarMultasPorUsuarioEStatus(usuarioId, StatusMulta.PENDENTE);
 

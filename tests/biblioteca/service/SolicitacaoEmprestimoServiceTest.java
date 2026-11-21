@@ -3,6 +3,8 @@ package biblioteca.service;
 
 import biblioteca.auth.Sessao;
 import biblioteca.exception.*;
+import biblioteca.model.Emprestimo;
+import biblioteca.model.Multa;
 import biblioteca.model.SolicitacaoEmprestimo;
 import biblioteca.model.StatusEnums.StatusSolicitacao;
 import biblioteca.model.material.Livro;
@@ -11,20 +13,23 @@ import biblioteca.model.usuario.Usuario;
 import biblioteca.repository.*;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.nio.file.Path;
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class SolicitacaoEmprestimoServiceTest {
 
     private SolicitacaoEmprestimoService service;
-
     private SolicitacaoEmprestimoRepositorio solicitacaoRepositorio;
     private EmprestimoRepositorio emprestimoRepositorio;
+    private MaterialRepositorio materialRepositorio;
     private UsuarioRepositorio usuarioRepositorio;
-
+    private MultaRepositorio multaRepositorio;
     private Sessao sessao;
 
     private Usuario leitor;
@@ -37,10 +42,10 @@ class SolicitacaoEmprestimoServiceTest {
     void setUp() throws Exception {
 
         solicitacaoRepositorio = new SolicitacaoEmprestimoRepositorio();
-        MaterialRepositorio materialRepositorio = new MaterialRepositorio();
+        materialRepositorio = new MaterialRepositorio();
         emprestimoRepositorio = new EmprestimoRepositorio();
         usuarioRepositorio = new UsuarioRepositorio();
-        MultaRepositorio multaRepositorio = new MultaRepositorio();
+        multaRepositorio = new MultaRepositorio();
         sessao = new Sessao();
         Sessao sessaoEmprestimo = new Sessao();
         AutorizacaoService autorizacaoService = new AutorizacaoService();
@@ -523,5 +528,53 @@ class SolicitacaoEmprestimoServiceTest {
                 UsuarioNaoAutenticadoException.class,
                 () -> service.aprovarSolicitacao(1)
         );
+    }
+
+    @Test
+    @DisplayName("Não deve permitir solicitar empréstimo quando o usuário possui multas pendentes")
+    void deveImpedirSolicitacaoDeEmprestimoQuandoUsuarioPossuiMultasPendentes() throws Exception {
+        // Arrange
+        Usuario usuario = new Usuario(
+                "João",
+                "joao@email.com",
+                "123456",
+                Cargo.LEITOR
+        );
+
+        sessao.iniciarSessao(usuario);
+
+        Livro livro = new Livro(
+                "Refactoring",
+                1999,
+                "Martin Fowler",
+                "9780201485677",
+                "Addison-Wesley",
+                Path.of(MaterialRepositorio.uploadsDirectory, "clean_code.jpg")
+        );
+
+        materialRepositorio.adicionar(livro);
+
+        // Cria um empréstimo com multa pendente para o usuário
+        Emprestimo emprestimo = new Emprestimo(
+                LocalDate.now().plusDays(EmprestimoService.PRAZO_EMPRESTIMO_LIVRO),
+                livro,
+                usuario
+        );
+
+        Multa multa = new Multa(
+                5,
+                new BigDecimal("10.0"),
+                emprestimo
+        );
+
+        multaRepositorio.adicionar(multa);
+
+        // Act & Assert
+        assertThrows(
+                UsuarioPossuiMultasPendentes.class,
+                () -> service.solicitarEmprestimo(livro.getId())
+        );
+
+        assertTrue(solicitacaoRepositorio.listarTodos().isEmpty());
     }
 }
