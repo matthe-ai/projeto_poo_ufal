@@ -162,7 +162,8 @@ public class MenuPrincipal extends JFrame {
 				|| this.sessao.getUsuarioLogado().getCargo() == Cargo.ADMINISTRADOR) {
 
 			JMenuItem itemGerenciar = new JMenuItem("Gerenciar materiais");
-			JMenuItem solicitacoes = new JMenuItem("Solicitacoes");
+			JMenuItem solicitacoes = new JMenuItem("Gerenciar solicitacoes");
+			JMenuItem emprestimos = new JMenuItem("Gerenciar emprestimos");
 			JMenuItem multasGerenciar = new JMenuItem("Gerenciar multas");
 
 			itemGerenciar.addActionListener(e -> {
@@ -173,6 +174,10 @@ public class MenuPrincipal extends JFrame {
 				cardLayout.show(painelCentral, "SOLICITACOES");
 			});
 			
+			emprestimos.addActionListener(e -> {
+				cardLayout.show(painelCentral, "EMPRESTIMOS");
+			});
+			
 			multasGerenciar.addActionListener(e -> {
 				cardLayout.show(painelCentral, "MULTAS");
 			});
@@ -181,6 +186,7 @@ public class MenuPrincipal extends JFrame {
 
 			menuPrincipal.add(itemGerenciar);
 			menuPrincipal.add(solicitacoes);
+			menuPrincipal.add(emprestimos);
 		}
 
 		// SOMENTE ADMINISTRADOR
@@ -233,6 +239,7 @@ public class MenuPrincipal extends JFrame {
 			painelCentral.add(new MenuBibliotecario(this.catalogo, voltarLogin), "BIBLIOTECARIO");
 			painelCentral.add(new Solicitacoes(this.solicitacaoEmprestimos, voltarLogin), "SOLICITACOES");
 			painelCentral.add(new Multas(multaService, voltarLogin), "MULTAS");
+			painelCentral.add(new Emprestimos(this.emprestimos, voltarLogin), "EMPRESTIMOS");
 		}
 
 		// Adiciona a tela do administrador
