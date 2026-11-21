@@ -104,7 +104,7 @@ public class MenuBibliotecario extends JPanel{
         // Campo de pesquisa e botão
         JPanel painelPesquisa = new JPanel(new BorderLayout(28, 0));
         painelPesquisa.setBackground(new Color(220, 220, 220));
-        painelPesquisa.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        painelPesquisa.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
         painelPesquisa.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JTextField campoPesquisa = new JTextField();
@@ -245,14 +245,16 @@ public class MenuBibliotecario extends JPanel{
         gbc.fill = GridBagConstraints.NONE;
         formulario.add(new JLabel("Ano de publicação"), gbc);
 
-        JPanel painelAnoTipo = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        JPanel painelAnoTipo = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         painelAnoTipo.setBackground(new Color(220, 220, 220));
 
         campoAno.setPreferredSize(new Dimension(80, 25));
         comboTipo.setPreferredSize(new Dimension(100, 25));
 
         painelAnoTipo.add(campoAno);
+        painelAnoTipo.add(Box.createHorizontalStrut(10));
         painelAnoTipo.add(comboTipo);
+        painelAnoTipo.setAlignmentX(LEFT_ALIGNMENT);
 
         gbc.gridx = 1;
         gbc.weightx = 1;
@@ -260,17 +262,22 @@ public class MenuBibliotecario extends JPanel{
         formulario.add(painelAnoTipo, gbc);
 
         comboTipo.addActionListener(e -> {
-            if (Objects.equals(comboTipo.getSelectedItem(), "Livro")) {
-                removerCampo(formulario, labelDataPublicacao, campoDataPublicacao);
 
-                adicionarCampo(formulario, gbc, 3, labelAutor, campoAutor);
-                adicionarCampo(formulario, gbc, 4, labelISBN, campoISBN);
-            } else {
-                removerCampo(formulario, labelAutor, campoAutor);
-                removerCampo(formulario, labelISBN, campoISBN);
+            if (!Objects.equals(comboTipo.getSelectedItem(), "Tipo")) {
 
-                adicionarCampo(formulario, gbc, 3, labelDataPublicacao, campoDataPublicacao);
+                if (Objects.equals(comboTipo.getSelectedItem(), "Livro")) {
+                    removerCampo(formulario, labelDataPublicacao, campoDataPublicacao);
+
+                    adicionarCampo(formulario, gbc, 3, labelAutor, campoAutor);
+                    adicionarCampo(formulario, gbc, 4, labelISBN, campoISBN);
+                } else {
+                    removerCampo(formulario, labelAutor, campoAutor);
+                    removerCampo(formulario, labelISBN, campoISBN);
+
+                    adicionarCampo(formulario, gbc, 3, labelDataPublicacao, campoDataPublicacao);
+                }
             }
+
             formulario.revalidate();
             formulario.repaint();
         });
