@@ -1,5 +1,6 @@
 package biblioteca.model;
 
+import biblioteca.model.StatusEnums.StatusSolicitacao;
 import biblioteca.model.material.MaterialBibliografico;
 import biblioteca.model.usuario.Usuario;
 

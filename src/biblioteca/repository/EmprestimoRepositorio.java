@@ -6,7 +6,7 @@ import java.util.List;
 import biblioteca.exception.ItemDuplicadoException;
 import biblioteca.exception.RegistroNaoEncontradoException;
 import biblioteca.model.Emprestimo;
-import biblioteca.model.StatusEmprestimo;
+import biblioteca.model.StatusEnums.StatusEmprestimo;
 
 public class EmprestimoRepositorio implements Repositorio<Emprestimo> {
 

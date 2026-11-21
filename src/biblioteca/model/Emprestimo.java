@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Random;
 
 import biblioteca.exception.MaterialDevolvidoException;
+import biblioteca.model.StatusEnums.StatusEmprestimo;
 import biblioteca.model.material.MaterialBibliografico;
 import biblioteca.model.usuario.Usuario;
 

@@ -1,4 +1,4 @@
-package biblioteca.model;
+package biblioteca.model.StatusEnums;
 
 public enum StatusEmprestimo {
 	ATIVO,

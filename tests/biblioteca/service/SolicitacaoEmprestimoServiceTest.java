@@ -4,7 +4,7 @@ package biblioteca.service;
 import biblioteca.auth.Sessao;
 import biblioteca.exception.*;
 import biblioteca.model.SolicitacaoEmprestimo;
-import biblioteca.model.StatusSolicitacao;
+import biblioteca.model.StatusEnums.StatusSolicitacao;
 import biblioteca.model.material.Livro;
 import biblioteca.model.usuario.Cargo;
 import biblioteca.model.usuario.Usuario;

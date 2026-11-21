@@ -55,7 +55,7 @@ public class Main {
 			final SolicitacaoEmprestimoService solicitacaoService = new SolicitacaoEmprestimoService(autorizacaoService, sessao, solicitacaoRepositorio, materialRepositorio, emprestimoService);
 
 			// Tela inicial
-			TelaLogin telalogin = new TelaLogin(usuarioService, catalogoService, emprestimoService, sessao, solicitacaoService);
+			TelaLogin telalogin = new TelaLogin(usuarioService, catalogoService, emprestimoService, sessao, solicitacaoService, multaService);
 			telalogin.setVisible(true);
 		});
 

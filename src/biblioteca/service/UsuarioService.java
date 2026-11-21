@@ -4,7 +4,7 @@ import biblioteca.auth.SenhaHashUtil;
 import biblioteca.auth.Sessao;
 import biblioteca.exception.*;
 import biblioteca.model.Emprestimo;
-import biblioteca.model.StatusEmprestimo;
+import biblioteca.model.StatusEnums.StatusEmprestimo;
 import biblioteca.model.usuario.Cargo;
 import biblioteca.model.usuario.Permissao;
 import biblioteca.model.usuario.Usuario;

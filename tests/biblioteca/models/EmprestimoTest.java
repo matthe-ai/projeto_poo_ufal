@@ -6,7 +6,7 @@ import biblioteca.exception.MaterialDevolvidoException;
 import org.junit.jupiter.api.Test;
 
 import biblioteca.model.Emprestimo;
-import biblioteca.model.StatusEmprestimo;
+import biblioteca.model.StatusEnums.StatusEmprestimo;
 
 public class EmprestimoTest {
 

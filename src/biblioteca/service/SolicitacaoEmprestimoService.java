@@ -3,7 +3,7 @@ package biblioteca.service;
 import biblioteca.auth.Sessao;
 import biblioteca.exception.*;
 import biblioteca.model.SolicitacaoEmprestimo;
-import biblioteca.model.StatusSolicitacao;
+import biblioteca.model.StatusEnums.StatusSolicitacao;
 import biblioteca.model.material.MaterialBibliografico;
 import biblioteca.model.usuario.Permissao;
 import biblioteca.repository.MaterialRepositorio;

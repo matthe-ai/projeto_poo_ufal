@@ -3,8 +3,7 @@ package biblioteca.repository;
 import biblioteca.exception.ItemDuplicadoException;
 import biblioteca.exception.RegistroNaoEncontradoException;
 import biblioteca.model.Multa;
-import biblioteca.model.StatusMulta;
-
+import biblioteca.model.StatusEnums.StatusMulta;
 
 import java.util.ArrayList;
 import java.util.List;

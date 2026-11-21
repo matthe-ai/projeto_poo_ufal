@@ -2,6 +2,7 @@ package biblioteca.model;
 
 
 import biblioteca.exception.MultaJaProcessada;
+import biblioteca.model.StatusEnums.StatusMulta;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

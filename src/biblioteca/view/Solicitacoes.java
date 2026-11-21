@@ -25,7 +25,7 @@ import biblioteca.exception.RegistroNaoEncontradoException;
 import biblioteca.exception.SolicitacaoJaProcessadaException;
 import biblioteca.exception.UsuarioNaoAutenticadoException;
 import biblioteca.model.SolicitacaoEmprestimo;
-import biblioteca.model.StatusSolicitacao;
+import biblioteca.model.StatusEnums.StatusSolicitacao;
 import biblioteca.service.SolicitacaoEmprestimoService;
 
 public class Solicitacoes extends JPanel {
