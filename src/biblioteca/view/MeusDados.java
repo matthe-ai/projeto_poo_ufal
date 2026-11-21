@@ -3,7 +3,6 @@ package biblioteca.view;
 import biblioteca.auth.Sessao;
 import biblioteca.exception.CredenciaisInvalidasException;
 import biblioteca.exception.ItemDuplicadoException;
-import biblioteca.exception.MaterialDevolvidoException;
 import biblioteca.exception.OperacaoNaoPermitidaException;
 import biblioteca.exception.RegistroNaoEncontradoException;
 import biblioteca.exception.UsuarioNaoAutenticadoException;
@@ -46,8 +45,6 @@ public class MeusDados extends JPanel {
     final private EmprestimoService emprestimos;
     final private UsuarioService usuarioService;
     final private SolicitacaoEmprestimoService solicitacaoEmprestimos;
-    
-    private JPanel painelEmprestimos;
     
     final private Runnable voltarLogin;
     
@@ -326,36 +323,7 @@ public class MeusDados extends JPanel {
 	    	    "</html>"
 	    		);
 	
-	    // Botão de devolução
-	    JButton botaoDevolver = new JButton("Devolver");
-	
-	    botaoDevolver.setBorderPainted(false);
-	    botaoDevolver.setContentAreaFilled(false);
-	    botaoDevolver.setFocusPainted(false);
-	
-	    botaoDevolver.addActionListener(e -> {
-	    	int opcao = JOptionPane.showConfirmDialog(this, "Deseja devolver este material?", "Confirmar devolução", JOptionPane.YES_NO_OPTION);
-	    	if (opcao == JOptionPane.YES_OPTION) {
-	    		try {
-					this.emprestimos.registrarDevolucao(emprestimo.getId());
-					this.criarComponentes();
-				} catch (OperacaoNaoPermitidaException one) {
-					JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);
-				} catch (RegistroNaoEncontradoException e1) {
-					JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao devolver", JOptionPane.ERROR_MESSAGE);
-				} catch (MaterialDevolvidoException e1) {
-					JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao devolver", JOptionPane.ERROR_MESSAGE);
-				} catch (UsuarioNaoAutenticadoException une) {
-					JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação", JOptionPane.ERROR_MESSAGE);
-					voltarLogin.run();
-				} catch (ItemDuplicadoException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-	    });
-	
 	    itemEmprestimo.add(informacao, BorderLayout.CENTER);
-	    itemEmprestimo.add(botaoDevolver, BorderLayout.EAST);
 	
 	    return itemEmprestimo;
 	}

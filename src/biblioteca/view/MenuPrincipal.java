@@ -374,7 +374,7 @@ public class MenuPrincipal extends JFrame {
 		// O BOTAO SO APARECE SE O MATERIAL ESTIVER DISPONIVEL
 		if (material.estaDisponivel()) {
 
-			JButton botaoEmprestar = new JButton("Emprestar");
+			JButton botaoEmprestar = new JButton("Pedir emprestado");
 
 			botaoEmprestar.setAlignmentX(Component.CENTER_ALIGNMENT);
 
