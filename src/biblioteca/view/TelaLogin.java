@@ -1,3 +1,4 @@
+
 package biblioteca.view;
 
 import java.awt.Color;
@@ -19,6 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+
 import biblioteca.auth.Sessao;
 import biblioteca.exception.CredenciaisInvalidasException;
 import biblioteca.exception.RegistroNaoEncontradoException;
@@ -28,45 +30,55 @@ import biblioteca.service.MultaService;
 import biblioteca.service.SolicitacaoEmprestimoService;
 import biblioteca.service.UsuarioService;
 
-public class TelaLogin extends JFrame{
+public class TelaLogin extends JFrame {
 
-	// atributos
-	
-	private JTextField login;
-	private JPasswordField senha;
+    // atributos
+
+    private JTextField login;
+    private JPasswordField senha;
 
     final private UsuarioService usuarios;
-	final private CatalogoService catalogo;
-	final private Sessao sessao;
-	final private EmprestimoService emprestimoService;
-	final private SolicitacaoEmprestimoService solicitacaoEmprestimos;
-	final private MultaService multaService;
-	
-	// construtor
-	
-	public TelaLogin(UsuarioService usuarios, CatalogoService catalogo, EmprestimoService emp, Sessao sessao, SolicitacaoEmprestimoService sol, MultaService mus) {
-		configurarJanela();
-		inicializarComponentes();
-		this.usuarios = usuarios;
-		this.catalogo = catalogo;
-		this.emprestimoService = emp;
-		this.sessao = sessao;
-		this.solicitacaoEmprestimos = sol;
-		this.multaService = mus;
-	}
-	
-	private void configurarJanela() {
-        setTitle("Biblioteca"); // titulo
-        setSize(500, 350); // tamanho
+    final private CatalogoService catalogo;
+    final private Sessao sessao;
+    final private EmprestimoService emprestimoService;
+    final private SolicitacaoEmprestimoService solicitacaoEmprestimos;
+    final private MultaService multaService;
+
+    // construtor
+
+    public TelaLogin(
+            UsuarioService usuarios,
+            CatalogoService catalogo,
+            EmprestimoService emp,
+            Sessao sessao,
+            SolicitacaoEmprestimoService sol,
+            MultaService mus) {
+
+        configurarJanela();
+        inicializarComponentes();
+
+        this.usuarios = usuarios;
+        this.catalogo = catalogo;
+        this.emprestimoService = emp;
+        this.sessao = sessao;
+        this.solicitacaoEmprestimos = sol;
+        this.multaService = mus;
+    }
+
+    private void configurarJanela() {
+        setTitle("Biblioteca");
+        setSize(500, 350);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
     }
-	
-	private void inicializarComponentes() {
+
+    private void inicializarComponentes() {
         JPanel painelPrincipal = new JPanel(new GridBagLayout());
         painelPrincipal.setBackground(Color.WHITE);
-        painelPrincipal.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+        painelPrincipal.setBorder(
+                BorderFactory.createEmptyBorder(25, 25, 25, 25)
+        );
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 5, 10, 5);
@@ -136,37 +148,60 @@ public class TelaLogin extends JFrame{
         estilizarBotao(blogin);
 
         blogin.addActionListener(e -> {
-        	String loginDigitado = this.login.getText();
-        	String senhaDigitada = new String(this.senha.getPassword());
-        	try {
-				this.usuarios.logar(loginDigitado, senhaDigitada);
-				MenuPrincipal tela = new MenuPrincipal(
-						this.sessao,
-						this.usuarios,
-						this.catalogo,
-						this.emprestimoService,
-						() -> this.setVisible(true),
-						this.solicitacaoEmprestimos,
-						this.multaService
-						);
+            String loginDigitado = this.login.getText();
+            String senhaDigitada = new String(this.senha.getPassword());
+
+            try {
+                this.usuarios.logar(loginDigitado, senhaDigitada);
+
+                MenuPrincipal tela = new MenuPrincipal(
+                        this.sessao,
+                        this.usuarios,
+                        this.catalogo,
+                        this.emprestimoService,
+                        () -> this.setVisible(true),
+                        this.solicitacaoEmprestimos,
+                        this.multaService
+                );
 
                 this.setVisible(false);
                 tela.setVisible(true);
-			} catch (NoSuchAlgorithmException | InvalidKeySpecException e1) {
-				JOptionPane.showMessageDialog(this, "Algum erro aconteceu", "ERRO", JOptionPane.ERROR_MESSAGE);
-			} catch (CredenciaisInvalidasException e1) {
-				JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro de credenciais", JOptionPane.ERROR_MESSAGE);
-			} catch (RegistroNaoEncontradoException e1) {
-				JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao buscar registro", JOptionPane.ERROR_MESSAGE);
-			}
+
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException e1) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Algum erro aconteceu",
+                        "ERRO",
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+            } catch (CredenciaisInvalidasException e1) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        e1.getMessage(),
+                        "Erro de credenciais",
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+            } catch (RegistroNaoEncontradoException e1) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        e1.getMessage(),
+                        "Erro ao buscar registro",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
         });
 
         painelPrincipal.add(blogin, gbc);
 
+        // Permite submeter o login pressionando Enter
+        getRootPane().setDefaultButton(blogin);
+
         add(painelPrincipal);
     }
-	
-	private void estilizarBotao(JButton botao) {
+
+    private void estilizarBotao(JButton botao) {
         botao.setFont(new Font("Arial", Font.PLAIN, 18));
         botao.setPreferredSize(new Dimension(150, 50));
         botao.setFocusPainted(false);
