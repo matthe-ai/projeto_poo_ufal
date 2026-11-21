@@ -13,7 +13,6 @@ import biblioteca.model.usuario.Usuario;
 import biblioteca.repository.*;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -46,10 +45,11 @@ class SolicitacaoEmprestimoServiceTest {
         emprestimoRepositorio = new EmprestimoRepositorio();
         usuarioRepositorio = new UsuarioRepositorio();
         multaRepositorio = new MultaRepositorio();
+
+        // Uma única sessão compartilhada entre todos os serviços.
         sessao = new Sessao();
-        Sessao sessaoEmprestimo = new Sessao();
+
         AutorizacaoService autorizacaoService = new AutorizacaoService();
-        MultaService multaService = new MultaService(autorizacaoService, sessaoEmprestimo, multaRepositorio);
 
         leitor = new Usuario(
                 "João",
@@ -89,15 +89,18 @@ class SolicitacaoEmprestimoServiceTest {
         materialRepositorio.adicionar(livro1);
         materialRepositorio.adicionar(livro2);
 
-        // A sessão do serviço de empréstimos representa o administrador.
-        sessaoEmprestimo.iniciarSessao(administrador);
+        MultaService multaService = new MultaService(
+                autorizacaoService,
+                sessao,
+                multaRepositorio
+        );
 
         EmprestimoService emprestimoService = new EmprestimoService(
                 emprestimoRepositorio,
                 materialRepositorio,
                 usuarioRepositorio,
                 autorizacaoService,
-                sessaoEmprestimo,
+                sessao,
                 multaService
         );
 
@@ -106,7 +109,8 @@ class SolicitacaoEmprestimoServiceTest {
                 sessao,
                 solicitacaoRepositorio,
                 materialRepositorio,
-                emprestimoService
+                emprestimoService,
+                multaService
         );
 
         // Inicialmente, o usuário autenticado é o leitor.
@@ -531,17 +535,17 @@ class SolicitacaoEmprestimoServiceTest {
     }
 
     @Test
-    @DisplayName("Não deve permitir solicitar empréstimo quando o usuário possui multas pendentes")
     void deveImpedirSolicitacaoDeEmprestimoQuandoUsuarioPossuiMultasPendentes() throws Exception {
+
         // Arrange
-        Usuario usuario = new Usuario(
+        Usuario usuarioLeitor = new Usuario(
                 "João",
                 "joao@email.com",
                 "123456",
                 Cargo.LEITOR
         );
 
-        sessao.iniciarSessao(usuario);
+        sessao.iniciarSessao(usuarioLeitor);
 
         Livro livro = new Livro(
                 "Refactoring",
@@ -558,7 +562,7 @@ class SolicitacaoEmprestimoServiceTest {
         Emprestimo emprestimo = new Emprestimo(
                 LocalDate.now().plusDays(EmprestimoService.PRAZO_EMPRESTIMO_LIVRO),
                 livro,
-                usuario
+                usuarioLeitor
         );
 
         Multa multa = new Multa(
@@ -570,7 +574,7 @@ class SolicitacaoEmprestimoServiceTest {
         multaRepositorio.adicionar(multa);
 
         // Act & Assert
-        assertThrows(
+        assertThrowsExactly(
                 UsuarioPossuiMultasPendentes.class,
                 () -> service.solicitarEmprestimo(livro.getId())
         );

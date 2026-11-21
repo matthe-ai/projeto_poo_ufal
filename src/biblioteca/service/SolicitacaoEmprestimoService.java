@@ -2,7 +2,9 @@ package biblioteca.service;
 
 import biblioteca.auth.Sessao;
 import biblioteca.exception.*;
+import biblioteca.model.Multa;
 import biblioteca.model.SolicitacaoEmprestimo;
+import biblioteca.model.StatusEnums.StatusMulta;
 import biblioteca.model.StatusEnums.StatusSolicitacao;
 import biblioteca.model.material.MaterialBibliografico;
 import biblioteca.model.usuario.Permissao;
@@ -16,6 +18,7 @@ public class SolicitacaoEmprestimoService extends Service {
     private final SolicitacaoEmprestimoRepositorio solicitacaoEmprestimoRepositorio;
     private final MaterialRepositorio materialRepositorio;
     private final EmprestimoService emprestimoService;
+    private final MultaService multaService;
 
     public SolicitacaoEmprestimoService
             (
@@ -23,12 +26,14 @@ public class SolicitacaoEmprestimoService extends Service {
             Sessao sessao,
             SolicitacaoEmprestimoRepositorio solicitacaoEmprestimoRepositorio,
             MaterialRepositorio materialRepositorio,
-            EmprestimoService emprestimoService
+            EmprestimoService emprestimoService,
+            MultaService multaService
             ) {
         super(autorizacaoService, sessao);
         this.solicitacaoEmprestimoRepositorio = solicitacaoEmprestimoRepositorio;
         this.materialRepositorio = materialRepositorio;
         this.emprestimoService = emprestimoService;
+        this.multaService = multaService;
     }
 
     // Impede que o usuário spame solicitações para um mesmo material.
@@ -43,24 +48,31 @@ public class SolicitacaoEmprestimoService extends Service {
         }
     }
 
-    public void solicitarEmprestimo(int materialId)
-            throws UsuarioNaoAutenticadoException,
-            OperacaoNaoPermitidaException,
-            RegistroNaoEncontradoException,
-            ItemDuplicadoException,
-            UsuarioPossuiMultasPendentes {
+        private void verificarMinhasMultasPendentes() throws OperacaoNaoPermitidaException, UsuarioNaoAutenticadoException, UsuarioPossuiMultasPendentes {
+            List<Multa> multasPendentesDoUsuarioLogado = multaService.listarMinhasMultasPorStatus(StatusMulta.PENDENTE);
 
-        this.verificarAutenticacao();
-        autorizacaoService.exigirPermissao(sessao.getUsuarioLogado(), Permissao.SOLICITAR_EMPRESTIMO);
+            if (!multasPendentesDoUsuarioLogado.isEmpty()) {
+                throw new UsuarioPossuiMultasPendentes();
+            }
+        }
 
-        MaterialBibliografico materialSolicitado = materialRepositorio.buscarPorId(materialId);
-        this.verificarSolicitacaoPendenteDuplicada(materialId);
-        int usuarioId = sessao.getUsuarioLogado().getID();
-        emprestimoService.verificarMultasPendentesDoUsuario(usuarioId);
+        public void solicitarEmprestimo(int materialId)
+                throws UsuarioNaoAutenticadoException,
+                OperacaoNaoPermitidaException,
+                RegistroNaoEncontradoException,
+                ItemDuplicadoException,
+                UsuarioPossuiMultasPendentes {
 
-        SolicitacaoEmprestimo novaSolicitacao = new SolicitacaoEmprestimo(sessao.getUsuarioLogado(), materialSolicitado);
-        solicitacaoEmprestimoRepositorio.adicionar(novaSolicitacao);
-    }
+            this.verificarAutenticacao();
+            autorizacaoService.exigirPermissao(sessao.getUsuarioLogado(), Permissao.SOLICITAR_EMPRESTIMO);
+
+            MaterialBibliografico materialSolicitado = materialRepositorio.buscarPorId(materialId);
+            this.verificarSolicitacaoPendenteDuplicada(materialId);
+            this.verificarMinhasMultasPendentes();
+
+            SolicitacaoEmprestimo novaSolicitacao = new SolicitacaoEmprestimo(sessao.getUsuarioLogado(), materialSolicitado);
+            solicitacaoEmprestimoRepositorio.adicionar(novaSolicitacao);
+        }
 
     public List<SolicitacaoEmprestimo> listarSolicitacoes() throws UsuarioNaoAutenticadoException, OperacaoNaoPermitidaException {
         this.verificarAutenticacao();
@@ -119,7 +131,7 @@ public class SolicitacaoEmprestimoService extends Service {
             ItemDuplicadoException,
             LimiteEmprestimosException,
             MaterialIndisponivelException,
-            SolicitacaoJaProcessadaException {
+            SolicitacaoJaProcessadaException, UsuarioPossuiMultasPendentes {
 
         this.verificarAutenticacao();
         autorizacaoService.exigirPermissao(sessao.getUsuarioLogado(), Permissao.GERENCIAR_SOLICITACOES);

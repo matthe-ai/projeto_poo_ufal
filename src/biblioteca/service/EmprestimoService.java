@@ -64,7 +64,7 @@ public class EmprestimoService extends Service {
         }
     }
 
-    protected void verificarMultasPendentesDoUsuario(int usuarioId) throws UsuarioPossuiMultasPendentes, OperacaoNaoPermitidaException, UsuarioNaoAutenticadoException {
+    private void verificarMultasPendentesDoUsuario(int usuarioId) throws UsuarioPossuiMultasPendentes, OperacaoNaoPermitidaException, UsuarioNaoAutenticadoException {
 
         List<Multa> multasPendentesDoUsuario = multaService.listarMultasPorUsuarioEStatus(usuarioId, StatusMulta.PENDENTE);
 
@@ -100,7 +100,7 @@ public class EmprestimoService extends Service {
             RegistroNaoEncontradoException,
             MaterialIndisponivelException,
             LimiteEmprestimosException,
-            ItemDuplicadoException {
+            ItemDuplicadoException, UsuarioPossuiMultasPendentes {
 
         this.verificarAutenticacao();
         autorizacaoService.exigirPermissao(sessao.getUsuarioLogado(), Permissao.REGISTRAR_EMPRESTIMO);

@@ -72,7 +72,7 @@ public class Multa {
         return diasAtraso;
     }
 
-    public void registrarPagamento() {
+    public void registrarPagamento() throws MultaJaProcessadaException {
 
         if (this.dataPagamento != null || this.status != StatusMulta.PENDENTE) {
             throw new MultaJaProcessadaException();
@@ -82,7 +82,7 @@ public class Multa {
         setStatus(StatusMulta.PAGA);
     }
 
-    public void registrarCancelamento() {
+    public void registrarCancelamento() throws MultaJaProcessadaException {
 
         if (this.dataPagamento != null || this.status != StatusMulta.PENDENTE) {
             throw new MultaJaProcessadaException();

@@ -81,7 +81,7 @@ class MultaTest {
     }
 
     @Test
-    void deveRegistrarPagamento() {
+    void deveRegistrarPagamento() throws MultaJaProcessadaException {
         Multa multa = new Multa(
                 5,
                 new BigDecimal("10.00"),
@@ -95,7 +95,7 @@ class MultaTest {
     }
 
     @Test
-    void naoDeveRegistrarPagamentoDuasVezes() {
+    void naoDeveRegistrarPagamentoDuasVezes() throws MultaJaProcessadaException {
         Multa multa = new Multa(
                 5,
                 new BigDecimal("10.00"),
@@ -111,7 +111,7 @@ class MultaTest {
     }
 
     @Test
-    void deveRegistrarCancelamento() {
+    void deveRegistrarCancelamento() throws MultaJaProcessadaException {
         Multa multa = new Multa(
                 5,
                 new BigDecimal("10.00"),
@@ -125,7 +125,7 @@ class MultaTest {
     }
 
     @Test
-    void naoDeveCancelarMultaDuasVezes() {
+    void naoDeveCancelarMultaDuasVezes() throws MultaJaProcessadaException {
         Multa multa = new Multa(
                 5,
                 new BigDecimal("10.00"),
@@ -141,7 +141,7 @@ class MultaTest {
     }
 
     @Test
-    void naoDevePagarMultaCancelada() {
+    void naoDevePagarMultaCancelada() throws MultaJaProcessadaException {
         Multa multa = new Multa(
                 5,
                 new BigDecimal("10.00"),
@@ -157,7 +157,7 @@ class MultaTest {
     }
 
     @Test
-    void naoDeveCancelarMultaPaga() {
+    void naoDeveCancelarMultaPaga() throws MultaJaProcessadaException {
         Multa multa = new Multa(
                 5,
                 new BigDecimal("10.00"),

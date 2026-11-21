@@ -376,7 +376,7 @@ public class MenuBibliotecario extends JPanel{
 	        	} case "Revista", "Jornal": {
 	        		try {
 	        			TipoPeriodico tipoP;
-	        			if (tipo == "Revista") {
+	        			if (tipo.equals("Revista")) {
 	        				tipoP = TipoPeriodico.REVISTA;
 	        			} else {
 	        				tipoP = TipoPeriodico.JORNAL;
