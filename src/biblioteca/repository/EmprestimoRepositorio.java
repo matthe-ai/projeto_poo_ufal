@@ -1,5 +1,6 @@
 package biblioteca.repository;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +8,8 @@ import biblioteca.exception.ItemDuplicadoException;
 import biblioteca.exception.RegistroNaoEncontradoException;
 import biblioteca.model.Emprestimo;
 import biblioteca.model.StatusEnums.StatusEmprestimo;
+import biblioteca.model.material.MaterialBibliografico;
+import biblioteca.model.usuario.Usuario;
 
 public class EmprestimoRepositorio implements Repositorio<Emprestimo> {
 
@@ -88,5 +91,14 @@ public class EmprestimoRepositorio implements Repositorio<Emprestimo> {
         }
 
         throw new RegistroNaoEncontradoException();
+    }
+    
+    public void criarEmprestimoExemplo(Usuario usuario, MaterialBibliografico material, long quantidadeDias) {
+    	try {
+    		material.marcarComoIndisponivel();
+			this.adicionar(new Emprestimo(LocalDate.now().minusDays(quantidadeDias), material, usuario));
+		} catch (ItemDuplicadoException e) {
+			
+		}
     }
 }

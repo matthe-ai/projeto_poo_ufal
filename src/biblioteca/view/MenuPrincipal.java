@@ -217,7 +217,7 @@ public class MenuPrincipal extends JFrame {
 	private String calcularTotal(List<Multa> listarMinhasMultasPorStatus) {
 		BigDecimal total = new BigDecimal(0);
 		for (Multa multa : listarMinhasMultasPorStatus) {
-			total.add(multa.getValor());
+			total = total.add(multa.getValor());
 		}
 		return total.toString();
 	}
