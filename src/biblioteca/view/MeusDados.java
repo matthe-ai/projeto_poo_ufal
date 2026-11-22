@@ -70,7 +70,7 @@ public class MeusDados extends JPanel {
 		JPanel painelDados = new JPanel(new BorderLayout(0, 15));
 		painelDados.setBackground(new Color(220, 220, 220));
 
-		JPanel campos = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 0));
+		JPanel campos = new JPanel(new GridLayout(1, 3, 30, 0));
 		campos.setBackground(new Color(220, 220, 220));
 
 		Dimension tamanhoCampo = new Dimension(210, 30);
