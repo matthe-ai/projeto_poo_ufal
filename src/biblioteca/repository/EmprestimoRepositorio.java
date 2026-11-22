@@ -96,7 +96,7 @@ public class EmprestimoRepositorio implements Repositorio<Emprestimo> {
     public void criarEmprestimoExemplo(Usuario usuario, MaterialBibliografico material, long quantidadeDias) {
     	try {
     		material.marcarComoIndisponivel();
-			this.adicionar(new Emprestimo(LocalDate.now().minusDays(quantidadeDias), material, usuario));
+			this.adicionar(new Emprestimo(LocalDate.now().minusDays(quantidadeDias), material.getId(), usuario.getID()));
 		} catch (ItemDuplicadoException e) {
 			
 		}
