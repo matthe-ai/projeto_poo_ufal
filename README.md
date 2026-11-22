@@ -2,236 +2,209 @@
 
 # Sistema de Gerenciamento de Biblioteca
 
-## 1. Visão geral
+Projeto acadêmico desenvolvido em **Java 21** para a disciplina de Programação Orientada a Objetos (POO) da UFAL. O sistema tem como objetivo gerenciar as operações de uma biblioteca, incluindo usuários, catálogo de materiais bibliográficos, autenticação, controle de permissões, empréstimos, solicitações de empréstimo e multas.
 
-Sistema desenvolvido em Java para administrar uma biblioteca, seus usuários, materiais bibliográficos e empréstimos. O projeto tem finalidade acadêmica e prioriza a aplicação prática dos conceitos de Programação Orientada a Objetos.
+## Funcionalidades
 
-**Escopo inicial:** aplicação em terminal, utilizando `Scanner` para interação e coleções (`ArrayList`) para armazenar os dados em memória. Não utilizar banco de dados nem frameworks nesta primeira versão.
+- Cadastro, consulta, atualização e remoção de usuários, respeitando permissões e regras de negócio.
+- Autenticação por login e senha, com gerenciamento de sessão.
+- Cadastro, consulta, atualização e remoção de livros e periódicos.
+- Pesquisa de materiais pelo título.
+- Registro e consulta de empréstimos, com controle de disponibilidade.
+- Solicitação de empréstimos por leitores, com aprovação ou rejeição por usuários autorizados.
+- Cálculo automático de multas quando um material é devolvido com atraso.
+- Consulta de multas por usuário e status, além de pagamento e cancelamento.
+- Verificação de autenticação e autorização nas operações dos serviços.
+- Exceções específicas para representar erros e violações das regras de negócio.
 
-## 2. Objetivos
+## Perfis de acesso
 
-- Cadastrar e gerenciar usuários.
-- Cadastrar, consultar, atualizar e remover materiais bibliográficos.
-- Disponibilizar diferentes tipos de materiais: livros, revistas e jornais.
-- Registrar empréstimos e devoluções.
-- Aplicar herança, polimorfismo, encapsulamento, abstração, interfaces, associações, composição, exceções e um padrão de projeto.
+O sistema utiliza o enum `Cargo` para definir três perfis: `LEITOR`, `BIBLIOTECARIO` e `ADMINISTRADOR`. As permissões são centralizadas em `AutorizacaoService` e verificadas pelos serviços antes da execução das operações.
 
-## 3. Perfis de usuário e permissões
+| Operação | Leitor | Bibliotecário | Administrador |
+|---|:---:|:---:|:---:|
+| Consultar catálogo | Sim | Sim | Sim |
+| Solicitar empréstimo | Sim | Não | Sim |
+| Consultar próprios empréstimos | Sim | Sim | Sim |
+| Consultar próprias solicitações | Sim | Não | Sim |
+| Atualizar próprios dados | Sim | Sim | Sim |
+| Gerenciar catálogo | Não | Sim | Sim |
+| Registrar empréstimos e devoluções | Não | Sim | Sim |
+| Consultar usuários | Não | Sim | Sim |
+| Consultar todas as solicitações | Não | Sim | Sim |
+| Gerenciar solicitações | Não | Sim | Sim |
+| Consultar todas as multas | Não | Sim | Sim |
+| Gerenciar multas | Não | Sim | Sim |
+| Cadastrar e remover usuários | Não | Não | Sim |
+| Consultar todos os empréstimos | Não | Sim | Sim |
 
-A classe abstrata `Usuario` representa os dados comuns: identificador, nome, login e senha. As subclasses definem os perfis:
+O administrador possui todas as permissões. As operações de gerenciamento de usuários são restritas ao administrador.
 
-| Perfil | Permissões sugeridas |
-|---|---|
-| `Leitor` | Consultar catálogo, pesquisar materiais, visualizar seus empréstimos, solicitar empréstimo e devolver material |
-| `Bibliotecario` | Consultar catálogo, cadastrar/editar/remover materiais, registrar empréstimos e devoluções, consultar empréstimos e usuários |
-| `Administrador` | Todas as operações; gerenciar usuários e perfis de acesso |
+## Regras de negócio
 
-As permissões devem ser verificadas na camada de serviço, e não apenas escondendo opções no menu. Esconder uma opção melhora a interface, mas não substitui a validação da regra de acesso.
+### Usuários e autenticação
 
-**Regra de segurança para o trabalho:** não permitir que um usuário comum altere seu próprio perfil para bibliotecário ou administrador. A criação e alteração desses perfis deve ser restrita ao administrador.
+- Cada usuário possui identificador, nome, login, senha e cargo.
+- O login deve ser único.
+- As senhas são transformadas em hash com `PBKDF2WithHmacSHA256` antes de serem armazenadas pelo serviço de usuários.
+- A senha aceita pelo serviço deve ter entre 6 e 16 caracteres.
+- Uma sessão mantém a referência ao usuário autenticado; operações protegidas exigem uma sessão ativa.
+- Um usuário não pode remover a própria conta.
+- A remoção de um administrador é bloqueada.
+- Um usuário que possui empréstimos ativos não pode ser removido.
+- A atualização dos dados próprios não permite alterar o cargo.
 
-## 4. Materiais bibliográficos
+### Catálogo
 
-A classe abstrata `MaterialBibliografico` concentra os atributos e comportamentos comuns:
+O catálogo possui dois tipos concretos de material:
 
-- `id`
-- `titulo`
-- `anoPublicacao`
-- `disponivel`
+- **Livro:** título, ano de publicação, autor, ISBN e editora.
+- **Periódico:** título, ano de publicação, editora, número da edição, data de publicação e tipo (`JORNAL` ou `REVISTA`).
 
-Subclasses:
+Os materiais compartilham identificador, título, ano, editora e disponibilidade por meio da classe abstrata `MaterialBibliografico`.
 
-- `Livro`: autor, ISBN e editora.
-- `Revista`: editora, número/edição e mês ou data de publicação.
-- `Jornal`: editora, edição e data de publicação.
-
-Cada subtipo implementa `exibirDetalhes()` de acordo com suas informações específicas. Isso demonstra polimorfismo: o catálogo pode percorrer uma coleção de `MaterialBibliografico` e chamar o mesmo método sem precisar conhecer o subtipo concreto.
-
-## 5. Empréstimos e regras de negócio
-
-A classe `Emprestimo` relaciona um usuário a um material e registra:
-
-- identificador;
-- usuário;
-- material;
-- data do empréstimo;
-- data prevista para devolução;
-- data efetiva da devolução;
-- status (`ATIVO`, `DEVOLVIDO` ou `ATRASADO`, se desejar).
-
-### Regras iniciais sugeridas
-
-1. Um material só pode possuir um empréstimo ativo por vez.
-2. Um usuário comum pode possuir, por exemplo, até 3 empréstimos ativos.
-3. Um material emprestado não pode ser removido do catálogo.
-4. Não é possível devolver um empréstimo que já foi finalizado.
-5. A devolução deve atualizar o status do empréstimo e a disponibilidade do material.
-6. Bibliotecários podem registrar empréstimos e devoluções.
-7. Apenas administradores podem criar, editar ou remover contas de bibliotecário e administrador.
-
-**Decisão a tomar:** definir se revistas e jornais podem ser emprestados. Uma regra simples seria permitir empréstimo de livros e revistas e deixar jornais apenas para consulta. Caso escolha essa regra, implemente um método como `podeSerEmprestado()` em `MaterialBibliografico`, sobrescrito por cada subtipo.
-
-Os prazos de empréstimo também podem variar por tipo de material. Evite fixar esses valores em vários pontos do código: concentre a regra em um serviço ou método específico.
-
-## 6. Funcionalidades (CRUD)
-
-### Usuários
-- Cadastrar usuário.
-- Listar usuários.
-- Pesquisar usuário por ID.
-- Atualizar dados.
-- Remover usuário (desde que não tenha empréstimos ativos).
-- Criar bibliotecário/administrador (somente administrador).
-
-### Materiais
-- Cadastrar livro, revista ou jornal.
-- Listar catálogo.
-- Pesquisar por ID ou título.
-- Atualizar informações.
-- Remover material (desde que não esteja emprestado).
+As operações de cadastro e atualização validam os campos textuais, o ano de publicação e, no caso de periódicos, o número da edição. Um material indisponível não pode ser removido do catálogo.
 
 ### Empréstimos
-- Registrar empréstimo.
-- Listar empréstimos.
-- Pesquisar empréstimo por ID.
-- Consultar empréstimos de um usuário.
-- Registrar devolução.
 
-O CRUD de empréstimos não precisa permitir editar livremente um empréstimo antigo. A atualização deve ocorrer por operações de negócio, como registrar devolução, para preservar o histórico.
+Os empréstimos relacionam um usuário a um material e registram as datas de empréstimo, previsão de devolução e devolução efetiva, além do status (`ATIVO` ou `DEVOLVIDO`).
 
-## 7. Arquitetura sugerida
+| Tipo de material | Prazo de empréstimo |
+|---|---:|
+| Livro | 14 dias |
+| Jornal | 3 dias |
+| Revista | 2 dias |
 
-Uma separação simples em pacotes ajuda a organizar o código sem introduzir complexidade desnecessária:
+Regras aplicadas:
+
+- Um material precisa estar disponível para ser emprestado.
+- Cada usuário pode possuir no máximo **3 empréstimos ativos**.
+- Usuários com multas pendentes não podem receber novos empréstimos.
+- Ao registrar o empréstimo, o material passa a ficar indisponível.
+- Na devolução, o empréstimo é finalizado e o material volta a ficar disponível.
+- Não é permitido registrar novamente a devolução de um empréstimo já finalizado.
+- Se a devolução ocorrer após a data prevista, o serviço de empréstimos solicita a geração de uma multa.
+
+### Solicitações de empréstimo
+
+- Leitores podem solicitar o empréstimo de materiais.
+- Uma solicitação é criada com status `PENDENTE`.
+- O mesmo usuário não pode manter mais de uma solicitação pendente para o mesmo material.
+- Bibliotecários e administradores podem consultar e gerenciar solicitações.
+- Uma solicitação pendente pode ser aprovada ou rejeitada.
+- A aprovação tenta registrar o empréstimo e, se a operação for concluída, atualiza a solicitação para `APROVADA`.
+- Solicitações já processadas não podem ser aprovadas ou rejeitadas novamente.
+
+Os status possíveis são `PENDENTE`, `APROVADA` e `REJEITADA`.
+
+### Multas
+
+As multas são associadas a um empréstimo e armazenam quantidade de dias de atraso, valor, data de geração, status e, quando paga, data de pagamento.
+
+- A multa é gerada automaticamente durante a devolução quando há atraso.
+- O valor é de **R$ 2,00 por dia de atraso**, limitado ao máximo de **R$ 50,00**.
+- O repositório impede o cadastro de mais de uma multa para o mesmo empréstimo.
+- Uma multa pendente pode ser paga ou cancelada.
+- Multas já pagas ou canceladas não podem ser processadas novamente.
+- Os status possíveis são `PENDENTE`, `PAGA` e `CANCELADA`.
+- O usuário pode consultar suas próprias multas; bibliotecários e administradores podem consultar multas de todos os usuários e gerenciá-las.
+
+## Arquitetura
+
+O código está organizado por responsabilidade, separando o domínio, a persistência em memória, as regras de negócio, os mecanismos de autenticação e a camada de interação.
 
 ```text
 src/
 └── biblioteca/
     ├── Main.java
+    ├── auth/
+    │   ├── SenhaHashUtil.java
+    │   └── Sessao.java
+    ├── exception/
+    │   └── ...
     ├── model/
     │   ├── usuario/
     │   │   ├── Usuario.java
-    │   │   ├── UsuarioComum.java
-    │   │   ├── Bibliotecario.java
-    │   │   └── Administrador.java
+    │   │   ├── Cargo.java
+    │   │   └── Permissao.java
     │   ├── material/
     │   │   ├── MaterialBibliografico.java
     │   │   ├── Livro.java
-    │   │   ├── Revista.java
-    │   │   └── Jornal.java
-    │   └── Emprestimo.java
+    │   │   ├── Periodico.java
+    │   │   └── TipoPeriodico.java
+    │   ├── Emprestimo.java
+    │   ├── SolicitacaoEmprestimo.java
+    │   ├── Multa.java
+    │   └── enums de status
     ├── repository/
     │   ├── Repositorio.java
-    │   ├── UsuarioRepositorio.java
-    │   ├── MaterialRepositorio.java
-    │   └── EmprestimoRepositorio.java
+    │   ├── RepositorioRemovivel.java
+    │   └── repositórios concretos
     ├── service/
+    │   ├── Service.java
+    │   ├── AutorizacaoService.java
     │   ├── UsuarioService.java
     │   ├── CatalogoService.java
-    │   └── EmprestimoService.java
-    ├── exception/
-    │   ├── RegistroNaoEncontradoException.java
-    │   ├── MaterialIndisponivelException.java
-    │   ├── LimiteEmprestimosException.java
-    │   └── OperacaoNaoPermitidaException.java
+    │   ├── EmprestimoService.java
+    │   ├── SolicitacaoEmprestimoService.java
+    │   └── MultaService.java
     └── view/
         ├── MenuPrincipal.java
         ├── MenuUsuario.java
         ├── MenuBibliotecario.java
-        └── MenuAdministrador.java
+        ├── MenuAdministrador.java
+        └── Menus de gerenciamento
+
+tests/
+└── biblioteca/
+    ├── auth/
+    ├── models/
+    ├── repository/
+    └── service/
 ```
 
-Você pode começar com menos arquivos e separar os pacotes gradualmente. Não é necessário criar uma classe para cada menu se isso não ajudar.
+### Responsabilidades das camadas
 
-### Responsabilidade de cada camada
-
-- **model:** representa os objetos e seus dados.
-- **repository:** armazena e recupera objetos nas coleções.
-- **service:** aplica regras de negócio e coordena operações.
-- **exception:** contém exceções específicas do domínio.
-- **view:** apresenta menus, recebe entradas e mostra resultados.
-- **Main:** inicializa repositórios, serviços e a interface.
-
-## 8. Conceitos de POO demonstrados
-
-| Requisito | Onde demonstrar |
+| Pacote | Responsabilidade |
 |---|---|
-| Classes, objetos e construtores | Usuários, materiais e empréstimos |
-| Herança | `Leitor`, `Bibliotecario` e `Administrador` herdam de `Usuario`; Livro, Revista e Jornal herdam de `MaterialBibliografico` |
-| Polimorfismo | Sobrescrita de `exibirDetalhes()` e `podeSerEmprestado()` |
-| Encapsulamento | Atributos `private`; validação nos construtores e métodos; getters quando necessários |
-| Exceções | Material indisponível, limite de empréstimos, registro inexistente e operação não permitida |
-| Classe abstrata | `Usuario` e `MaterialBibliografico` |
-| Interface | `Repositorio<T>` |
-| Associação | `Emprestimo` referencia um `Usuario` e um `MaterialBibliografico` |
-| Composição | `Biblioteca` pode ser responsável pelo ciclo de vida de seus repositórios, se essa classe for adotada; alternativamente, uma entidade `Pedido` não é necessária neste domínio |
-| Coleções | `ArrayList<Usuario>`, `ArrayList<MaterialBibliografico>` e `ArrayList<Emprestimo>` |
-| Padrão de projeto | Repository, encapsulando o acesso às coleções |
+| `model` | Entidades do domínio, seus atributos, estados e comportamentos. |
+| `repository` | Armazenamento e consulta dos objetos em coleções, com operações de inclusão, busca, listagem e atualização; alguns repositórios também permitem remoção. |
+| `service` | Regras de negócio, validações, coordenação entre repositórios e verificação de permissões. |
+| `auth` | Hash de senhas e gerenciamento da sessão autenticada. |
+| `exception` | Exceções específicas para erros de domínio e operações não permitidas. |
+| `view` | Organização dos menus e da interação com os diferentes perfis de usuário. |
+| `Main` | Ponto de entrada da aplicação. |
 
-### Exemplo de interface Repository
+### Camada de visualização (`view`)
 
-A interface pode declarar operações genéricas de persistência em memória:
+O pacote `view` organiza a interação com o sistema por meio de menus separados de acordo com o perfil e o contexto de utilização.
 
-```java
-public interface Repositorio<T> {
-    void adicionar(T objeto);
-    T buscarPorId(int id);
-    List<T> listarTodos();
-    void atualizar(T objeto);
-    void remover(int id);
-}
-```
+- **`MenuPrincipal`:** responsável pelo menu inicial, concentrando as opções de entrada no sistema e acesso à autenticação.
+- **`MenuUsuario`:** reúne as opções gerais disponibilizadas ao usuário autenticado, como consultas e operações relacionadas à sua conta.
+- **`MenuBibliotecario`:** organiza as operações administrativas da biblioteca, incluindo gerenciamento do catálogo, empréstimos, solicitações e consultas.
+- **`MenuAdministrador`:** reúne as operações de administração do sistema, incluindo gerenciamento de usuários e demais funcionalidades administrativas.
 
-Cada repositório concreto mantém seu próprio `ArrayList` e implementa essas operações. Ajuste as assinaturas conforme o tipo de identificador escolhido.
+Essa separação permite organizar as opções de interação de acordo com as responsabilidades de cada perfil, mantendo as regras de negócio e as verificações de autorização na camada `service`.
 
-## 9. Exceções de domínio
+### Padrão Repository
 
-Crie exceções próprias para situações esperadas do sistema, por exemplo:
+A interface genérica `Repositorio<T>` define operações comuns de persistência. `RepositorioRemovivel<T>` estende essa interface para os repositórios que também oferecem remoção.
 
-- `MaterialIndisponivelException`: tentativa de emprestar material já emprestado.
-- `LimiteEmprestimosException`: usuário atingiu o limite de empréstimos ativos.
-- `RegistroNaoEncontradoException`: ID não existe.
-- `OperacaoNaoPermitidaException`: perfil não possui autorização ou regra impede a operação.
+Os repositórios concretos utilizam `ArrayList` para manter os registros em memória, encapsulando as operações de acesso e manipulação dos dados.
 
-Capture essas exceções na interface para apresentar mensagens compreensíveis. Evite usar `catch (Exception)` para esconder qualquer erro indiscriminadamente.
+## Conceitos de POO e organização
 
-## 10. Ordem recomendada de desenvolvimento
+O projeto aplica conceitos trabalhados na disciplina:
 
-1. Criar as classes abstratas `Usuario` e `MaterialBibliografico`.
-2. Criar as subclasses dos usuários e materiais.
-3. Criar `Emprestimo` e definir seus relacionamentos.
-4. Implementar os repositórios com `ArrayList` e testar o CRUD.
-5. Implementar `CatalogoService`, `UsuarioService` e `EmprestimoService`.
-6. Adicionar validações e exceções.
-7. Implementar autenticação e controle de permissões.
-8. Criar os menus com `Scanner`.
-9. Testar cenários válidos e inválidos.
-10. Revisar o UML para que corresponda ao código final.
+- **Abstração:** `MaterialBibliografico` define a estrutura comum dos materiais.
+- **Herança:** `Livro` e `Periodico` especializam `MaterialBibliografico`.
+- **Polimorfismo:** os tipos concretos de material implementam `exibirDetalhes()`.
+- **Encapsulamento:** atributos das entidades são privados e o acesso ocorre por métodos.
+- **Interfaces:** `Repositorio<T>` e `RepositorioRemovivel<T>` definem contratos para persistência.
+- **Associação:** `Emprestimo` referencia um `Usuario` e um `MaterialBibliografico`; `Multa` referencia um `Emprestimo`.
+- **Enums:** cargos, permissões, tipos de periódico e estados de empréstimos, solicitações e multas são representados por enumerações.
+- **Exceções próprias:** erros esperados do domínio são representados por classes específicas.
 
-## 11. Casos de teste importantes
+## Documentação complementar
 
-- Cadastrar e pesquisar um livro, revista e jornal.
-- Tentar cadastrar dois materiais com o mesmo ID.
-- Emprestar um material disponível.
-- Tentar emprestar novamente um material já emprestado.
-- Tentar ultrapassar o limite de empréstimos.
-- Devolver um material e verificar se ele voltou a ficar disponível.
-- Tentar devolver duas vezes o mesmo empréstimo.
-- Tentar remover material com empréstimo ativo.
-- Tentar que um usuário comum cadastre materiais ou gerencie usuários.
-- Verificar se cada subtipo apresenta seus detalhes corretamente.
-
-## 12. Fora do escopo inicial
-
-Para manter o projeto compatível com a proposta da disciplina, deixar para uma possível evolução:
-
-- Banco de dados.
-- Spring ou outros frameworks.
-- API web.
-- Autenticação criptográfica avançada.
-- Interface gráfica, caso o prazo seja curto.
-
-## 13. Critério de conclusão
-
-O projeto estará em uma boa versão inicial quando for possível cadastrar usuários e materiais, pesquisar e listar registros, registrar empréstimos e devoluções, aplicar as permissões de cada perfil e demonstrar os conceitos de POO previstos na avaliação.
-
-Os dados ficam em memória e são perdidos ao encerrar o programa. Isso é esperado nesta etapa, pois o objetivo é demonstrar os conceitos da disciplina.
+O diretório [`docs/`](docs/) contém materiais complementares do projeto, incluindo a documentação UML.

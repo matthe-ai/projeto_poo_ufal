@@ -1,0 +1,377 @@
+classDiagram
+direction TB
+
+class Usuario {
+  -int id$
+  -String nome
+  -String login
+  -String senha
+  -Cargo cargo$
+  +exibirDados() String
+}
+
+class Permissao {
+    <<enumeration>>
+    CADASTRAR_USUARIO
+    REMOVER_USUARIO
+    CONSULTAR_USUARIOS
+    ATUALIZAR_USUARIOS
+    ATUALIZAR_PROPRIOS_DADOS
+    GERENCIAR_CATALOGO
+    REGISTRAR_EMPRESTIMO
+    REGISTRAR_DEVOLUCAO
+    SOLICITAR_EMPRESTIMO
+    CONSULTAR_TODAS_SOLICITACOES
+    CONSULTAR_PROPRIAS_SOLICITACOES
+    GERENCIAR_SOLICITACOES
+    CONSULTAR_CATALOGO
+    CONSULTAR_PROPRIOS_EMPRESTIMOS
+    CONSULTAR_TODOS_EMPRESTIMOS
+    CONSULTAR_TODAS_MULTAS
+    CONSULTAR_PROPRIAS_MULTAS
+    GERENCIAR_MULTAS
+}
+
+class Cargo {
+    <<enumeration>>
+    BIBLIOTECARIO
+    ADMINISTRADOR
+    LEITOR
+}
+
+Usuario --> Cargo
+
+class MaterialBibliografico {
+  <<abstract>>
+  -int id$
+  -String titulo
+  -int anoPublicacao
+  -String editora
+  -Path caminhoCapa
+  -boolean disponivel
+  +Path CAPA_DEFAULT$
+  +exibirDetalhes()* String
+  +marcarComoDisponivel() void
+  +marcarComoIndisponivel() void
+}
+
+class Livro {
+  -String autor
+  -String isbn
+  +exibirDetalhes() String
+}
+
+class Periodico {
+    -int numeroEdicao
+    -String dataPublicacao
+    -TipoPeriodico tipoPeriodico$
+}
+
+class TipoPeriodico {
+    <<enumeration>>
+    JORNAL
+    REVISTA
+}
+
+Periodico --> TipoPeriodico
+
+MaterialBibliografico <|-- Livro
+MaterialBibliografico <|-- Periodico
+
+class Emprestimo {
+  -int id$
+  -LocalDate dataEmprestimo$
+  -LocalDate dataPrevistaDevolucao
+  -LocalDate dataDevolucao
+  -StatusEmprestimo status
+  -int materialId$
+  -int usuarioId$
+  +registrarDevolucao() void
+  +estaAtivo() boolean
+}
+
+class StatusEmprestimo {
+  <<enumeration>>
+  ATIVO
+  DEVOLVIDO
+}
+
+Emprestimo --> "1" Usuario : usuario
+Emprestimo --> "1" MaterialBibliografico : material
+Emprestimo --> StatusEmprestimo
+
+class Multa {
+    -int id$
+    -long diasAtraso$
+    -BigDecimal valor$
+    -LocalDate dataGeracao$
+    -Emprestimo emprestimo$
+    -StatusMulta status
+    -LocalDate dataPagamento
+    +registrarPagamento() void
+    +registrarCancelamento() void
+}
+
+class StatusMulta {
+    <<enumeration>>
+    PENDENTE
+    PAGA
+    CANCELADA
+}
+
+Multa --> "1" Emprestimo : emprestimo
+Multa --> StatusMulta
+
+class SolicitacaoEmprestimo {
+    -int id$
+    -int solicitanteId$
+    -int materialSolicitadoId$
+    -LocalDate dataSolicitacao$
+    -StatusSolicitacao status
+}
+
+class StatusSolicitacao {
+    <<enumeration>>
+    PENDENTE
+    APROVADA
+    REJEITADA
+}
+
+SolicitacaoEmprestimo --> "1" Usuario:usuario
+SolicitacaoEmprestimo --> "1" MaterialBibliografico:material
+SolicitacaoEmprestimo --> StatusSolicitacao
+
+class Repositorio~T~ {
+  <<interface>>
+  +adicionar(T) void
+  +buscarPorId(int) T
+  +listarTodos() List~T~
+  +atualizar(T) void
+}
+
+class RepositorioRemovivel~T~ {
+    <<interface>>
+    +remover(int) void
+}
+
+Repositorio~T~ <|-- RepositorioRemovivel~T~
+
+class UsuarioRepositorio {
+  -ArrayList~Usuario~ usuarios$
+  +buscarPorLogin(String) Usuario
+  +existeOutroUsuarioComLogin(String, int) boolean
+  +listarPorNome(String) List~Usuario~
+  +listarPorLogin(String) List~Usuario~
+  -hashearSenha(String) String
+}
+
+class MaterialRepositorio {
+  -ArrayList~MaterialBibliografico~ materiais$
+  +String UPLOADS_DIRECTORY$
+  +listarPorTitulo(String) List~MaterialBibliografico~
+}
+
+class EmprestimoRepositorio {
+  -ArrayList~Emprestimo~ emprestimos$
+  +listarPorStatus(StatusEmprestimo) List~Emprestimo~
+  +listarPorUsuario(int) List~Emprestimo~
+  +listarPorUsuarioEStatus(int, StatusEmprestimo) List~Emprestimo~
+}
+
+class SolicitacaoEmprestimoRepositorio {
+    -ArrayList~SolicitacaoEmprestimo~ solicitacoesEmprestimo$
+    +listarPorUsuario(int) List~SolicitacaoEmprestimo~
+    +listarPorUsuarioEStatus(int, StatusSolicitacao) List~SolicitacaoEmprestimo~
+}
+
+class MultaRepositorio {
+    -ArrayList~multa~ multas$
+    +listarPorStatus(StatusMulta) List~Multa~
+    +listarPorUsuario(int) List~Multa~
+    +listarPorUsuarioEStatus(int, StatusMulta) List~Multa~
+}
+
+Repositorio~Usuario~ <|.. UsuarioRepositorio
+RepositorioRemovivel~Usuario~ <|.. UsuarioRepositorio
+UsuarioRepositorio ..> Usuario:gerencia
+UsuarioRepositorio ..> SenhaHashUtil
+Repositorio~MaterialBibliografico~ <|.. MaterialRepositorio
+RepositorioRemovivel~MaterialBibliografico~ <|.. MaterialRepositorio
+MaterialRepositorio ..> MaterialBibliografico:gerencia
+Repositorio~Emprestimo~ <|.. EmprestimoRepositorio
+RepositorioRemovivel~Emprestimo~ <|.. EmprestimoRepositorio
+EmprestimoRepositorio ..> Emprestimo:gerencia
+Repositorio~SolicitacaoEmprestimo~ <|.. SolicitacaoEmprestimoRepositorio
+SolicitacaoEmprestimoRepositorio ..> SolicitacaoEmprestimo:gerencia
+Repositorio~Multa~ <|.. MultaRepositorio
+MultaRepositorio ..> Multa:gerencia
+
+class Service {
+    <<abstract>>
+    #AutorizacaoService autorizacaoService$
+    #Sessao sessao$
+    #validarStrings(String) void
+    #verificarAutenticacao() void
+}
+
+Service --> AutorizacaoService
+Service --> Sessao
+
+class UsuarioService {
+  -UsuarioRepositorio usuarioRepositorio$
+  -EmprestimoRepositorio emprestimoRepositorio$
+  -validarSenha(String) void
+  +logar(String, String) void
+  +deslogar() void
+  +cadastrarUsuario(String, String, String, Cargo) Usuario
+  +buscarUsuario(int) Usuario
+  +listarUsuarios() List~Usuario~
+  +listarUsuariosPorLogin(String) List~Usuario~
+  +listarUsuariosPorNome(String) List~Usuario~
+  +atualizarUsuario(String, String, int) void
+  +atualizarSenhaDoUsuario(String, int) void
+  +atualizarMeusDados(String, String) void
+  +atualizarMinhaSenha(String, String) void
+  +removerUsuario(int) void
+}
+
+Service <|-- UsuarioService 
+UsuarioService ..> SenhaHashUtil
+UsuarioService --> "1" UsuarioRepositorio : usuarioRepositorio
+UsuarioService --> "1" EmprestimoRepositorio : emprestimoRepositorio
+
+class CatalogoService {
+  -MaterialRepositorio repositorio$
+  -validarAnoPublicacao(int) void
+  -validarLivro(String, int, String, String, String, Path) void
+  -validarCapa(Path) void
+  -validarDataPublicacao(String) void
+  -validarPeriodico(String, int, String, int, String, Path) void
+  +cadastrarLivro(String, int, String, String, String, Path) Livro
+  +cadastrarPeriodico(String, int, String, int, String, TipoPeriodico, Path) Periodico
+  +buscarMaterial(int) MaterialBibliografico
+  +listarMateriais() List~MaterialBibliografico~
+  +listarMateriaisPorTitulo(String) List~MaterialBibliografico~
+  +atualizarLivro(String, int, String, Path, String, String, int) void
+  +atualizarPeriodico(String, int, String, Path, int, String, int) void
+  +removerMaterial(int) void
+}
+
+Service <|-- CatalogoService
+CatalogoService ..> "1" MaterialRepositorio : materialRepositorio 
+
+class EmprestimoService {
+  -EmprestimoRepositorio emprestimosService$
+  -MaterialRepositorio materiaisService$
+  -UsuarioRepositorio usuarioService$
+  -MultaService multaService$
+  +int MAXIMO_EMPRESTIMOS_ATIVOS$
+  +int PRAZO_EMPRESTIMO_LIVRO$
+  +int PRAZO_EMPRESTIMO_JORNAL$
+  +int PRAZO_EMPRESTIMO_REVISTA$
+  -verificarEmprestimosAtivosDoUsuario(int) void
+  -verificarMultasPendentesDoUsuario(int) void
+  -calcularDataPrevista(MaterialBibliografico) LocalDate
+  +registrarEmprestimo(int,int) void
+  -calcularDiasAtraso(LocalDate) long
+  +registrarDevolucao(int) void
+  +buscarEmprestimo(int) Emprestimo
+  +listarEmprestimos() List~Emprestimo~
+  +listarEmprestimosPorUsuario(int) List~Emprestimo~
+  +listarEmprestimosPorStatus(StatusEmprestimo) List~Emprestimo~
+  +listarEmprestimosPorUsuarioEStatus(int, StatusEmprestimo) List~Emprestimo~
+  +listarMeusEmprestimos() List~Emprestimo~
+  +listarMeusEmprestimosPorStatus(StatusEmprestimo) List~Emprestimo~
+}
+
+Service <|-- EmprestimoService
+EmprestimoService --> "1" EmprestimoRepositorio : emprestimoRepositorio
+EmprestimoService --> "1" MaterialRepositorio : materialRepositorio
+EmprestimoService --> "1" UsuarioRepositorio : usuarioRepositorio
+EmprestimoService --> "1" MultaService : multaService
+
+class AutorizacaoService {
+    +possuiAutorizacao(Usuario, Permissao) boolean
+    +exigirPermissao(Usuario, Permissao) void
+}
+
+AutorizacaoService ..> Usuario
+AutorizacaoService ..> Permissao
+AutorizacaoService ..> Cargo
+
+class MultaService {
+    -BigDecimal VALOR_DIARIO$
+    -BigDecimal VALOR_MAXIMO$
+    -MultaRepositorio multaRepositorio$
+    -calcularValor(long) BigDecimal
+    +cadastrarMulta(long, Emprestimo) void
+    +pagarMulta(int) void
+    +cancelarMulta(int) void
+    +buscarMulta(int) Multa
+    +listarMultas() List~Multa~
+    +listarMultasPorStatus(StatusMulta) List~Multa~
+    +listarMultasPorUsuario(int) List~Multa~
+    +listarMultasPorUsuarioEStatus(int, StatusMulta) List~Multa~
+    +listarMinhasMultas() List~Multa~
+    +listarMinhasMultasPorStatus(StatusMulta) List~Multa~
+}
+
+Service <|-- MultaService
+MultaService ..> "1" MultaRepositorio:multaRepositorio
+
+class SolicitacaoEmprestimoService {
+    -SolicitacaoEmprestimoRepositorio solicitacaoEmprestimoRepositorio$
+    -MaterialRepositorio materialRepositorio$
+    -EmprestimoService emprestimoService$
+    -MultaService multaService$
+    +verificarSolicitacaoPendenteDuplicada(int) boolean
+    -verificarMinhasMultasPendentes() void
+    +solicitarEmprestimo(int) void
+    +listarSolicitacoes() List~SolicitacaoEmprestimo~
+    +listarSolicitacoesPorStatus(StatusSolicitacao) List~SolicitacaoEmprestimo~
+    +listarSolicitacoesPorUsuario(int) List~SolicitacaoEmprestimo~
+    +listarSolicitacoesPorUsuarioEStatus(int, StatusSolicitacao) List~SolicitacaoEmprestimo~
+    +listarMinhasSolicitacoes() List~SolicitacaoEmprestimo~
+    +listarMinhasSolicitacoesPorStatus(StatusSolicitacao) List~SolicitacaoEmprestimo~
+    -validarSolicitacaoPendente(SolicitacaoEmprestimo) void
+    +aprovarSolicitacao(int) void
+    +rejeitarSolicitacao(int) void
+}
+
+Service <|-- SolicitacaoEmprestimoService
+SolicitacaoEmprestimoService ..> "1" SolicitacaoEmprestimoRepositorio
+SolicitacaoEmprestimoService ..> "1" MaterialRepositorio
+SolicitacaoEmprestimoService ..> "1" EmprestimoService
+SolicitacaoEmprestimoService ..> "1" MultaService
+
+class Sessao {
+    -Usuario usuarioLogado
+    +iniciarSessao(Usuario) void
+    +getUsuarioLogado() Usuario
+    +encerrarSessao() void
+    +estaAutenticado() boolean
+}
+
+class SenhaHashUtil {
+    -SALT_FIXO$
+    -ITERACOES$
+    -TAMANHO_HASH$
+    +hash(String)$ String
+}
+
+class Main {
+    +main() void
+}
+
+Main ..> Sessao
+Main ..> UsuarioRepositorio
+Main ..> MaterialRepositorio
+Main ..> EmprestimoRepositorio
+Main ..> MultaRepositorio
+Main ..> SolicitacaoEmprestimoRepositorio
+Main ..> AutorizacaoService
+Main ..> MultaService
+Main ..> UsuarioService
+Main ..> CatalogoService
+Main ..> EmprestimoService
+Main ..> SolicitacaoEmprestimoService
