@@ -463,8 +463,6 @@ public class MenuPrincipal extends JFrame {
 	}
 
 	private void criarInformacoes(JPanel informacoes, Periodico material) {
-		informacoes.add(new JLabel("Ano de publicação: " + material.getAnoPublicacao()));
-		informacoes.add(Box.createVerticalStrut(5));
 		informacoes.add(new JLabel("Número de edição: " + material.getNumeroEdicao()));
 		informacoes.add(Box.createVerticalStrut(5));
 		informacoes.add(new JLabel("Data de publicação: " + material.getDataPublicacao()));
