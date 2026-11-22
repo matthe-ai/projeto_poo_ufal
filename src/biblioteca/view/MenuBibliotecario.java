@@ -62,6 +62,7 @@ public class MenuBibliotecario extends JPanel{
 	private final JLabel labelAutor = new JLabel("Autor");
 	private final JLabel labelISBN = new JLabel("ISBN");
 	private final JLabel labelDataPublicacao = new JLabel("Data de publicação");
+	private final JLabel labelNumeroEdicao = new JLabel("Número de edição");
 	
 	private JPanel painelPrincipal;
 	private JPanel painelListaMateriais;
@@ -267,6 +268,7 @@ public class MenuBibliotecario extends JPanel{
 
                 if (Objects.equals(comboTipo.getSelectedItem(), "Livro")) {
                     removerCampo(formulario, labelDataPublicacao, campoDataPublicacao);
+                    removerCampo(formulario, labelNumeroEdicao, campoNumeroEdicao);
 
                     adicionarCampo(formulario, gbc, 3, labelAutor, campoAutor);
                     adicionarCampo(formulario, gbc, 4, labelISBN, campoISBN);
@@ -275,15 +277,13 @@ public class MenuBibliotecario extends JPanel{
                     removerCampo(formulario, labelISBN, campoISBN);
 
                     adicionarCampo(formulario, gbc, 3, labelDataPublicacao, campoDataPublicacao);
+                    adicionarCampo(formulario, gbc, 6, labelNumeroEdicao, campoNumeroEdicao);
                 }
             }
 
             formulario.revalidate();
             formulario.repaint();
         });
-        
-        // Numero de edição
-        adicionarCampo(formulario, gbc, 6, "Número de edição", campoNumeroEdicao);
         
         // 1. Rótulo "Adicionar capa"
         
