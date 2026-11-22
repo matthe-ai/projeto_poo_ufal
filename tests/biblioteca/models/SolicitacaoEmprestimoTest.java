@@ -42,7 +42,7 @@ class SolicitacaoEmprestimoTest {
     @Test
     void deveCriarSolicitacaoComStatusPendente() {
         SolicitacaoEmprestimo solicitacao =
-                new SolicitacaoEmprestimo(usuario, livro);
+                new SolicitacaoEmprestimo(usuario.getID(), livro.getId());
 
         assertNotNull(solicitacao);
         assertEquals(StatusSolicitacao.PENDENTE, solicitacao.getStatus());
@@ -51,7 +51,7 @@ class SolicitacaoEmprestimoTest {
     @Test
     void deveGerarIdentificadorParaNovaSolicitacao() {
         SolicitacaoEmprestimo solicitacao =
-                new SolicitacaoEmprestimo(usuario, livro);
+                new SolicitacaoEmprestimo(usuario.getID(), livro.getId());
 
         assertNotEquals(0, solicitacao.getId());
     }
@@ -59,16 +59,16 @@ class SolicitacaoEmprestimoTest {
     @Test
     void deveArmazenarSolicitanteEMaterialCorretamente() {
         SolicitacaoEmprestimo solicitacao =
-                new SolicitacaoEmprestimo(usuario, livro);
+                new SolicitacaoEmprestimo(usuario.getID(), livro.getId());
 
-        assertSame(usuario, solicitacao.getSolicitante());
-        assertSame(livro, solicitacao.getMaterialSolicitado());
+        assertEquals(usuario.getID(), solicitacao.getSolicitanteId());
+        assertEquals(livro.getId(), solicitacao.getMaterialSolicitadoId());
     }
 
     @Test
     void deveDefinirDataDaSolicitacaoComoDataAtual() {
         SolicitacaoEmprestimo solicitacao =
-                new SolicitacaoEmprestimo(usuario, livro);
+                new SolicitacaoEmprestimo(usuario.getID(), livro.getId());
 
         assertEquals(LocalDate.now(), solicitacao.getDataSolicitacao());
     }
@@ -79,22 +79,22 @@ class SolicitacaoEmprestimoTest {
 
         SolicitacaoEmprestimo solicitacao =
                 new SolicitacaoEmprestimo(
-                        usuario,
-                        livro,
+                        usuario.getID(),
+                        livro.getId(),
                         StatusSolicitacao.APROVADA,
                         id
                 );
 
         assertEquals(id, solicitacao.getId());
         assertEquals(StatusSolicitacao.APROVADA, solicitacao.getStatus());
-        assertSame(usuario, solicitacao.getSolicitante());
-        assertSame(livro, solicitacao.getMaterialSolicitado());
+        assertEquals(usuario.getID(), solicitacao.getSolicitanteId());
+        assertEquals(livro.getId(), solicitacao.getMaterialSolicitadoId());
     }
 
     @Test
     void devePermitirAlteracaoDeStatus() {
         SolicitacaoEmprestimo solicitacao =
-                new SolicitacaoEmprestimo(usuario, livro);
+                new SolicitacaoEmprestimo(usuario.getID(), livro.getId());
 
         solicitacao.setStatus(StatusSolicitacao.REJEITADA);
 

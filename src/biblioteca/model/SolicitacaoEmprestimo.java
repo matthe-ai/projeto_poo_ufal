@@ -10,23 +10,23 @@ import java.util.Random;
 public class SolicitacaoEmprestimo {
 
     private final int id;
-    private final Usuario solicitante;
-    private final MaterialBibliografico materialSolicitado;
+    private final int solicitanteId;
+    private final int materialSolicitadoId;
     private final LocalDate dataSolicitacao;
     private StatusSolicitacao status;
 
-    public SolicitacaoEmprestimo(Usuario solicitante, MaterialBibliografico materialSolicitado) {
+    public SolicitacaoEmprestimo(int solicitanteId, int materialSolicitadoId) {
         this.id = new Random().nextInt();
-        this.solicitante = solicitante;
-        this.materialSolicitado = materialSolicitado;
+        this.solicitanteId = solicitanteId;
+        this.materialSolicitadoId = materialSolicitadoId;
         this.dataSolicitacao = LocalDate.now();
         this.status = StatusSolicitacao.PENDENTE;
     }
 
-    public SolicitacaoEmprestimo(Usuario solicitante, MaterialBibliografico materialSolicitado, StatusSolicitacao status, int solicitacaoId) {
+    public SolicitacaoEmprestimo(int solicitanteId, int materialSolicitadoId, StatusSolicitacao status, int solicitacaoId) {
         this.id = solicitacaoId;
-        this.solicitante = solicitante;
-        this.materialSolicitado = materialSolicitado;
+        this.solicitanteId = solicitanteId;
+        this.materialSolicitadoId = materialSolicitadoId;
         this.dataSolicitacao = LocalDate.now();
         this.status = status;
     }
@@ -39,12 +39,12 @@ public class SolicitacaoEmprestimo {
         return dataSolicitacao;
     }
 
-    public Usuario getSolicitante() {
-        return solicitante;
+    public int getSolicitanteId() {
+        return solicitanteId;
     }
 
-    public MaterialBibliografico getMaterialSolicitado() {
-        return materialSolicitado;
+    public int getMaterialSolicitadoId() {
+        return materialSolicitadoId;
     }
 
     public StatusSolicitacao getStatus() {

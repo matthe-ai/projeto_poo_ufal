@@ -447,11 +447,12 @@ class CatalogoServiceTest {
         service.atualizarLivro(
                 "Clean Code - Nova edição",
                 2008,
+                "Prentice Hall",
+                CAPA_VALIDA,
                 "Robert C. Martin",
                 "9780132350884",
-                "Prentice Hall",
-                livroTeste.getId(),
-                CAPA_VALIDA
+                livroTeste.getId()
+
         );
 
         MaterialBibliografico encontrado = service.buscarMaterial(livroTeste.getId());
@@ -468,25 +469,25 @@ class CatalogoServiceTest {
                 () -> service.atualizarLivro(
                         "",
                         2008,
+                        "Prentice Hall",
+                        CAPA_VALIDA,
                         "Robert C. Martin",
                         "9780132350884",
-                        "Prentice Hall",
-                        livroTeste.getId(),
-                        CAPA_VALIDA
+                        livroTeste.getId()
                 ));
     }
 
     @Test
     void deveImpedirAtualizacaoDeLivroComCapaInexistente() {
         assertThrows(CredenciaisInvalidasException.class,
-                () -> service.atualizarLivro(
-                        "Clean Code",
+                () ->  service.atualizarLivro(
+                        "Clean Code - Nova edição",
                         2008,
+                        "Prentice Hall",
+                        CAPA_INEXISTENTE,
                         "Robert C. Martin",
                         "9780132350884",
-                        "Prentice Hall",
-                        livroTeste.getId(),
-                        CAPA_INEXISTENTE
+                        livroTeste.getId()
                 ));
     }
 
@@ -495,28 +496,28 @@ class CatalogoServiceTest {
         Periodico periodico = cadastrarPeriodicoValido(TipoPeriodico.JORNAL);
 
         assertThrows(TipoMaterialInvalidoException.class,
-                () -> service.atualizarLivro(
-                        "Livro",
-                        2024,
-                        "Autor",
+                () ->  service.atualizarLivro(
+                        "Clean Code - Nova edição",
+                        2008,
+                        "Prentice Hall",
+                        CAPA_VALIDA,
+                        "Robert C. Martin",
                         "9780132350884",
-                        "Editora",
-                        periodico.getId(),
-                        CAPA_VALIDA
+                        periodico.getId()
                 ));
     }
 
     @Test
     void deveImpedirAtualizacaoDeLivroInexistente() {
         assertThrows(RegistroNaoEncontradoException.class,
-                () -> service.atualizarLivro(
-                        "Livro",
-                        2024,
-                        "Autor",
+                () ->  service.atualizarLivro(
+                        "Clean Code - Nova edição",
+                        2008,
+                        "Prentice Hall",
+                        CAPA_VALIDA,
+                        "Robert C. Martin",
                         "9780132350884",
-                        "Editora",
-                        Integer.MIN_VALUE,
-                        CAPA_VALIDA
+                        Integer.MIN_VALUE
                 ));
     }
 
@@ -530,10 +531,10 @@ class CatalogoServiceTest {
                 "National Geographic - Nova edição",
                 2025,
                 "National Geographic Society",
+                CAPA_VALIDA,
                 151,
                 "15/06/2025",
-                periodico.getId(),
-                CAPA_VALIDA
+                periodico.getId()
         );
 
         MaterialBibliografico encontrado = service.buscarMaterial(periodico.getId());
@@ -553,11 +554,11 @@ class CatalogoServiceTest {
         service.atualizarPeriodico(
                 "Revista Ciência Hoje - Nova edição",
                 2025,
-                "Instituto Ciência Hoje",
-                321,
+                "National Geographic Society",
+                CAPA_VALIDA,
+                151,
                 "15/06/2025",
-                periodico.getId(),
-                CAPA_VALIDA
+                periodico.getId()
         );
 
         MaterialBibliografico encontrado = service.buscarMaterial(periodico.getId());
@@ -572,28 +573,28 @@ class CatalogoServiceTest {
     @Test
     void deveImpedirAtualizacaoDePeriodicoComTipoDeMaterialIncorreto() {
         assertThrows(TipoMaterialInvalidoException.class,
-                () -> service.atualizarPeriodico(
-                        "National Geographic",
-                        2024,
+                () ->  service.atualizarPeriodico(
+                        "National Geographic - Nova edição",
+                        2025,
                         "National Geographic Society",
-                        150,
-                        "15/05/24",
-                        livroTeste.getId(),
-                        CAPA_VALIDA
+                        CAPA_VALIDA,
+                        151,
+                        "15/06/2025",
+                        livroTeste.getId()
                 ));
     }
 
     @Test
     void deveImpedirAtualizacaoDePeriodicoInexistente() {
         assertThrows(RegistroNaoEncontradoException.class,
-                () -> service.atualizarPeriodico(
-                        "National Geographic",
-                        2024,
+                () ->  service.atualizarPeriodico(
+                        "National Geographic - Nova edição",
+                        2025,
                         "National Geographic Society",
-                        150,
-                        "15/05/24",
-                        Integer.MIN_VALUE,
-                        CAPA_VALIDA
+                        CAPA_VALIDA,
+                        151,
+                        "15/06/2025",
+                        Integer.MIN_VALUE
                 ));
     }
 
@@ -602,14 +603,14 @@ class CatalogoServiceTest {
         Periodico periodico = cadastrarPeriodicoValido(TipoPeriodico.REVISTA);
 
         assertThrows(CredenciaisInvalidasException.class,
-                () -> service.atualizarPeriodico(
+                () ->  service.atualizarPeriodico(
                         " ",
-                        2024,
-                        "Editora",
-                        10,
-                        "15/05/2024",
-                        periodico.getId(),
-                        CAPA_VALIDA
+                        2025,
+                        "National Geographic Society",
+                        CAPA_VALIDA,
+                        151,
+                        "15/06/2025",
+                        periodico.getId()
                 ));
     }
 
@@ -618,14 +619,14 @@ class CatalogoServiceTest {
         Periodico periodico = cadastrarPeriodicoValido(TipoPeriodico.REVISTA);
 
         assertThrows(CredenciaisInvalidasException.class,
-                () -> service.atualizarPeriodico(
-                        "Revista Ciência Hoje",
-                        2024,
-                        "Editora",
+                () ->  service.atualizarPeriodico(
+                        "National Geographic - Nova edição",
+                        2025,
+                        "National Geographic Society",
+                        CAPA_VALIDA,
                         0,
-                        "15/05/2024",
-                        periodico.getId(),
-                        CAPA_VALIDA
+                        "15/06/2025",
+                        periodico.getId()
                 ));
     }
 
@@ -634,14 +635,14 @@ class CatalogoServiceTest {
         Periodico periodico = cadastrarPeriodicoValido(TipoPeriodico.REVISTA);
 
         assertThrows(CredenciaisInvalidasException.class,
-                () -> service.atualizarPeriodico(
-                        "Revista Ciência Hoje",
-                        2024,
-                        "Editora",
-                        10,
+                () ->  service.atualizarPeriodico(
+                        "National Geographic - Nova edição",
+                        2025,
+                        "National Geographic Society",
+                        CAPA_VALIDA,
+                        151,
                         "31/02/2024",
-                        periodico.getId(),
-                        CAPA_VALIDA
+                        periodico.getId()
                 ));
     }
 
@@ -650,14 +651,14 @@ class CatalogoServiceTest {
         Periodico periodico = cadastrarPeriodicoValido(TipoPeriodico.REVISTA);
 
         assertThrows(CredenciaisInvalidasException.class,
-                () -> service.atualizarPeriodico(
-                        "Revista Ciência Hoje",
-                        2024,
-                        "Editora",
-                        10,
-                        "15/05/2024",
-                        periodico.getId(),
-                        CAPA_INEXISTENTE
+                () ->  service.atualizarPeriodico(
+                        "National Geographic - Nova edição",
+                        2025,
+                        "National Geographic Society",
+                        CAPA_INEXISTENTE,
+                        151,
+                        "15/06/2025",
+                        periodico.getId()
                 ));
     }
 
@@ -784,14 +785,14 @@ class CatalogoServiceTest {
         sessao.iniciarSessao(leitor);
 
         assertThrows(OperacaoNaoPermitidaException.class,
-                () -> service.atualizarLivro(
-                        "Novo título",
+                () ->  service.atualizarLivro(
+                        "Clean Code - Nova edição",
                         2008,
+                        "Prentice Hall",
+                        CAPA_VALIDA,
                         "Robert C. Martin",
                         "9780132350884",
-                        "Prentice Hall",
-                        livroTeste.getId(),
-                        CAPA_VALIDA
+                        livroTeste.getId()
                 ));
     }
 
@@ -803,13 +804,13 @@ class CatalogoServiceTest {
 
         assertThrows(OperacaoNaoPermitidaException.class,
                 () -> service.atualizarPeriodico(
-                        "Novo título",
-                        2024,
-                        "Editora",
-                        11,
-                        "15/05/2024",
-                        periodico.getId(),
-                        CAPA_VALIDA
+                        "National Geographic - Nova edição",
+                        2025,
+                        "National Geographic Society",
+                        CAPA_VALIDA,
+                        151,
+                        "15/06/2025",
+                        periodico.getId()
                 ));
     }
 

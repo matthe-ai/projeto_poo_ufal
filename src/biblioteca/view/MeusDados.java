@@ -10,6 +10,7 @@ import biblioteca.model.Emprestimo;
 import biblioteca.model.SolicitacaoEmprestimo;
 import biblioteca.model.StatusEnums.StatusEmprestimo;
 import biblioteca.model.StatusEnums.StatusSolicitacao;
+import biblioteca.service.CatalogoService;
 import biblioteca.service.EmprestimoService;
 import biblioteca.service.SolicitacaoEmprestimoService;
 import biblioteca.service.UsuarioService;
@@ -38,17 +39,19 @@ public class MeusDados extends JPanel {
     final private EmprestimoService emprestimos;
     final private UsuarioService usuarioService;
     final private SolicitacaoEmprestimoService solicitacaoEmprestimos;
+	final private CatalogoService catalogo;
     
     final private Runnable voltarLogin;
     
     // construtor
     
-    public MeusDados(Sessao sessao, UsuarioService usuarioService, EmprestimoService emprestimos, Runnable voltarLogin, SolicitacaoEmprestimoService sol) {
+    public MeusDados(Sessao sessao, UsuarioService usuarioService, EmprestimoService emprestimos, Runnable voltarLogin, SolicitacaoEmprestimoService sol, CatalogoService catalogo) {
         this.sessao = sessao;
         this.usuarioService = usuarioService;
         this.emprestimos = emprestimos;
         this.voltarLogin = voltarLogin;
         this.solicitacaoEmprestimos = sol;
+        this.catalogo = catalogo;
         configurarPainel();
         criarComponentes();
     }
@@ -363,10 +366,12 @@ public class MeusDados extends JPanel {
 		} catch (UsuarioNaoAutenticadoException une) {
 			JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação", JOptionPane.ERROR_MESSAGE);
 			voltarLogin.run();
-		}
-	}
+		} catch (RegistroNaoEncontradoException e) {
+            throw new RuntimeException(e);
+        }
+    }
 	
-	private JPanel criarMaterial(SolicitacaoEmprestimo solicitacao) {
+	private JPanel criarMaterial(SolicitacaoEmprestimo solicitacao) throws OperacaoNaoPermitidaException, RegistroNaoEncontradoException, UsuarioNaoAutenticadoException {
 		JPanel itemEmprestimo = new JPanel(new BorderLayout());
 		
 	    itemEmprestimo.setBackground(Color.WHITE);
@@ -375,14 +380,15 @@ public class MeusDados extends JPanel {
 	    itemEmprestimo.setAlignmentX(Component.LEFT_ALIGNMENT);
 	    
 	    JLabel informacao;
-	    
-    	informacao = new JLabel(solicitacao.getMaterialSolicitado().getTitulo() + " - Status: solicitação " + solicitacao.getStatus());
+
+		String materialTitulo = catalogo.buscarMaterial(solicitacao.getMaterialSolicitadoId()).getTitulo();
+    	informacao = new JLabel(materialTitulo + " - Status: solicitação " + solicitacao.getStatus());
     	itemEmprestimo.add(informacao, BorderLayout.CENTER);
     	return itemEmprestimo;
 	    
 	}
     
-	private JPanel criarMaterial(Emprestimo emprestimo) {
+	private JPanel criarMaterial(Emprestimo emprestimo) throws OperacaoNaoPermitidaException, RegistroNaoEncontradoException, UsuarioNaoAutenticadoException {
 	    JPanel itemEmprestimo = new JPanel(new BorderLayout());
 	
 	    itemEmprestimo.setBackground(Color.WHITE);
@@ -391,11 +397,10 @@ public class MeusDados extends JPanel {
 	    itemEmprestimo.setAlignmentX(Component.LEFT_ALIGNMENT);
 	    
 	    JLabel informacao;
-	    
+		String materialTitulo = catalogo.buscarMaterial(emprestimo.getMaterialId()).getTitulo();
 	    if (emprestimo.getStatus() == StatusEmprestimo.DEVOLVIDO) {
 	    	informacao = new JLabel(
-	    			"<HTML>" +
-	    			emprestimo.getMaterial().getTitulo() + 
+	    			"<HTML>" + materialTitulo +
 	    			"<br>Devolvido em: " +
 	    			emprestimo.getDataDevolucao() +
 	    			"</HTML>"
@@ -408,8 +413,7 @@ public class MeusDados extends JPanel {
 	    long diasRestantes = ChronoUnit.DAYS.between(LocalDate.now(), emprestimo.getDataPrevistaDevolucao());
 	    
 	    informacao = new JLabel(
-	    		"<html>" +
-	    	    emprestimo.getMaterial().getTitulo() +
+	    		"<html>" + materialTitulo +
 	    	    "<br>Tempo restante: " + diasRestantes + " dias" +
 	    	    "</html>"
 	    		);

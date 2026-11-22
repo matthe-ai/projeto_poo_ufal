@@ -41,8 +41,8 @@ class MultaTest {
 
         emprestimo = new Emprestimo(
                 LocalDate.now(),
-                livro,
-                usuario
+                livro.getId(),
+                usuario.getID()
         );
     }
 

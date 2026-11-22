@@ -59,7 +59,7 @@ public class EmprestimoRepositorio implements Repositorio<Emprestimo> {
         List<Emprestimo> emprestimosFiltrados = new ArrayList<>();
 
         for (Emprestimo emprestimo : emprestimos) {
-            if (emprestimo.getUsuario().getID() == (usuarioId)) {
+            if (emprestimo.getUsuarioId() == (usuarioId)) {
                 emprestimosFiltrados.add(emprestimo);
             }
         }

@@ -26,23 +26,31 @@ import biblioteca.exception.SolicitacaoJaProcessadaException;
 import biblioteca.exception.UsuarioNaoAutenticadoException;
 import biblioteca.model.SolicitacaoEmprestimo;
 import biblioteca.model.StatusEnums.StatusSolicitacao;
+import biblioteca.model.material.MaterialBibliografico;
+import biblioteca.model.usuario.Usuario;
+import biblioteca.service.CatalogoService;
 import biblioteca.service.SolicitacaoEmprestimoService;
+import biblioteca.service.UsuarioService;
 
 public class Solicitacoes extends JPanel {
 
 	// atributos
 	
 	private final SolicitacaoEmprestimoService solicitacoesService;
+    private final CatalogoService catalogoService;
+    private final UsuarioService usuarioService;
 	private Runnable voltarLogin;
 	
 	private JPanel painelLista;
 	
 	// construtor
 	
-    public Solicitacoes(SolicitacaoEmprestimoService sol, Runnable voltarLogin) {
+    public Solicitacoes(SolicitacaoEmprestimoService sol, CatalogoService catalogoService, UsuarioService usuarioService, Runnable voltarLogin) {
         this.solicitacoesService = sol;
-    	
-    	configurarPainel();
+        this.catalogoService = catalogoService;
+        this.usuarioService = usuarioService;
+
+        configurarPainel();
         criarComponentes();
     }
     
@@ -102,7 +110,7 @@ public class Solicitacoes extends JPanel {
     // CRIAR COMPONENTE DA SOLICITAÇÃO
     // =================================
 
-    private JPanel criarSolicitacao(SolicitacaoEmprestimo solicitacao) {
+    private JPanel criarSolicitacao(SolicitacaoEmprestimo solicitacao) throws OperacaoNaoPermitidaException, RegistroNaoEncontradoException, UsuarioNaoAutenticadoException {
 
         JPanel item = new JPanel(new BorderLayout(10, 0));
 
@@ -117,8 +125,10 @@ public class Solicitacoes extends JPanel {
         informacoes.setLayout(new BoxLayout(informacoes, BoxLayout.Y_AXIS));
         informacoes.setOpaque(false);
 
-        JLabel labelTitulo = new JLabel(solicitacao.getMaterialSolicitado().getTitulo());
-        JLabel labelSolicitante = new JLabel("Solicitante: " + solicitacao.getSolicitante().getNome());
+        String materialSolicitadoTitulo = catalogoService.buscarMaterial(solicitacao.getMaterialSolicitadoId()).getTitulo();
+        String usuarioSolicitanteNome = usuarioService.buscarUsuario(solicitacao.getSolicitanteId()).getNome();
+        JLabel labelTitulo = new JLabel(materialSolicitadoTitulo);
+        JLabel labelSolicitante = new JLabel("Solicitante: " + usuarioSolicitanteNome);
 
         informacoes.add(labelTitulo);
         informacoes.add(Box.createVerticalStrut(3));
@@ -207,14 +217,16 @@ public class Solicitacoes extends JPanel {
 			voltarLogin.run();
 		} catch (OperacaoNaoPermitidaException one) {
 			JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);
-		}
+		} catch (RegistroNaoEncontradoException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // =================================
     // ADICIONAR SOLICITAÇÃO À LISTA
     // =================================
 
-    private void adicionarSolicitacao(SolicitacaoEmprestimo solicitacao) {
+    private void adicionarSolicitacao(SolicitacaoEmprestimo solicitacao) throws OperacaoNaoPermitidaException, RegistroNaoEncontradoException, UsuarioNaoAutenticadoException {
 
         JPanel item = criarSolicitacao(solicitacao);
 

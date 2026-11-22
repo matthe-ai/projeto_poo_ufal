@@ -68,8 +68,8 @@ class MultaServiceTest {
 
         emprestimo = new Emprestimo(
                 LocalDate.now(),
-                livro,
-                leitor
+                livro.getId(),
+                leitor.getID()
         );
 
         sessao.iniciarSessao(bibliotecario);
@@ -306,7 +306,7 @@ class MultaServiceTest {
         assertEquals(1, multas.size());
         assertEquals(
                 leitor.getID(),
-                multas.getFirst().getEmprestimo().getUsuario().getID()
+                multas.getFirst().getEmprestimo().getUsuarioId()
         );
     }
 

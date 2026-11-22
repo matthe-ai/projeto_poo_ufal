@@ -123,7 +123,7 @@ class SolicitacaoEmprestimoServiceTest {
             StatusSolicitacao status,
             int id
     ) {
-        return new SolicitacaoEmprestimo(usuario, livro, status, id);
+        return new SolicitacaoEmprestimo(usuario.getID(), livro.getId(), status, id);
     }
 
     private void autenticarAdministrador() {
@@ -143,8 +143,8 @@ class SolicitacaoEmprestimoServiceTest {
 
         SolicitacaoEmprestimo solicitacao = solicitacaoRepositorio.listarTodos().getFirst();
 
-        assertSame(leitor, solicitacao.getSolicitante());
-        assertSame(livro1, solicitacao.getMaterialSolicitado());
+        assertEquals(leitor.getID(), solicitacao.getSolicitanteId());
+        assertEquals(livro1.getId(), solicitacao.getMaterialSolicitadoId());
 
         assertEquals(
                 StatusSolicitacao.PENDENTE,
@@ -561,8 +561,8 @@ class SolicitacaoEmprestimoServiceTest {
         // Cria um empréstimo com multa pendente para o usuário
         Emprestimo emprestimo = new Emprestimo(
                 LocalDate.now().plusDays(EmprestimoService.PRAZO_EMPRESTIMO_LIVRO),
-                livro,
-                usuarioLeitor
+                livro.getId(),
+                usuarioLeitor.getID()
         );
 
         Multa multa = new Multa(

@@ -173,11 +173,11 @@ public class CatalogoService extends Service {
     public void atualizarLivro(
             String titulo,
             int anoPublicacao,
+            String editora,
+            Path capa,
             String autor,
             String isbn,
-            String editora,
-            int livroId,
-            Path capa
+            int livroId
     )
             throws OperacaoNaoPermitidaException,
             RegistroNaoEncontradoException,
@@ -204,10 +204,10 @@ public class CatalogoService extends Service {
                     String titulo,
                     int anoPublicacao,
                     String editora,
+                    Path capa,
                     int numeroEdicao,
                     String dataPublicacao,
-                    int periodicoId,
-                    Path capa
+                    int periodicoId
             )
             throws OperacaoNaoPermitidaException,
             RegistroNaoEncontradoException,

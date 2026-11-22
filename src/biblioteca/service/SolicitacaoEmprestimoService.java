@@ -42,7 +42,7 @@ public class SolicitacaoEmprestimoService extends Service {
                 solicitacaoEmprestimoRepositorio.listarPorUsuarioEStatus(sessao.getUsuarioLogado().getID(), StatusSolicitacao.PENDENTE);
 
         for (SolicitacaoEmprestimo solicitacaoEmprestimo : solicitacoesPendentesDoUsuario) {
-            if (solicitacaoEmprestimo.getMaterialSolicitado().getId() == materialId) {
+            if (solicitacaoEmprestimo.getMaterialSolicitadoId() == materialId) {
                 return true;
             }
         }
@@ -76,9 +76,10 @@ public class SolicitacaoEmprestimoService extends Service {
 
             this.verificarMinhasMultasPendentes();
 
-            SolicitacaoEmprestimo novaSolicitacao = new SolicitacaoEmprestimo(sessao.getUsuarioLogado(), materialSolicitado);
+            SolicitacaoEmprestimo novaSolicitacao = new SolicitacaoEmprestimo(sessao.getUsuarioLogado().getID(), materialSolicitado.getId());
             solicitacaoEmprestimoRepositorio.adicionar(novaSolicitacao);
         }
+
 
     public List<SolicitacaoEmprestimo> listarSolicitacoes() throws UsuarioNaoAutenticadoException, OperacaoNaoPermitidaException {
         this.verificarAutenticacao();
@@ -145,10 +146,10 @@ public class SolicitacaoEmprestimoService extends Service {
         SolicitacaoEmprestimo solicitacao = solicitacaoEmprestimoRepositorio.buscarPorId(solicitacaoId);
         this.validarSolicitacaoPendente(solicitacao);
 
-        this.emprestimoService.registrarEmprestimo(solicitacao.getSolicitante().getID(), solicitacao.getMaterialSolicitado().getId());
+        this.emprestimoService.registrarEmprestimo(solicitacao.getSolicitanteId(), solicitacao.getMaterialSolicitadoId());
         SolicitacaoEmprestimo solicitacaoAtualizada = new SolicitacaoEmprestimo(
-                solicitacao.getSolicitante(),
-                solicitacao.getMaterialSolicitado(),
+                solicitacao.getSolicitanteId(),
+                solicitacao.getMaterialSolicitadoId(),
                 StatusSolicitacao.APROVADA,
                 solicitacao.getId()
         );
@@ -165,8 +166,8 @@ public class SolicitacaoEmprestimoService extends Service {
         SolicitacaoEmprestimo solicitacao = solicitacaoEmprestimoRepositorio.buscarPorId(solicitacaoId);
         this.validarSolicitacaoPendente(solicitacao);
         SolicitacaoEmprestimo solicitacaoAtualizada = new SolicitacaoEmprestimo(
-                solicitacao.getSolicitante(),
-                solicitacao.getMaterialSolicitado(),
+                solicitacao.getSolicitanteId(),
+                solicitacao.getMaterialSolicitadoId(),
                 StatusSolicitacao.REJEITADA,
                 solicitacao.getId()
         );

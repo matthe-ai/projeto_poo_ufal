@@ -37,7 +37,6 @@ import biblioteca.model.material.Livro;
 import biblioteca.model.material.MaterialBibliografico;
 import biblioteca.model.material.Periodico;
 import biblioteca.model.usuario.Cargo;
-import biblioteca.model.usuario.Usuario;
 import biblioteca.service.CatalogoService;
 import biblioteca.service.EmprestimoService;
 import biblioteca.service.MultaService;
@@ -236,16 +235,16 @@ public class MenuPrincipal extends JFrame {
 
 		// Adiciona a tela de dados
 		painelCentral.add(
-				new MeusDados(this.sessao, this.usuarios, this.emprestimos, voltarLogin, this.solicitacaoEmprestimos),
+				new MeusDados(this.sessao, this.usuarios, this.emprestimos, voltarLogin, this.solicitacaoEmprestimos, catalogo),
 				"MEUS_DADOS");
 
 		// Adiciona a tela do bibliotecario
 		if (this.sessao.getUsuarioLogado().getCargo() == Cargo.BIBLIOTECARIO
 				|| this.sessao.getUsuarioLogado().getCargo() == Cargo.ADMINISTRADOR) {
-			painelCentral.add(new MenuBibliotecario(this.catalogo, voltarLogin), "BIBLIOTECARIO");
-			painelCentral.add(new Solicitacoes(this.solicitacaoEmprestimos, voltarLogin), "SOLICITACOES");
-			painelCentral.add(new Multas(multaService, voltarLogin), "MULTAS");
-			painelCentral.add(new Emprestimos(this.emprestimos, voltarLogin), "EMPRESTIMOS");
+			painelCentral.add(new MenuBibliotecario(this.catalogo, this.voltarLogin), "BIBLIOTECARIO");
+			painelCentral.add(new Solicitacoes(this.solicitacaoEmprestimos, this.catalogo, this.usuarios, this.voltarLogin), "SOLICITACOES");
+			painelCentral.add(new Multas(this.multaService, this.catalogo, this.voltarLogin), "MULTAS");
+			painelCentral.add(new Emprestimos(this.emprestimos, this.catalogo, this.usuarios, this.voltarLogin), "EMPRESTIMOS");
 		}
 
 		// Adiciona a tela do administrador

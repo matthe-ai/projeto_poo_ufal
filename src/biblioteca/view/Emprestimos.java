@@ -23,23 +23,29 @@ import biblioteca.exception.RegistroNaoEncontradoException;
 import biblioteca.exception.UsuarioNaoAutenticadoException;
 import biblioteca.model.Emprestimo;
 import biblioteca.model.StatusEnums.StatusEmprestimo;
+import biblioteca.service.CatalogoService;
 import biblioteca.service.EmprestimoService;
+import biblioteca.service.UsuarioService;
 
 public class Emprestimos extends JPanel {
 
 	// atributos
 	
 	private final EmprestimoService emprestimoService;
+    private final CatalogoService catalogo;
+    private final UsuarioService usuarios;
 	private Runnable voltarLogin;
 	
 	private JPanel painelLista;
 	
 	// construtor
 	
-    public Emprestimos(EmprestimoService ems, Runnable voltarLogin) {
+    public Emprestimos(EmprestimoService ems, CatalogoService catalogo, UsuarioService usuarios, Runnable voltarLogin) {
         this.emprestimoService = ems;
-    	
-    	configurarPainel();
+        this.catalogo = catalogo;
+        this.usuarios = usuarios;
+
+        configurarPainel();
         criarComponentes();
     }
     
@@ -99,7 +105,7 @@ public class Emprestimos extends JPanel {
     // CRIAR COMPONENTE DO EMPRESTIMO
     // =================================
 
-    private JPanel criarEmprestimo(Emprestimo emprestimo) {
+    private JPanel criarEmprestimo(Emprestimo emprestimo) throws OperacaoNaoPermitidaException, RegistroNaoEncontradoException, UsuarioNaoAutenticadoException {
 
         JPanel item = new JPanel(new BorderLayout(10, 0));
 
@@ -114,8 +120,10 @@ public class Emprestimos extends JPanel {
         informacoes.setLayout(new BoxLayout(informacoes, BoxLayout.Y_AXIS));
         informacoes.setOpaque(false);
 
-        JLabel labelTitulo = new JLabel(emprestimo.getMaterial().getTitulo());
-        JLabel labelEmprestadoPara = new JLabel("Emprestado para: " + emprestimo.getUsuario().getNome());
+        String materialTitulo = catalogo.buscarMaterial(emprestimo.getMaterialId()).getTitulo();
+        String usuarioNome = usuarios.buscarUsuario(emprestimo.getUsuarioId()).getNome();
+        JLabel labelTitulo = new JLabel(materialTitulo);
+        JLabel labelEmprestadoPara = new JLabel("Emprestado para: " + usuarioNome);
 
         informacoes.add(labelTitulo);
         informacoes.add(Box.createVerticalStrut(3));
@@ -172,14 +180,16 @@ public class Emprestimos extends JPanel {
 			voltarLogin.run();
 		} catch (OperacaoNaoPermitidaException one) {
 			JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);
-		}
+		} catch (RegistroNaoEncontradoException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // =================================
     // ADICIONAR SOLICITAÇÃO À LISTA
     // =================================
 
-    private void adicionarEmprestimo(Emprestimo emprestimo) {
+    private void adicionarEmprestimo(Emprestimo emprestimo) throws OperacaoNaoPermitidaException, RegistroNaoEncontradoException, UsuarioNaoAutenticadoException {
 
         JPanel item = criarEmprestimo(emprestimo);
 

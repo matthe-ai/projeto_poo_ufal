@@ -54,7 +54,7 @@ public class SolicitacaoEmprestimoRepositorio implements Repositorio<Solicitacao
         List<SolicitacaoEmprestimo> solicitacoesFiltradas = new ArrayList<>();
 
         for (SolicitacaoEmprestimo solicitacao : solitacoesEmprestimos) {
-            if (solicitacao.getSolicitante().getID() == usuarioId) {
+            if (solicitacao.getSolicitanteId() == usuarioId) {
                 solicitacoesFiltradas.add(solicitacao);
             }
         }

@@ -643,7 +643,7 @@ public class MenuBibliotecario extends JPanel{
             }
 
             try {
-				this.catalogo.atualizarLivro(titulo, ano, autor, isbn, editora, material.getId(), novaCapaPath);
+				this.catalogo.atualizarLivro(titulo, ano, editora, novaCapaPath, autor, isbn , material.getId());
 			} catch (OperacaoNaoPermitidaException one) {
                 JOptionPane.showMessageDialog(popup, one.getMessage(),"Erro de permissão",JOptionPane.ERROR_MESSAGE);
             } catch (RegistroNaoEncontradoException e1) {
@@ -713,7 +713,7 @@ public class MenuBibliotecario extends JPanel{
             }
 
             try {
-				this.catalogo.atualizarPeriodico(titulo, ano, editora, edicao, data, material.getId(), novaCapaPath);
+				this.catalogo.atualizarPeriodico(titulo, ano, editora, novaCapaPath, edicao, data, material.getId());
 			} catch (OperacaoNaoPermitidaException one) {
                 JOptionPane.showMessageDialog(popup,one.getMessage(),"Erro de permissão",JOptionPane.ERROR_MESSAGE);
             } catch (RegistroNaoEncontradoException e1) {
