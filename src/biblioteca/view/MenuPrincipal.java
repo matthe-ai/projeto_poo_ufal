@@ -105,7 +105,7 @@ public class MenuPrincipal extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		setMinimumSize(new Dimension(700, 600));
-		setResizable(false);
+		// setResizable(false);
 	}
 
 	private void criarMenu() {
@@ -492,8 +492,6 @@ public class MenuPrincipal extends JFrame {
 
 		card.setBackground(Color.WHITE);
 		card.setBorder(new EmptyBorder(12, 12, 12, 12));
-		card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
-		card.setPreferredSize(new Dimension(750, 120));
 
 		// CAPA
 
@@ -542,9 +540,6 @@ public class MenuPrincipal extends JFrame {
 		// DISPONIBILIDADE E EMPRESTIMO
 
 		JPanel painelAcao = new JPanel();
-
-		painelAcao.setPreferredSize(new Dimension(155, 100));
-		painelAcao.setMinimumSize(new Dimension(155, 100));
 
 		painelAcao.setLayout(
 				new BoxLayout(painelAcao, BoxLayout.Y_AXIS)
@@ -610,8 +605,16 @@ public class MenuPrincipal extends JFrame {
 				}
 			}
 		}
+		
+		Dimension tamanhoAcao = painelAcao.getPreferredSize();
+
+		painelAcao.setPreferredSize(new Dimension(155, tamanhoAcao.height));
 
 		card.add(painelAcao, BorderLayout.EAST);
+		
+		Dimension tamanhoPreferido = card.getPreferredSize();
+
+		card.setMaximumSize(new Dimension(Integer.MAX_VALUE, tamanhoPreferido.height));
 
 		painelMateriais.add(card);
 		painelMateriais.add(Box.createVerticalStrut(10));
