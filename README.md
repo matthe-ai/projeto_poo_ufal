@@ -152,7 +152,8 @@ src/
         ├── MenuPrincipal.java
         ├── MenuUsuario.java
         ├── MenuBibliotecario.java
-        └── MenuAdministrador.java
+        ├── MenuAdministrador.java
+        └── Menus de gerenciamento
 
 tests/
 └── biblioteca/
