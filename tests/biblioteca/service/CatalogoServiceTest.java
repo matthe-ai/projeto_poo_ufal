@@ -529,7 +529,6 @@ class CatalogoServiceTest {
 
         service.atualizarPeriodico(
                 "National Geographic - Nova edição",
-                2025,
                 "National Geographic Society",
                 CAPA_VALIDA,
                 151,
@@ -553,7 +552,6 @@ class CatalogoServiceTest {
 
         service.atualizarPeriodico(
                 "Revista Ciência Hoje - Nova edição",
-                2025,
                 "National Geographic Society",
                 CAPA_VALIDA,
                 151,
@@ -575,7 +573,6 @@ class CatalogoServiceTest {
         assertThrows(TipoMaterialInvalidoException.class,
                 () ->  service.atualizarPeriodico(
                         "National Geographic - Nova edição",
-                        2025,
                         "National Geographic Society",
                         CAPA_VALIDA,
                         151,
@@ -589,7 +586,6 @@ class CatalogoServiceTest {
         assertThrows(RegistroNaoEncontradoException.class,
                 () ->  service.atualizarPeriodico(
                         "National Geographic - Nova edição",
-                        2025,
                         "National Geographic Society",
                         CAPA_VALIDA,
                         151,
@@ -605,7 +601,6 @@ class CatalogoServiceTest {
         assertThrows(CredenciaisInvalidasException.class,
                 () ->  service.atualizarPeriodico(
                         " ",
-                        2025,
                         "National Geographic Society",
                         CAPA_VALIDA,
                         151,
@@ -621,7 +616,6 @@ class CatalogoServiceTest {
         assertThrows(CredenciaisInvalidasException.class,
                 () ->  service.atualizarPeriodico(
                         "National Geographic - Nova edição",
-                        2025,
                         "National Geographic Society",
                         CAPA_VALIDA,
                         0,
@@ -637,7 +631,6 @@ class CatalogoServiceTest {
         assertThrows(CredenciaisInvalidasException.class,
                 () ->  service.atualizarPeriodico(
                         "National Geographic - Nova edição",
-                        2025,
                         "National Geographic Society",
                         CAPA_VALIDA,
                         151,
@@ -653,7 +646,6 @@ class CatalogoServiceTest {
         assertThrows(CredenciaisInvalidasException.class,
                 () ->  service.atualizarPeriodico(
                         "National Geographic - Nova edição",
-                        2025,
                         "National Geographic Society",
                         CAPA_INEXISTENTE,
                         151,
@@ -805,7 +797,6 @@ class CatalogoServiceTest {
         assertThrows(OperacaoNaoPermitidaException.class,
                 () -> service.atualizarPeriodico(
                         "National Geographic - Nova edição",
-                        2025,
                         "National Geographic Society",
                         CAPA_VALIDA,
                         151,

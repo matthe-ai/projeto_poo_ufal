@@ -12,16 +12,16 @@ public class Periodico extends MaterialBibliografico {
 
     // construtor
 
-    public Periodico(String titulo, int anoPublicacao, String editora, int numeroEdicao, String dataPublicacao, TipoPeriodico tipoPeriodico, Path caminhoCapa) {
-        super(titulo, anoPublicacao, editora, caminhoCapa);
+    public Periodico(String titulo, String editora, int numeroEdicao, String dataPublicacao, TipoPeriodico tipoPeriodico, Path caminhoCapa) {
+        super(titulo, editora, caminhoCapa);
         this.tipoPeriodico = tipoPeriodico;
         this.setEditora(editora.trim());
         this.setNumeroEdicao(numeroEdicao);
         this.setDataPublicacao(dataPublicacao.trim());
     }
 
-    public Periodico(String titulo, int anoPublicacao, String editora, int numeroEdicao, String dataPublicacao, TipoPeriodico tipoPeriodico, int id, Path caminhoCapa) {
-        super(titulo, anoPublicacao, editora, id, caminhoCapa);
+    public Periodico(String titulo, String editora, int numeroEdicao, String dataPublicacao, TipoPeriodico tipoPeriodico, int id, Path caminhoCapa) {
+        super(titulo, editora, id, caminhoCapa);
         this.tipoPeriodico = tipoPeriodico;
         this.setEditora(editora.trim());
         this.setNumeroEdicao(numeroEdicao);
@@ -55,10 +55,10 @@ public class Periodico extends MaterialBibliografico {
     @Override
     public String exibirDetalhes() {
         if (getTipoPeriodico() == TipoPeriodico.JORNAL) {
-            return "Titulo do jornal: %s - Ano de publicação: %s - Numero de edição: %s - Editora: %s".formatted(this.getTitulo(), this.getAnoPublicacao(), this.getNumeroEdicao(), this.getEditora());
+            return "Titulo do jornal: %s - Ano de publicação: %s - Numero de edição: %s - Editora: %s".formatted(this.getTitulo(), this.getDataPublicacao(), this.getNumeroEdicao(), this.getEditora());
         }
 
-        return "Titulo da revista: %s - Ano de publicação: %s - Numero de edição: %s - Editora: %s".formatted(this.getTitulo(), this.getAnoPublicacao(), this.getNumeroEdicao(), this.getEditora());
+        return "Titulo da revista: %s - Ano de publicação: %s - Numero de edição: %s - Editora: %s".formatted(this.getTitulo(), this.getDataPublicacao(), this.getNumeroEdicao(), this.getEditora());
     }
 
 }

@@ -315,7 +315,9 @@ public class MenuBibliotecario extends JPanel {
         gbc.weightx = 0;
         gbc.fill = GridBagConstraints.NONE;
 
-        formulario.add(new JLabel("Ano de publicação"), gbc);
+        JLabel labelAno = new JLabel("Ano de publicação");
+        Color corLabelAno = labelAno.getForeground();
+        formulario.add(labelAno, gbc);
 
         JPanel painelAnoTipo = new JPanel(
                 new FlowLayout(FlowLayout.LEFT, 0, 0)
@@ -326,9 +328,15 @@ public class MenuBibliotecario extends JPanel {
         campoAno.setPreferredSize(new Dimension(80, 25));
         comboTipo.setPreferredSize(new Dimension(100, 25));
 
+        Component espacamentoAnoTipo = Box.createHorizontalStrut(10);
+        labelAno.setForeground(new Color(220, 220, 220));
+        campoAno.setVisible(false);
+        espacamentoAnoTipo.setVisible(false);
+
         painelAnoTipo.add(campoAno);
-        painelAnoTipo.add(Box.createHorizontalStrut(10));
+        painelAnoTipo.add(espacamentoAnoTipo);
         painelAnoTipo.add(comboTipo);
+
         painelAnoTipo.setAlignmentX(LEFT_ALIGNMENT);
 
         gbc.gridx = 1;
@@ -339,9 +347,19 @@ public class MenuBibliotecario extends JPanel {
 
         comboTipo.addActionListener(e -> {
 
-            if (!Objects.equals(comboTipo.getSelectedItem(), "Tipo")) {
+            String tipoSelecionado = (String) comboTipo.getSelectedItem();
 
-                if (Objects.equals(comboTipo.getSelectedItem(), "Livro")) {
+            boolean exibirAno = Objects.equals(tipoSelecionado, "Livro");
+
+            campoAno.setVisible(exibirAno);
+            espacamentoAnoTipo.setVisible(exibirAno);
+
+            labelAno.setForeground(
+                    exibirAno ? corLabelAno : new Color(220, 220, 220)
+            );
+            if (!Objects.equals(tipoSelecionado, "Tipo")) {
+
+                if (Objects.equals(tipoSelecionado, "Livro")) {
 
                     removerCampo(
                             formulario,
@@ -738,12 +756,12 @@ public class MenuBibliotecario extends JPanel {
                 Livro material_temp = (Livro) material;
 
                 informacoes.add(new JLabel(material_temp.getAutor()));
+                informacoes.add(
+                        new JLabel(String.valueOf(material_temp.getAnoPublicacao()))
+                );
             }
 
             informacoes.add(new JLabel(material.getEditora()));
-            informacoes.add(
-                    new JLabel(String.valueOf(material.getAnoPublicacao()))
-            );
 
             if (material instanceof Periodico) {
 
@@ -956,6 +974,13 @@ public class MenuBibliotecario extends JPanel {
                         material.getId()
                 );
 
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Livro atualizado com sucesso!",
+                        "Aviso",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
             } catch (OperacaoNaoPermitidaException one) {
 
                 JOptionPane.showMessageDialog(
@@ -1011,7 +1036,6 @@ public class MenuBibliotecario extends JPanel {
         LinkedHashMap<String, String> dados = new LinkedHashMap<>();
 
         dados.put("Titulo", material.getTitulo());
-        dados.put("Ano de publicação", String.valueOf(material.getAnoPublicacao()));
         dados.put("Editora", material.getEditora());
         dados.put("Data de publicação", material.getDataPublicacao());
         dados.put("N edição", String.valueOf(material.getNumeroEdicao()));
@@ -1028,7 +1052,6 @@ public class MenuBibliotecario extends JPanel {
         if (popup.isConfirmado()) {
 
             String titulo = popup.getValor("Titulo");
-            int ano = Integer.parseInt(popup.getValor("Ano de publicação"));
             String editora = popup.getValor("Editora");
             String data = popup.getValor("Data de publicação");
             int edicao = Integer.parseInt(popup.getValor("N edição"));
@@ -1078,12 +1101,20 @@ public class MenuBibliotecario extends JPanel {
 
                 this.catalogo.atualizarPeriodico(
                         titulo,
-                        ano,
                         editora,
                         novaCapaPath,
                         edicao,
                         data,
                         material.getId()
+                );
+
+                JOptionPane.showMessageDialog(
+                        this,
+                         material.getTipoPeriodico() == TipoPeriodico.REVISTA ?
+                                 "Revista atualizada com sucesso!" :
+                                 "Jornal atualizado com sucesso!",
+                        "Aviso",
+                        JOptionPane.INFORMATION_MESSAGE
                 );
 
             } catch (OperacaoNaoPermitidaException one) {

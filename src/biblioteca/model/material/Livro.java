@@ -8,18 +8,20 @@ public class Livro extends MaterialBibliografico{
 	
 	private String autor;
 	private String isbn;
-	
+	private int anoPublicacao;
 	// construtor
 	
 	public Livro(String titulo, int anoPublicacao, String autor, String isbn, String editora, Path caminhoCapa) {
-		super(titulo, anoPublicacao, editora, caminhoCapa);
+		super(titulo, editora, caminhoCapa);
+		this.setAnoPublicacao(anoPublicacao);
 		this.setAutor(autor.trim());
 		this.setIsbn(isbn.trim());
 		this.setEditora(editora.trim());
 	}
 
 	public Livro(String titulo, int anoPublicacao, String autor, String isbn, String editora, int id, Path caminhoCapa) {
-		super(titulo, anoPublicacao, editora, id, caminhoCapa);
+		super(titulo, editora, id, caminhoCapa);
+		this.setAnoPublicacao(anoPublicacao);
 		this.setAutor(autor.trim());
 		this.setIsbn(isbn.trim());
 		this.setEditora(editora.trim());
@@ -41,6 +43,14 @@ public class Livro extends MaterialBibliografico{
 
 	public void setIsbn(String isbn) {
 		this.isbn = isbn;
+	}
+
+	public int getAnoPublicacao() {
+		return anoPublicacao;
+	}
+
+	public void setAnoPublicacao(int anoPublicacao) {
+		this.anoPublicacao = anoPublicacao;
 	}
 
 	// metodos
