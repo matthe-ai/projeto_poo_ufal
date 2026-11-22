@@ -12,6 +12,7 @@ import biblioteca.repository.UsuarioRepositorio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,14 +22,13 @@ class UsuarioServiceTest {
     private UsuarioService service;
     private UsuarioRepositorio usuarioRepositorio;
     private EmprestimoRepositorio emprestimoRepositorio;
-    private AutorizacaoService autorizacaoService;
     private Sessao sessao;
 
     @BeforeEach
     void setUp() {
         usuarioRepositorio = new UsuarioRepositorio();
         emprestimoRepositorio = new EmprestimoRepositorio();
-        autorizacaoService = new AutorizacaoService();
+        AutorizacaoService autorizacaoService = new AutorizacaoService();
         sessao = new Sessao();
 
         service = new UsuarioService(
@@ -234,7 +234,7 @@ class UsuarioServiceTest {
     @Test
     void deveImpedirLoginComUsuarioInexistente() {
         assertThrowsExactly(
-                RegistroNaoEncontradoException.class,
+                CredenciaisInvalidasException.class,
                 () -> service.logar("inexistente", "123456")
         );
     }
@@ -884,8 +884,7 @@ class UsuarioServiceTest {
                 "João Silva", "joao", "123456", Cargo.LEITOR
         );
 
-        Emprestimo emprestimo = new Emprestimo();
-        emprestimo.setUsuario(usuarioTeste);
+        Emprestimo emprestimo = new Emprestimo(LocalDate.now(), 123, usuarioTeste.getID());
 
         emprestimoRepositorio.adicionar(emprestimo);
 
@@ -907,8 +906,7 @@ class UsuarioServiceTest {
                 "João Silva", "joao", "123456", Cargo.LEITOR
         );
 
-        Emprestimo emprestimo = new Emprestimo();
-        emprestimo.setUsuario(usuarioTeste);
+        Emprestimo emprestimo = new Emprestimo(LocalDate.now(), usuarioTeste.getID(), 123);
 
         emprestimo.registrarDevolucao();
         emprestimoRepositorio.adicionar(emprestimo);

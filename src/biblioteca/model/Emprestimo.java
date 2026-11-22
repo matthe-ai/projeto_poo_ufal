@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Random;
 
 import biblioteca.exception.MaterialDevolvidoException;
+import biblioteca.model.StatusEnums.StatusEmprestimo;
 import biblioteca.model.material.MaterialBibliografico;
 import biblioteca.model.usuario.Usuario;
 
@@ -16,25 +17,19 @@ public class Emprestimo {
 	private LocalDate dataPrevistaDevolucao;
 	private LocalDate dataDevolucao;
 	private StatusEmprestimo status;
-	private MaterialBibliografico material;
-	private Usuario usuario;
+	private final int materialId;
+	private final int usuarioId;
 	
 	// construtor
-	
-	public Emprestimo() {
-		this.id = new Random().nextInt();
-		this.dataEmprestimo = LocalDate.now();
-		this.setStatus(StatusEmprestimo.ATIVO);
-	}
 
-	public Emprestimo(LocalDate dataPrevistaDevolucao, MaterialBibliografico material, Usuario usuario) {
+	public Emprestimo(LocalDate dataPrevistaDevolucao, int materialId, int usuarioId) {
 		this.id = new Random().nextInt();
 		this.dataEmprestimo = LocalDate.now();
 		this.setStatus(StatusEmprestimo.ATIVO);
 
 		this.dataPrevistaDevolucao = dataPrevistaDevolucao;
-		this.material = material;
-		this.usuario = usuario;
+		this.materialId = materialId;
+		this.usuarioId = usuarioId;
 	}
 	
 	// getters e setters
@@ -51,10 +46,6 @@ public class Emprestimo {
 		return dataDevolucao;
 	}
 
-	public void setDataDevolucao(LocalDate dataDevolucao) {
-		this.dataDevolucao = dataDevolucao;
-	}
-
 	public StatusEmprestimo getStatus() {
 		return status;
 	}
@@ -63,20 +54,12 @@ public class Emprestimo {
 		this.status = status;
 	}
 
-	public void setMaterial(MaterialBibliografico material) {
-		this.material = material;
+	public int getMaterialId() {
+		return this.materialId;
 	}
 
-	public MaterialBibliografico getMaterial() {
-		return this.material;
-	}
-
-	public void setUsuario(Usuario usuario) {
-		this.usuario = usuario;
-	}
-
-	public Usuario getUsuario() {
-		return this.usuario;
+	public int getUsuarioId() {
+		return this.usuarioId;
 	}
 
 	public int getId() {

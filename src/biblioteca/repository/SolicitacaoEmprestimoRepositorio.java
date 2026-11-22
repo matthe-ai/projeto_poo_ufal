@@ -3,7 +3,7 @@ package biblioteca.repository;
 import biblioteca.exception.ItemDuplicadoException;
 import biblioteca.exception.RegistroNaoEncontradoException;
 import biblioteca.model.SolicitacaoEmprestimo;
-import biblioteca.model.StatusSolicitacao;
+import biblioteca.model.StatusEnums.StatusSolicitacao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +54,7 @@ public class SolicitacaoEmprestimoRepositorio implements Repositorio<Solicitacao
         List<SolicitacaoEmprestimo> solicitacoesFiltradas = new ArrayList<>();
 
         for (SolicitacaoEmprestimo solicitacao : solitacoesEmprestimos) {
-            if (solicitacao.getSolicitante().getID() == usuarioId) {
+            if (solicitacao.getSolicitanteId() == usuarioId) {
                 solicitacoesFiltradas.add(solicitacao);
             }
         }

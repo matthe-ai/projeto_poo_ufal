@@ -1,3 +1,4 @@
+
 package biblioteca.view;
 
 import java.awt.BorderLayout;
@@ -11,6 +12,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.swing.Box;
@@ -22,6 +24,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import biblioteca.exception.CredenciaisInvalidasException;
@@ -34,19 +37,23 @@ import biblioteca.model.usuario.Cargo;
 import biblioteca.model.usuario.Usuario;
 import biblioteca.service.UsuarioService;
 
-public class MenuAdministrador extends JPanel{
+public class MenuAdministrador extends JPanel {
 
-	// atributos
-	
-	private UsuarioService usuarios;
-	private Runnable voltarLogin;
-	private JPanel painelListaUsuarios;
+    // Atributos
 
-	public MenuAdministrador(UsuarioService usuarios, Runnable voltarLogin) {
-		this.usuarios = usuarios;
-		this.voltarLogin = voltarLogin;
-		configurarPainel();
-		criarComponentes();
+    private final UsuarioService usuarios;
+    private final Runnable voltarLogin;
+    private JPanel painelListaUsuarios;
+
+    private JButton botaoBuscar;
+
+    // Construtor
+
+    public MenuAdministrador(UsuarioService usuarios, Runnable voltarLogin) {
+        this.usuarios = usuarios;
+        this.voltarLogin = voltarLogin;
+        configurarPainel();
+        criarComponentes();
     }
 
     private void configurarPainel() {
@@ -55,97 +62,184 @@ public class MenuAdministrador extends JPanel{
         setBorder(new EmptyBorder(25, 30, 30, 30));
     }
 
+    // Retorna o botão padrão desta tela para o MenuPrincipal.
+
+    public JButton getBotaoPadrao() {
+        return botaoBuscar;
+    }
+
     private void criarComponentes() {
 
-        JPanel painelPrincipal = new JPanel();
-        painelPrincipal.setLayout(new BoxLayout(painelPrincipal, BoxLayout.Y_AXIS));
+        JPanel painelPrincipal = new JPanel(new GridBagLayout());
         painelPrincipal.setBackground(new Color(220, 220, 220));
+
+        GridBagConstraints gbcPrincipal = new GridBagConstraints();
+        gbcPrincipal.gridx = 0;
+        gbcPrincipal.weightx = 1;
+        gbcPrincipal.fill = GridBagConstraints.HORIZONTAL;
+        gbcPrincipal.anchor = GridBagConstraints.WEST;
+        gbcPrincipal.insets = new Insets(0, 0, 10, 0);
 
         // =================================
         // PESQUISAR USUÁRIO
         // =================================
 
+        JPanel painelPesquisa = new JPanel();
+        painelPesquisa.setLayout(new BoxLayout(painelPesquisa, BoxLayout.Y_AXIS));
+        painelPesquisa.setBackground(new Color(220, 220, 220));
+        painelPesquisa.setAlignmentX(Component.LEFT_ALIGNMENT);
+        painelPesquisa.setMaximumSize(new Dimension(Integer.MAX_VALUE, 77));
+
         JLabel tituloPesquisa = new JLabel("Pesquisar usuário");
         tituloPesquisa.setFont(new Font("Arial", Font.PLAIN, 16));
+        tituloPesquisa.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        painelPrincipal.add(tituloPesquisa);
-        painelPrincipal.add(Box.createVerticalStrut(20));
+        painelPesquisa.add(tituloPesquisa);
+        painelPesquisa.add(Box.createVerticalStrut(20));
 
-        // Campo de pesquisa e botão
-        JPanel painelPesquisa = new JPanel(new BorderLayout(15, 0));
-        painelPesquisa.setBackground(new Color(220, 220, 220));
-        painelPesquisa.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
-        
-        // Opções de pesquisa
-        JComboBox<String> comboPesquisa = new JComboBox<String>(new String[]{"Nome", "Login"});
-        
+        // Campos de pesquisa
+
+        JPanel camposPesquisa = new JPanel(new BorderLayout(15, 0));
+        camposPesquisa.setBackground(new Color(220, 220, 220));
+        camposPesquisa.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        camposPesquisa.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JComboBox<String> comboPesquisa =
+                new JComboBox<>(new String[]{"Nome", "Login"});
+
         comboPesquisa.setPreferredSize(new Dimension(110, 38));
 
         JTextField campoPesquisa = new JTextField();
-        JButton botaoBuscar = new JButton("Buscar Usuário");
+        botaoBuscar = new JButton("Buscar Usuário");
 
         botaoBuscar.setBackground(Color.WHITE);
         botaoBuscar.setFocusPainted(false);
         botaoBuscar.setBorderPainted(false);
 
-        // Organização dos elementos
-        painelPesquisa.add(comboPesquisa, BorderLayout.WEST);
-        painelPesquisa.add(campoPesquisa, BorderLayout.CENTER);
-        painelPesquisa.add(botaoBuscar, BorderLayout.EAST);
+        camposPesquisa.add(comboPesquisa, BorderLayout.WEST);
+        camposPesquisa.add(campoPesquisa, BorderLayout.CENTER);
+        camposPesquisa.add(botaoBuscar, BorderLayout.EAST);
+
+        painelPesquisa.add(camposPesquisa);
+
+        gbcPrincipal.gridy = 0;
+        gbcPrincipal.weighty = 0;
+        gbcPrincipal.fill = GridBagConstraints.HORIZONTAL;
+        gbcPrincipal.anchor = GridBagConstraints.WEST;
+
+        painelPrincipal.add(painelPesquisa, gbcPrincipal);
 
         botaoBuscar.addActionListener(e -> {
+
             String pesquisa = campoPesquisa.getText();
             String criterio = (String) comboPesquisa.getSelectedItem();
+
             List<Usuario> resultado;
+
             switch (criterio) {
-            	case "Nome":
-					try {
-						resultado = this.usuarios.listarUsuariosPorNome(pesquisa);
-						this.criarUsuarios(resultado);
-					} catch (OperacaoNaoPermitidaException one) {
-						JOptionPane.showMessageDialog(this, "Você não tem permissão para realizar essa operação", one.getMessage(), JOptionPane.ERROR_MESSAGE);
-					} catch (UsuarioNaoAutenticadoException une) {
-						JOptionPane.showMessageDialog(this, "Você não está autenticado", une.getMessage(), JOptionPane.ERROR_MESSAGE);
-						voltarLogin.run();
-					}
-            		break;
-            	case "Login":
-					try {
-						resultado = this.usuarios.listarUsuariosPorLogin(pesquisa);
-						this.criarUsuarios(resultado);
-					} catch (OperacaoNaoPermitidaException one) {
-						JOptionPane.showMessageDialog(this, "Você não tem permissão para realizar essa operação", one.getMessage(), JOptionPane.ERROR_MESSAGE);
-					} catch (UsuarioNaoAutenticadoException une) {
-						JOptionPane.showMessageDialog(this, "Você não está autenticado", une.getMessage(), JOptionPane.ERROR_MESSAGE);
-						voltarLogin.run();
-					}
-            		break;
+
+                case "Nome":
+                    try {
+                        resultado = this.usuarios.listarUsuariosPorNome(pesquisa);
+                        this.criarUsuarios(resultado, pesquisa, "nome");
+
+                    } catch (OperacaoNaoPermitidaException one) {
+                        JOptionPane.showMessageDialog(
+                                this, one.getMessage(),
+                                "Erro de permissão",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+
+                    } catch (UsuarioNaoAutenticadoException une) {
+                        JOptionPane.showMessageDialog(
+                                this, une.getMessage(),
+                                "Erro de autenticação",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                        voltarLogin.run();
+                    }
+                    break;
+
+                case "Login":
+                    try {
+                        resultado = this.usuarios.listarUsuariosPorLogin(pesquisa);
+                        this.criarUsuarios(resultado, pesquisa, "login");
+
+                    } catch (OperacaoNaoPermitidaException one) {
+                        JOptionPane.showMessageDialog(
+                                this, one.getMessage(),
+                                "Erro de permissão",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+
+                    } catch (UsuarioNaoAutenticadoException une) {
+                        JOptionPane.showMessageDialog(
+                                this, une.getMessage(),
+                                "Erro de autenticação",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                        voltarLogin.run();
+                    }
+                    break;
             }
         });
 
-        painelPrincipal.add(painelPesquisa);
-        painelPrincipal.add(Box.createVerticalStrut(10));
+        // =================================
+        // LISTA DE USUÁRIOS
+        // =================================
 
-        // Lista de usuários encontrados
         painelListaUsuarios = new JPanel();
-        painelListaUsuarios.setLayout(new BoxLayout(painelListaUsuarios, BoxLayout.Y_AXIS));
+        painelListaUsuarios.setLayout(
+                new BoxLayout(painelListaUsuarios, BoxLayout.Y_AXIS)
+        );
         painelListaUsuarios.setBackground(new Color(220, 220, 220));
 
-        painelPrincipal.add(painelListaUsuarios);
-        painelPrincipal.add(Box.createVerticalStrut(25));
+        JScrollPane scroll = new JScrollPane(painelListaUsuarios);
+
+        scroll.setBorder(null);
+        scroll.setVerticalScrollBarPolicy(
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
+        );
+        scroll.setPreferredSize(new Dimension(600, 250));
+        scroll.setMinimumSize(new Dimension(0, 150));
+        scroll.getVerticalScrollBar().setUnitIncrement(15);
+
+        gbcPrincipal.gridy = 1;
+        gbcPrincipal.weighty = 1;
+        gbcPrincipal.fill = GridBagConstraints.BOTH;
+        gbcPrincipal.anchor = GridBagConstraints.WEST;
+
+        painelPrincipal.add(scroll, gbcPrincipal);
 
         // =================================
         // CADASTRAR USUÁRIO
         // =================================
 
+        JPanel painelCadastro = new JPanel();
+        painelCadastro.setLayout(
+                new BoxLayout(painelCadastro, BoxLayout.Y_AXIS)
+        );
+        painelCadastro.setBackground(new Color(220, 220, 220));
+        painelCadastro.setAlignmentX(Component.LEFT_ALIGNMENT);
+        painelCadastro.setMaximumSize(
+                new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE)
+        );
+
         JLabel tituloCadastro = new JLabel("Cadastrar usuário");
         tituloCadastro.setFont(new Font("Arial", Font.PLAIN, 16));
+        tituloCadastro.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        painelPrincipal.add(tituloCadastro);
-        painelPrincipal.add(Box.createVerticalStrut(5));
+        painelCadastro.add(tituloCadastro);
+        painelCadastro.add(Box.createVerticalStrut(5));
+
+        // Formulário
 
         JPanel formulario = new JPanel(new GridBagLayout());
         formulario.setBackground(new Color(220, 220, 220));
+        formulario.setAlignmentX(Component.LEFT_ALIGNMENT);
+        formulario.setMaximumSize(
+                new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE)
+        );
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 0, 5, 10);
@@ -155,15 +249,28 @@ public class MenuAdministrador extends JPanel{
         JTextField campoLogin = new JTextField();
         JTextField campoSenha = new JTextField();
 
-        JComboBox<String> comboTipo = new JComboBox<>(new String[]{"Usuário comum","Bibliotecário","Administrador"});
+        campoNome.setMinimumSize(new Dimension(400, 25));
+        campoLogin.setMinimumSize(new Dimension(400, 25));
+        campoSenha.setMinimumSize(new Dimension(400, 25));
+
+        JComboBox<String> comboTipo = new JComboBox<>(
+                new String[]{
+                        "Usuário comum",
+                        "Bibliotecário",
+                        "Administrador"
+                }
+        );
 
         // Nome
+
         adicionarCampo(formulario, gbc, 0, "Nome", campoNome);
 
         // Login
+
         adicionarCampo(formulario, gbc, 1, "Login", campoLogin);
 
         // Tipo de usuário
+
         gbc.gridy = 2;
         gbc.gridx = 0;
         gbc.weightx = 0;
@@ -175,77 +282,126 @@ public class MenuAdministrador extends JPanel{
 
         gbc.gridx = 1;
         gbc.weightx = 1;
+
         formulario.add(comboTipo, gbc);
 
         // Senha
+
         adicionarCampo(formulario, gbc, 3, "Senha", campoSenha);
 
-        painelPrincipal.add(formulario);
-        
-        painelPrincipal.add(Box.createVerticalStrut(15));
+        painelCadastro.add(formulario);
 
-	     // Botão adicionar usuário
-	    JPanel painelBotao = new JPanel(new FlowLayout(FlowLayout.CENTER));
-	
-	    painelBotao.setBackground(new Color(220, 220, 220));
-	
-	    JButton botaoAdicionar = new JButton("Adicionar usuário");
-	
-	    botaoAdicionar.setFocusPainted(false);
-	    botaoAdicionar.setBackground(Color.WHITE);
-	    botaoAdicionar.setBorderPainted(false);
-	
-	    botaoAdicionar.addActionListener(e -> {
-	    	String nome = campoNome.getText();
-	    	String login = campoLogin.getText();
-	    	String tipo = (String) comboTipo.getSelectedItem();
-	    	String senha = new String(campoSenha.getText());
-	    	Cargo cargo;
-	    	switch (tipo) {
-	    		case "Administrador":
-	    			cargo = Cargo.ADMINISTRADOR;
-	    		case "Bibliotecário":
-	    			cargo = Cargo.BIBLIOTECARIO;
-    			default:
-	    			cargo = Cargo.LEITOR;
-	    	}
-	    	try {
-				this.usuarios.cadastrarUsuario(nome, login, senha, cargo);
-				this.limparCampos(formulario);
-			} catch (NoSuchAlgorithmException e1) {
-				JOptionPane.showMessageDialog(this, "Algum erro aconteceu", "ERRO", JOptionPane.ERROR_MESSAGE);
-			} catch (InvalidKeySpecException e1) {
-				JOptionPane.showMessageDialog(this, "Algum erro aconteceu", "ERRO", JOptionPane.ERROR_MESSAGE);
-			} catch (CredenciaisInvalidasException e1) {
-				JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro nas credenciais digitadas", JOptionPane.ERROR_MESSAGE);
-			} catch (ItemDuplicadoException e1) {
-				JOptionPane.showMessageDialog(this, "Este login já está em uso, escolha outro", "Login já usado", JOptionPane.ERROR_MESSAGE);
-			} catch (OperacaoNaoPermitidaException one) {
-				JOptionPane.showMessageDialog(this, "Você não tem permissão para realizar essa operação", one.getMessage(), JOptionPane.ERROR_MESSAGE);
-			} catch (UsuarioNaoAutenticadoException une) {
-				JOptionPane.showMessageDialog(this, "Você não está autenticado", une.getMessage(), JOptionPane.ERROR_MESSAGE);
-				voltarLogin.run();
-			}
-	    });
-	
-		painelBotao.add(botaoAdicionar);
-	
-		painelPrincipal.add(painelBotao);
+        gbcPrincipal.gridy = 2;
+        gbcPrincipal.weighty = 0;
+        gbcPrincipal.fill = GridBagConstraints.HORIZONTAL;
+        gbcPrincipal.anchor = GridBagConstraints.WEST;
 
-        JScrollPane scroll = new JScrollPane(painelPrincipal);
-        scroll.setBorder(null);
-        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scroll.getVerticalScrollBar().setUnitIncrement(15);
+        painelPrincipal.add(painelCadastro, gbcPrincipal);
 
-        add(scroll, BorderLayout.CENTER);
+        // =================================
+        // BOTÃO ADICIONAR USUÁRIO
+        // =================================
+
+        JPanel painelBotao = new JPanel(
+                new FlowLayout(FlowLayout.CENTER)
+        );
+
+        painelBotao.setBackground(new Color(220, 220, 220));
+
+        JButton botaoAdicionar = new JButton("Adicionar usuário");
+
+        botaoAdicionar.setFocusPainted(false);
+        botaoAdicionar.setBackground(Color.WHITE);
+        botaoAdicionar.setBorderPainted(false);
+
+        painelBotao.add(botaoAdicionar);
+
+        gbcPrincipal.gridy = 3;
+        gbcPrincipal.weighty = 0;
+        gbcPrincipal.fill = GridBagConstraints.NONE;
+        gbcPrincipal.anchor = GridBagConstraints.CENTER;
+
+        painelPrincipal.add(painelBotao, gbcPrincipal);
+
+        botaoAdicionar.addActionListener(e -> {
+
+            String nome = campoNome.getText();
+            String login = campoLogin.getText();
+            String tipo = (String) comboTipo.getSelectedItem();
+            String senha = campoSenha.getText();
+
+            Cargo cargo;
+
+            switch (tipo) {
+
+                case "Administrador":
+                    cargo = Cargo.ADMINISTRADOR;
+                    break;
+
+                case "Bibliotecário":
+                    cargo = Cargo.BIBLIOTECARIO;
+                    break;
+
+                default:
+                    cargo = Cargo.LEITOR;
+                    break;
+            }
+
+            try {
+                this.usuarios.cadastrarUsuario(nome, login, senha, cargo);
+                this.limparCampos(formulario);
+
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException e1) {
+                JOptionPane.showMessageDialog(
+                        this, "Algum erro aconteceu",
+                        "ERRO",
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+            } catch (CredenciaisInvalidasException e1) {
+                JOptionPane.showMessageDialog(
+                        this, e1.getMessage(),
+                        "Erro nas credenciais digitadas",
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+            } catch (ItemDuplicadoException e1) {
+                JOptionPane.showMessageDialog(
+                        this, e1.getMessage(),
+                        "Erro ao cadastrar/atualizar",
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+            } catch (OperacaoNaoPermitidaException one) {
+                JOptionPane.showMessageDialog(
+                        this, one.getMessage(),
+                        "Erro de permissão",
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+            } catch (UsuarioNaoAutenticadoException une) {
+                JOptionPane.showMessageDialog(
+                        this, une.getMessage(),
+                        "Erro de autenticação",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                voltarLogin.run();
+            }
+        });
+
+        // =================================
+        // ADICIONAR PAINEL PRINCIPAL
+        // =================================
+
+        add(painelPrincipal, BorderLayout.CENTER);
     }
 
     private void adicionarCampo(
-        JPanel painel,
-        GridBagConstraints gbc,
-        int linha,
-        String texto,
-        JTextField campo
+            JPanel painel,
+            GridBagConstraints gbc,
+            int linha,
+            String texto,
+            JTextField campo
     ) {
         gbc.gridy = linha;
 
@@ -258,23 +414,23 @@ public class MenuAdministrador extends JPanel{
         gbc.weightx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        campo.setPreferredSize(new Dimension(400, 25));
+        campo.setPreferredSize(new Dimension(400, 30));
         painel.add(campo, gbc);
     }
-    
+
     private void limparCampos(JPanel painel) {
-    	for (Component component : painel.getComponents()) {
-			if (component instanceof JTextField) {
-				((JTextField) component).setText("");
-			}
-		}
+        for (Component component : painel.getComponents()) {
+            if (component instanceof JTextField) {
+                ((JTextField) component).setText("");
+            }
+        }
     }
 
     // =================================
     // CRIAR COMPONENTES DOS USUÁRIOS
     // =================================
 
-    private void criarUsuarios(List<Usuario> usuarios) {
+    private void criarUsuarios(List<Usuario> usuarios, String busca, String criterio) {
 
         painelListaUsuarios.removeAll();
 
@@ -282,48 +438,243 @@ public class MenuAdministrador extends JPanel{
 
             JPanel itemUsuario = new JPanel(new BorderLayout());
             itemUsuario.setBackground(Color.WHITE);
-            itemUsuario.setBorder(
-                new EmptyBorder(5, 12, 5, 20)
-            );
-            itemUsuario.setMaximumSize(
-                new Dimension(Integer.MAX_VALUE, 27)
-            );
+            itemUsuario.setBorder(new EmptyBorder(5, 12, 5, 20));
+            itemUsuario.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
 
-            JLabel nomeUsuario = new JLabel(usuario.getNome());
+            JLabel nomeUsuario;
 
-            JButton botaoRemover = new JButton("Remover");
-            botaoRemover.setBackground(new Color(220, 20, 30));
-            botaoRemover.setForeground(Color.WHITE);
-            botaoRemover.setFocusPainted(false);
-            botaoRemover.setBorderPainted(false);
+            nomeUsuario = criterio.equals("nome")
+                    ? new JLabel(usuario.getNome())
+                    : new JLabel(usuario.getLogin());
 
-            botaoRemover.addActionListener(e -> {
-            	int opcao = JOptionPane.showConfirmDialog(this, "Deseja remover esse usuario?", "Remover usuario", JOptionPane.YES_NO_OPTION);
-            	if (opcao == JOptionPane.YES_OPTION) {
-            		try {
-						this.usuarios.removerUsuario(usuario.getID());
-					} catch (RegistroNaoEncontradoException e1) {
-						JOptionPane.showMessageDialog(this, "Não foi foi possível encontrar o usuario para deletar", "Erro ao remover usuario", JOptionPane.ERROR_MESSAGE);
-					} catch (OperacaoNaoPermitidaException one) {
-						JOptionPane.showMessageDialog(this, "Você não tem permissão para realizar essa operação", one.getMessage(), JOptionPane.ERROR_MESSAGE);
-					} catch (UsuarioNaoAutenticadoException une) {
-						JOptionPane.showMessageDialog(this, "Você não está autenticado", une.getMessage(), JOptionPane.ERROR_MESSAGE);
-						voltarLogin.run();
-					} catch (UsuarioPossuiEmprestimosAtivosException e1) {
-						JOptionPane.showMessageDialog(this, "Não é possivel remover este usuario pois ele possui emprestimos ativos", "Erro ao remover usuario", JOptionPane.ERROR_MESSAGE);
-					}
-            		this.criarComponentes();
-            	}
+            JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+            painelBotoes.setBackground(Color.WHITE);
+
+            JButton botaoEditar = new JButton("Editar");
+            botaoEditar.setBackground(Color.GRAY);
+            botaoEditar.setForeground(Color.WHITE);
+            botaoEditar.setFocusPainted(false);
+            botaoEditar.setBorderPainted(false);
+
+            botaoEditar.addActionListener(e -> {
+                this.abrirPopupUsuario(usuario);
             });
 
+            JButton botaoRemover = this.createBotaoRemover(busca, criterio, usuario);
+
+            painelBotoes.add(botaoEditar);
+            painelBotoes.add(botaoRemover);
+
             itemUsuario.add(nomeUsuario, BorderLayout.CENTER);
-            itemUsuario.add(botaoRemover, BorderLayout.EAST);
+            itemUsuario.add(painelBotoes, BorderLayout.EAST);
 
             painelListaUsuarios.add(itemUsuario);
             painelListaUsuarios.add(Box.createVerticalStrut(10));
         }
 
         painelListaUsuarios.revalidate();
-    	painelListaUsuarios.repaint();
+        painelListaUsuarios.repaint();
+    }
+
+    private JButton createBotaoRemover(String busca, String criterio, Usuario usuario) {
+
+        JButton botaoRemover = new JButton("Remover");
+        botaoRemover.setBackground(new Color(220, 20, 30));
+        botaoRemover.setForeground(Color.WHITE);
+        botaoRemover.setFocusPainted(false);
+        botaoRemover.setBorderPainted(false);
+
+        botaoRemover.addActionListener(e -> {
+
+            int opcao = JOptionPane.showConfirmDialog(
+                    this,
+                    "Deseja remover esse usuario?",
+                    "Remover usuario",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (opcao == JOptionPane.YES_OPTION) {
+
+                try {
+                    this.usuarios.removerUsuario(usuario.getID());
+
+                    if (criterio.equals("nome")) {
+                        this.criarUsuarios(
+                                this.usuarios.listarUsuariosPorNome(busca),
+                                busca,
+                                criterio
+                        );
+                    } else {
+                        this.criarUsuarios(
+                                this.usuarios.listarUsuariosPorLogin(busca),
+                                busca,
+                                criterio
+                        );
+                    }
+
+                } catch (RegistroNaoEncontradoException | UsuarioPossuiEmprestimosAtivosException e1) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            e1.getMessage(),
+                            "Erro ao remover usuario",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+
+                } catch (OperacaoNaoPermitidaException one) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            one.getMessage(),
+                            "Erro de permissão",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+
+                } catch (UsuarioNaoAutenticadoException une) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            une.getMessage(),
+                            "Erro de autenticação",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                    voltarLogin.run();
+                }
+            }
+        });
+
+        return botaoRemover;
+    }
+
+    private void abrirPopupUsuario(Usuario usuario) {
+
+        LinkedHashMap<String, String> dados = new LinkedHashMap<>();
+
+        dados.put("Nome", usuario.getNome());
+        dados.put("Login", usuario.getLogin());
+        dados.put("Senha", "");
+
+        FormularioDialog popup = new FormularioDialog(
+                SwingUtilities.getWindowAncestor(this),
+                "Atualizar Usuário",
+                dados,
+                false
+        );
+
+        popup.setVisible(true);
+
+        if (popup.isConfirmado()) {
+
+            String nome = popup.getValor("Nome");
+
+            if (nome.isBlank() || nome.isEmpty() || nome == null) {
+                nome = usuario.getNome();
+            }
+
+            String login = popup.getValor("Login");
+
+            if (login.isBlank() || login.isEmpty() || login == null) {
+                login = usuario.getNome();
+            }
+
+            String senha = popup.getValor("Senha");
+
+            if (!(senha.isBlank() || senha.isEmpty() || senha == null)) {
+
+                try {
+                    this.usuarios.atualizarSenhaDoUsuario(senha, usuario.getID());
+
+                } catch (NoSuchAlgorithmException | InvalidKeySpecException e1) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Algum erro aconteceu ao atualizar a senha",
+                            "ERRO",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+
+                } catch (RegistroNaoEncontradoException e1) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            e1.getMessage(),
+                            "Erro ao remover usuario",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+
+                } catch (CredenciaisInvalidasException e1) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            e1.getMessage(),
+                            "Erro nas credenciais digitadas",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+
+                } catch (UsuarioNaoAutenticadoException une) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            une.getMessage(),
+                            "Erro de autenticação",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                    voltarLogin.run();
+
+                } catch (OperacaoNaoPermitidaException one) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            one.getMessage(),
+                            "Erro de permissão",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                }
+            }
+
+            try {
+                this.usuarios.atualizarUsuario(nome, login, usuario.getID());
+
+                JOptionPane.showMessageDialog(
+                        popup,
+                        "Dados atualizados com sucesso!",
+                        "Sucesso ao atualizar dados",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
+            } catch (OperacaoNaoPermitidaException one) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        one.getMessage(),
+                        "Erro de permissão",
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+            } catch (RegistroNaoEncontradoException e1) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        e1.getMessage(),
+                        "Erro ao remover usuario",
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+            } catch (UsuarioNaoAutenticadoException une) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        une.getMessage(),
+                        "Erro de autenticação",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                voltarLogin.run();
+
+            } catch (CredenciaisInvalidasException e1) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        e1.getMessage(),
+                        "Erro nas credenciais digitadas",
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+            } catch (ItemDuplicadoException e1) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        e1.getMessage(),
+                        "Login já usado",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        }
     }
 }

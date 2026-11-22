@@ -1,7 +1,8 @@
 package biblioteca.model;
 
 
-import biblioteca.exception.MultaJaProcessada;
+import biblioteca.exception.MultaJaProcessadaException;
+import biblioteca.model.StatusEnums.StatusMulta;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -71,20 +72,20 @@ public class Multa {
         return diasAtraso;
     }
 
-    public void registrarPagamento() {
+    public void registrarPagamento() throws MultaJaProcessadaException {
 
         if (this.dataPagamento != null || this.status != StatusMulta.PENDENTE) {
-            throw new MultaJaProcessada();
+            throw new MultaJaProcessadaException();
         }
 
         setDataPagamento(LocalDate.now());
         setStatus(StatusMulta.PAGA);
     }
 
-    public void registrarCancelamento() {
+    public void registrarCancelamento() throws MultaJaProcessadaException {
 
         if (this.dataPagamento != null || this.status != StatusMulta.PENDENTE) {
-            throw new MultaJaProcessada();
+            throw new MultaJaProcessadaException();
         }
 
         setStatus(StatusMulta.CANCELADA);

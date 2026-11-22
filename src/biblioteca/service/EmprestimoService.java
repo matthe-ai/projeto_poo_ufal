@@ -4,8 +4,8 @@ import biblioteca.auth.Sessao;
 import biblioteca.exception.*;
 import biblioteca.model.Emprestimo;
 import biblioteca.model.Multa;
-import biblioteca.model.StatusEmprestimo;
-import biblioteca.model.StatusMulta;
+import biblioteca.model.StatusEnums.StatusEmprestimo;
+import biblioteca.model.StatusEnums.StatusMulta;
 import biblioteca.model.material.Livro;
 import biblioteca.model.material.MaterialBibliografico;
 import biblioteca.model.material.Periodico;
@@ -100,7 +100,7 @@ public class EmprestimoService extends Service {
             RegistroNaoEncontradoException,
             MaterialIndisponivelException,
             LimiteEmprestimosException,
-            ItemDuplicadoException {
+            ItemDuplicadoException, UsuarioPossuiMultasPendentes {
 
         this.verificarAutenticacao();
         autorizacaoService.exigirPermissao(sessao.getUsuarioLogado(), Permissao.REGISTRAR_EMPRESTIMO);
@@ -116,7 +116,7 @@ public class EmprestimoService extends Service {
         this.verificarMultasPendentesDoUsuario(usuario.getID());
 
         LocalDate dataPrevistaDevolucao = calcularDataPrevista(materialParaEmprestar);
-        Emprestimo novoEmprestimo = new Emprestimo(dataPrevistaDevolucao, materialParaEmprestar, usuario);
+        Emprestimo novoEmprestimo = new Emprestimo(dataPrevistaDevolucao, materialParaEmprestar.getId(), usuario.getID());
         emprestimoRepositorio.adicionar(novoEmprestimo);
         materialParaEmprestar.marcarComoIndisponivel();
     }
@@ -154,7 +154,8 @@ public class EmprestimoService extends Service {
             multaService.cadastrarMulta(diasAtraso, emprestimoParaDevolver);
         }
         emprestimoParaDevolver.registrarDevolucao();
-        emprestimoParaDevolver.getMaterial().marcarComoDisponivel();
+        MaterialBibliografico materialParaDevolver = materialRepositorio.buscarPorId(emprestimoParaDevolver.getMaterialId());
+        materialParaDevolver.marcarComoDisponivel();
     }
     
     public Emprestimo buscarEmprestimo(int emprestimoId)

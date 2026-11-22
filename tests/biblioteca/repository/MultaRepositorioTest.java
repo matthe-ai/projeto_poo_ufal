@@ -3,7 +3,7 @@ import biblioteca.exception.ItemDuplicadoException;
 import biblioteca.exception.RegistroNaoEncontradoException;
 import biblioteca.model.Emprestimo;
 import biblioteca.model.Multa;
-import biblioteca.model.StatusMulta;
+import biblioteca.model.StatusEnums.StatusMulta;
 import biblioteca.model.material.Livro;
 import biblioteca.model.usuario.Cargo;
 import biblioteca.model.usuario.Usuario;
@@ -47,13 +47,15 @@ class MultaRepositorioTest {
                 Cargo.LEITOR
         );
 
+        Path caminhoCapa = Path.of(MaterialRepositorio.uploadsDirectory, "clean_code.jpg");
+
         Livro livro = new Livro(
                 "Clean Code",
                 2008,
                 "Robert C. Martin",
                 "9780132350884",
                 "Prentice Hall",
-                Path.of(MaterialRepositorio.uploadsDirectory, "clean_code.jpg")
+                caminhoCapa
         );
 
         Livro outroLivro = new Livro(
@@ -62,19 +64,19 @@ class MultaRepositorioTest {
                 "Joshua Bloch",
                 "9780134685991",
                 "Alta Books",
-                Path.of(MaterialRepositorio.uploadsDirectory, "clean_code.jpg")
+                caminhoCapa
         );
 
         emprestimo = new Emprestimo(
                 LocalDate.now(),
-                livro,
-                usuario
+                livro.getId(),
+                usuario.getID()
         );
 
         outroEmprestimo = new Emprestimo(
                 LocalDate.now(),
-                outroLivro,
-                outroUsuario
+                outroLivro.getId(),
+                outroUsuario.getID()
         );
 
         multa = new Multa(
@@ -212,8 +214,7 @@ class MultaRepositorioTest {
                 usuario.getID(),
                 multasDoUsuario.getFirst()
                         .getEmprestimo()
-                        .getUsuario()
-                        .getID()
+                        .getUsuarioId()
         );
     }
 

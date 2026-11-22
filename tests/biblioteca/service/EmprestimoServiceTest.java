@@ -4,8 +4,8 @@ import biblioteca.auth.Sessao;
 import biblioteca.exception.*;
 import biblioteca.model.Emprestimo;
 import biblioteca.model.Multa;
-import biblioteca.model.StatusEmprestimo;
-import biblioteca.model.StatusMulta;
+import biblioteca.model.StatusEnums.StatusEmprestimo;
+import biblioteca.model.StatusEnums.StatusMulta;
 import biblioteca.model.material.Livro;
 import biblioteca.model.material.MaterialBibliografico;
 import biblioteca.model.usuario.Cargo;
@@ -523,7 +523,7 @@ class EmprestimoServiceTest {
         assertEquals(1, emprestimos.size());
         assertEquals(
                 usuarioPermitido.getID(),
-                emprestimos.getFirst().getUsuario().getID()
+                emprestimos.getFirst().getUsuarioId()
         );
     }
 

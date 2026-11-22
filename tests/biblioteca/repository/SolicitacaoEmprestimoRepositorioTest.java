@@ -4,7 +4,7 @@ package biblioteca.repository;
 import biblioteca.exception.ItemDuplicadoException;
 import biblioteca.exception.RegistroNaoEncontradoException;
 import biblioteca.model.SolicitacaoEmprestimo;
-import biblioteca.model.StatusSolicitacao;
+import biblioteca.model.StatusEnums.StatusSolicitacao;
 import biblioteca.model.material.Livro;
 import biblioteca.model.usuario.Cargo;
 import biblioteca.model.usuario.Usuario;
@@ -46,7 +46,7 @@ class SolicitacaoEmprestimoRepositorioTest {
             StatusSolicitacao status,
             int id
     ) {
-        return new SolicitacaoEmprestimo(usuario, livro, status, id);
+        return new SolicitacaoEmprestimo(usuario.getID(), livro.getId(), status, id);
     }
 
     @Test
@@ -188,7 +188,7 @@ class SolicitacaoEmprestimoRepositorioTest {
         assertEquals(2, solicitacoes.size());
 
         assertTrue(solicitacoes.stream().allMatch(
-                s -> s.getSolicitante().getID() == usuario1.getID()
+                s -> s.getSolicitanteId() == usuario1.getID()
         ));
     }
 
@@ -218,7 +218,7 @@ class SolicitacaoEmprestimoRepositorioTest {
                 );
 
         assertEquals(1, resultado.size());
-        assertEquals(1, resultado.get(0).getId());
+        assertEquals(1, resultado.getFirst().getId());
     }
 
     @Test

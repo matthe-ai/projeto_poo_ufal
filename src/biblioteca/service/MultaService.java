@@ -4,7 +4,7 @@ import biblioteca.auth.Sessao;
 import biblioteca.exception.*;
 import biblioteca.model.Emprestimo;
 import biblioteca.model.Multa;
-import biblioteca.model.StatusMulta;
+import biblioteca.model.StatusEnums.StatusMulta;
 import biblioteca.model.usuario.Permissao;
 import biblioteca.repository.MultaRepositorio;
 
@@ -45,14 +45,14 @@ public class MultaService extends Service {
         multaRepositorio.adicionar(novaMulta);
     }
 
-    public void pagarMulta(int multaId) throws MultaJaProcessada, RegistroNaoEncontradoException, UsuarioNaoAutenticadoException, OperacaoNaoPermitidaException {
+    public void pagarMulta(int multaId) throws MultaJaProcessadaException, RegistroNaoEncontradoException, UsuarioNaoAutenticadoException, OperacaoNaoPermitidaException {
 
         this.verificarAutenticacao();
         autorizacaoService.exigirPermissao(sessao.getUsuarioLogado(), Permissao.GERENCIAR_MULTAS);
         Multa multaParaPagar = multaRepositorio.buscarPorId(multaId);
 
         if (multaParaPagar.getStatus() != StatusMulta.PENDENTE) {
-            throw new MultaJaProcessada();
+            throw new MultaJaProcessadaException();
         }
 
         long diasAtraso = multaParaPagar.getDiasAtraso();
@@ -64,14 +64,14 @@ public class MultaService extends Service {
         multaRepositorio.atualizar(multaAtualizada);
     }
 
-    public void cancelarMulta(int multaId) throws MultaJaProcessada, RegistroNaoEncontradoException, UsuarioNaoAutenticadoException, OperacaoNaoPermitidaException {
+    public void cancelarMulta(int multaId) throws MultaJaProcessadaException, RegistroNaoEncontradoException, UsuarioNaoAutenticadoException, OperacaoNaoPermitidaException {
         this.verificarAutenticacao();
         autorizacaoService.exigirPermissao(sessao.getUsuarioLogado(), Permissao.GERENCIAR_MULTAS);
 
         Multa multaParaCancelar = multaRepositorio.buscarPorId(multaId);
 
         if (multaParaCancelar.getStatus() != StatusMulta.PENDENTE) {
-            throw new MultaJaProcessada();
+            throw new MultaJaProcessadaException();
         }
 
         long diasAtraso = multaParaCancelar.getDiasAtraso();

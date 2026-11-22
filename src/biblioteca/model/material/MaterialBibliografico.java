@@ -9,26 +9,26 @@ public abstract class MaterialBibliografico {
 	
 	private final int id;
 	private String titulo;
-	private int anoPublicacao;
 
 	private String editora;
 	private boolean disponivel;
-	private Path caminhoCapa; 
+	private Path caminhoCapa;
+	
+	public final static Path capaDefault = Path.of("src", "biblioteca", "upload", "default.jpg");
 	
 	// construtor
 	
-	public MaterialBibliografico(String titulo, int anoPublicacao, String editora, Path caminhoCapa) {
+	public MaterialBibliografico(String titulo, String editora, Path caminhoCapa) {
 		this.id = new Random().nextInt();
 		this.setTitulo(titulo.trim());
-		this.setAnoPublicacao(anoPublicacao);
+
 		this.setDisponivel(true);
 		this.setCaminhoCapa(caminhoCapa);
 	}
 
-	public MaterialBibliografico(String titulo, int anoPublicacao, String editora, int id, Path caminhoCapa) {
+	public MaterialBibliografico(String titulo, String editora, int id, Path caminhoCapa) {
 		this.id = id;
 		this.setTitulo(titulo.trim());
-		this.setAnoPublicacao(anoPublicacao);
 		this.setDisponivel(true);
 		this.setEditora(editora);
 		this.setCaminhoCapa(caminhoCapa);
@@ -42,14 +42,6 @@ public abstract class MaterialBibliografico {
 
 	public void setTitulo(String titulo) {
 		this.titulo = titulo;
-	}
-
-	public int getAnoPublicacao() {
-		return anoPublicacao;
-	}
-
-	public void setAnoPublicacao(int anoPublicacao) {
-		this.anoPublicacao = anoPublicacao;
 	}
 
 	public boolean estaDisponivel() {
