@@ -46,6 +46,9 @@ public class MeusDados extends JPanel {
 
 	private JButton botaoAtualizar;
 
+	private JLabel labelLogin;
+	private JLabel labelNome;
+
 	// Construtor
 
 	public MeusDados(
@@ -76,7 +79,6 @@ public class MeusDados extends JPanel {
 
 	// Configuração do botão padrão da janela
 
-	// Retorna o botão padrão desta tela para o MenuPrincipal.
 	public JButton getBotaoPadrao() {
 		return botaoAtualizar;
 	}
@@ -103,8 +105,9 @@ public class MeusDados extends JPanel {
 		campoLogin.setLayout(new BoxLayout(campoLogin, BoxLayout.Y_AXIS));
 		campoLogin.setBackground(new Color(220, 220, 220));
 
-		JLabel labelLogin = new JLabel(
-				"Login atual: " + this.sessao.getUsuarioLogado().getLogin());
+		labelLogin = new JLabel(
+				"Login atual: " + this.sessao.getUsuarioLogado().getLogin()
+		);
 
 		JTextField inputLogin = new JTextField();
 
@@ -162,8 +165,9 @@ public class MeusDados extends JPanel {
 		campoNome.setLayout(new BoxLayout(campoNome, BoxLayout.Y_AXIS));
 		campoNome.setBackground(new Color(220, 220, 220));
 
-		JLabel labelNome = new JLabel(
-				"Nome atual: " + this.sessao.getUsuarioLogado().getNome());
+		labelNome = new JLabel(
+				"Nome atual: " + this.sessao.getUsuarioLogado().getNome()
+		);
 
 		JTextField inputNome = new JTextField();
 
@@ -214,7 +218,6 @@ public class MeusDados extends JPanel {
 
 		painelBotao.add(botaoAtualizar);
 
-
 		botaoAtualizar.addActionListener(e -> {
 
 			String novoLogin = inputLogin.getText();
@@ -232,8 +235,12 @@ public class MeusDados extends JPanel {
 					novoNome = this.sessao.getUsuarioLogado().getNome();
 				}
 
+				// Atualização da senha, caso solicitada
+
 				if (!novaSenha.isBlank()) {
+
 					try {
+
 						this.usuarioService.atualizarMinhaSenha(
 								antigaSenha,
 								novaSenha
@@ -247,18 +254,32 @@ public class MeusDados extends JPanel {
 								"Erro ao atualizar dados",
 								JOptionPane.ERROR_MESSAGE
 						);
+
+						return;
 					}
 				}
 
+				// Atualização dos demais dados
+
+				this.usuarioService.atualizarMeusDados(novoNome, novoLogin);
+
+				// Atualização das labels
+
+				this.atualizarLabels();
+
+				// Limpeza dos campos
+
+				inputLogin.setText("");
+				inputNome.setText("");
+				inputSenhaAtual.setText("");
+				inputSenhaNova.setText("");
+
 				JOptionPane.showMessageDialog(
 						this,
-						"Seus dados serão atualizados no próximo login",
+						"Seus dados foram atualizados com sucesso!",
 						"Dados atualizados com sucesso",
 						JOptionPane.INFORMATION_MESSAGE
 				);
-
-				this.usuarioService.atualizarMeusDados(novoNome, novoLogin);
-				this.criarComponentes();
 
 			} catch (OperacaoNaoPermitidaException one) {
 
@@ -298,6 +319,20 @@ public class MeusDados extends JPanel {
 		add(painelDados, BorderLayout.NORTH);
 
 		this.criarPainelEmprestimos();
+	}
+
+	// Atualização das informações exibidas nas labels
+
+	private void atualizarLabels() {
+
+		labelLogin.setText(
+				"Login atual: " + this.sessao.getUsuarioLogado().getLogin()
+		);
+
+		labelNome.setText(
+				"Nome atual: " + this.sessao.getUsuarioLogado().getNome()
+		);
+
 	}
 
 	private void criarPainelEmprestimos() {
@@ -370,6 +405,9 @@ public class MeusDados extends JPanel {
 
 			painelListaEmprestimos.revalidate();
 			painelListaEmprestimos.repaint();
+
+			painelListaHistorico.revalidate();
+			painelListaHistorico.repaint();
 		});
 
 		// =================================
@@ -456,13 +494,11 @@ public class MeusDados extends JPanel {
 		itemEmprestimo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 65));
 		itemEmprestimo.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-		JLabel informacao;
-
 		String materialTitulo = catalogo.buscarMaterial(
 				solicitacao.getMaterialSolicitadoId()
 		).getTitulo();
 
-		informacao = new JLabel(
+		JLabel informacao = new JLabel(
 				materialTitulo + " - Status: solicitação " + solicitacao.getStatus()
 		);
 
@@ -483,11 +519,11 @@ public class MeusDados extends JPanel {
 		itemEmprestimo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
 		itemEmprestimo.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-		JLabel informacao;
-
 		String materialTitulo = catalogo.buscarMaterial(
 				emprestimo.getMaterialId()
 		).getTitulo();
+
+		JLabel informacao;
 
 		if (emprestimo.getStatus() == StatusEmprestimo.DEVOLVIDO) {
 
