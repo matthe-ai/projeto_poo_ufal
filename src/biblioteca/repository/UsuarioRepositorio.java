@@ -74,7 +74,7 @@ public class UsuarioRepositorio implements Repositorio<Usuario>, RepositorioRemo
 		List<Usuario> usuariosFiltrados = new ArrayList<>();
 
 		for (Usuario usuario : usuarios) {
-			if (usuario.getNome().contains(nome)) {
+			if (usuario.getNome().toLowerCase().contains(nome.toLowerCase())) {
 				usuariosFiltrados.add(usuario);
 			}
 		}
@@ -87,7 +87,7 @@ public class UsuarioRepositorio implements Repositorio<Usuario>, RepositorioRemo
 		List<Usuario> usuariosFiltrados = new ArrayList<>();
 
 		for (Usuario usuario : usuarios) {
-			if (usuario.getLogin().contains(login)) {
+			if (usuario.getLogin().toLowerCase().contains(login.toLowerCase())) {
 				usuariosFiltrados.add(usuario);
 			}
 		}

@@ -46,10 +46,6 @@ public class Emprestimo {
 		return dataDevolucao;
 	}
 
-	public void setDataDevolucao(LocalDate dataDevolucao) {
-		this.dataDevolucao = dataDevolucao;
-	}
-
 	public StatusEmprestimo getStatus() {
 		return status;
 	}

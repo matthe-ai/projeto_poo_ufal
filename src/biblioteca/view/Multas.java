@@ -128,7 +128,7 @@ public class Multas extends JPanel {
         JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         painelBotoes.setOpaque(false);
 
-        JButton botaoAprovar = new JButton("Marcar como paga");
+        JButton botaoAprovar = new JButton("Registrar pagamento");
         botaoAprovar.setBackground(new Color(80, 240, 30));
         botaoAprovar.setForeground(Color.BLACK);
         botaoAprovar.setFocusPainted(false);
