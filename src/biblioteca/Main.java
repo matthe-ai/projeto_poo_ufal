@@ -3,6 +3,7 @@ package biblioteca;
 import javax.swing.SwingUtilities;
 
 import biblioteca.auth.Sessao;
+import biblioteca.exception.CredenciaisInvalidasException;
 import biblioteca.repository.EmprestimoRepositorio;
 import biblioteca.repository.MaterialRepositorio;
 import biblioteca.repository.SolicitacaoEmprestimoRepositorio;
@@ -36,6 +37,12 @@ public class Main {
 			materialRepositorio.cadastrarMateriaisIniciais();
 
 			final EmprestimoRepositorio emprestimoRepositorio = new EmprestimoRepositorio();
+			try {
+				// simula emprestimo com atraso de N dias
+				emprestimoRepositorio.criarEmprestimoExemplo(usuarioRepositorio.buscarPorLogin("jorge"), materialRepositorio.listarPorTitulo("clean").getFirst(), 15);
+				emprestimoRepositorio.criarEmprestimoExemplo(usuarioRepositorio.buscarPorLogin("jorge"), materialRepositorio.listarPorTitulo("revista").getFirst(), 4);
+			} catch (CredenciaisInvalidasException e) {
+			}
 
 			final MultaRepositorio multaRepositorio = new MultaRepositorio();
 

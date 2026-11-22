@@ -138,7 +138,7 @@ public class Multas extends JPanel {
         botaoRejeitar.setBorderPainted(false);
 
         botaoAprovar.addActionListener(e -> {
-            int opcao = JOptionPane.showConfirmDialog(this, "Deseja aprovar essa solicitação?", "Aprovar solicitação", JOptionPane.YES_NO_OPTION);
+            int opcao = JOptionPane.showConfirmDialog(this, "Deseja marcar como paga?", "Registrar pagamento", JOptionPane.YES_NO_OPTION);
             if (opcao == JOptionPane.YES_OPTION) {
             	try {
 					this.multaService.pagarMulta(multa.getId());
@@ -158,7 +158,7 @@ public class Multas extends JPanel {
         });
 
         botaoRejeitar.addActionListener(e -> {
-            int opcao = JOptionPane.showConfirmDialog(this, "Deseja rejeitar essa solicitação?", "Rejeitar solicitação", JOptionPane.YES_NO_OPTION);
+            int opcao = JOptionPane.showConfirmDialog(this, "Deseja cancelar essa multa?", "Cancelar Multa", JOptionPane.YES_NO_OPTION);
             if (opcao == JOptionPane.YES_OPTION) {
             	try {
 					this.multaService.cancelarMulta(multa.getId());
