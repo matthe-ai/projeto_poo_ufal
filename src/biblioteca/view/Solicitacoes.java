@@ -17,13 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
-import biblioteca.exception.ItemDuplicadoException;
-import biblioteca.exception.LimiteEmprestimosException;
-import biblioteca.exception.MaterialIndisponivelException;
-import biblioteca.exception.OperacaoNaoPermitidaException;
-import biblioteca.exception.RegistroNaoEncontradoException;
-import biblioteca.exception.SolicitacaoJaProcessadaException;
-import biblioteca.exception.UsuarioNaoAutenticadoException;
+import biblioteca.exception.*;
 import biblioteca.model.SolicitacaoEmprestimo;
 import biblioteca.model.StatusEnums.StatusSolicitacao;
 import biblioteca.model.material.MaterialBibliografico;
@@ -172,7 +166,14 @@ public class Solicitacoes extends JPanel {
 					JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro de emprestimo", JOptionPane.ERROR_MESSAGE);
 				} catch (MaterialIndisponivelException e1) {
 					JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro de disponibilidade", JOptionPane.ERROR_MESSAGE);
-				}
+				} catch (UsuarioPossuiMultasPendentes m) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            m.getMessage(),
+                            "Erro ao registrar empréstimo",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                }
             }
         });
 

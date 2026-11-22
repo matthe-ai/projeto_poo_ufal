@@ -29,10 +29,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import biblioteca.auth.Sessao;
-import biblioteca.exception.ItemDuplicadoException;
-import biblioteca.exception.OperacaoNaoPermitidaException;
-import biblioteca.exception.RegistroNaoEncontradoException;
-import biblioteca.exception.UsuarioNaoAutenticadoException;
+import biblioteca.exception.*;
 import biblioteca.model.Multa;
 import biblioteca.model.StatusEnums.StatusMulta;
 import biblioteca.model.material.Livro;
@@ -668,6 +665,13 @@ public class MenuPrincipal extends JFrame {
 							this,
 							e1.getMessage(),
 							"Erro ao emprestar",
+							JOptionPane.ERROR_MESSAGE
+					);
+				} catch (UsuarioPossuiMultasPendentes m) {
+					JOptionPane.showMessageDialog(
+							this,
+							m.getMessage(),
+							"Erro ao solicitar empréstimo",
 							JOptionPane.ERROR_MESSAGE
 					);
 				}
