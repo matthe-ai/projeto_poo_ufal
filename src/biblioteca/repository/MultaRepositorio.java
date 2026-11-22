@@ -63,7 +63,7 @@ public class MultaRepositorio implements Repositorio<Multa> {
         List<Multa> multasFiltradas = new ArrayList<>();
 
         for (Multa multa : multas) {
-            if (multa.getEmprestimo().getUsuario().getID() == usuarioId) {
+            if (multa.getEmprestimo().getUsuarioId() == usuarioId) {
                 multasFiltradas.add(multa);
             }
         }

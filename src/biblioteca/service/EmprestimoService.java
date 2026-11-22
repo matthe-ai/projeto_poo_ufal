@@ -116,7 +116,7 @@ public class EmprestimoService extends Service {
         this.verificarMultasPendentesDoUsuario(usuario.getID());
 
         LocalDate dataPrevistaDevolucao = calcularDataPrevista(materialParaEmprestar);
-        Emprestimo novoEmprestimo = new Emprestimo(dataPrevistaDevolucao, materialParaEmprestar, usuario);
+        Emprestimo novoEmprestimo = new Emprestimo(dataPrevistaDevolucao, materialParaEmprestar.getId(), usuario.getID());
         emprestimoRepositorio.adicionar(novoEmprestimo);
         materialParaEmprestar.marcarComoIndisponivel();
     }
@@ -154,7 +154,8 @@ public class EmprestimoService extends Service {
             multaService.cadastrarMulta(diasAtraso, emprestimoParaDevolver);
         }
         emprestimoParaDevolver.registrarDevolucao();
-        emprestimoParaDevolver.getMaterial().marcarComoDisponivel();
+        MaterialBibliografico materialParaDevolver = materialRepositorio.buscarPorId(emprestimoParaDevolver.getMaterialId());
+        materialParaDevolver.marcarComoDisponivel();
     }
     
     public Emprestimo buscarEmprestimo(int emprestimoId)

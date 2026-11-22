@@ -32,7 +32,7 @@ public class MaterialsTest {
     @Test
     void revistaDeveExibirSeusDetalhes() {
         Periodico revista = new Periodico(
-            "National Geographic", 2024, "Editora Abril",
+            "National Geographic", "Editora Abril",
             150, "01/2024", 
             TipoPeriodico.REVISTA ,Path.of(MaterialRepositorio.uploadsDirectory, "")
         );
@@ -48,7 +48,7 @@ public class MaterialsTest {
     @Test
     void jornalDeveExibirSeusDetalhes() {
         Periodico jornal = new Periodico(
-            "Jornal da Cidade", 2025, "Editora Local",
+            "Jornal da Cidade", "Editora Local",
             42, "10/03/2025",
             TipoPeriodico.JORNAL ,Path.of(MaterialRepositorio.uploadsDirectory, "jornal_da_cidade.jpg")
         );

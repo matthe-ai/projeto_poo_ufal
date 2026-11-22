@@ -59,7 +59,7 @@ public class EmprestimoRepositorio implements Repositorio<Emprestimo> {
         List<Emprestimo> emprestimosFiltrados = new ArrayList<>();
 
         for (Emprestimo emprestimo : emprestimos) {
-            if (emprestimo.getUsuario().getID() == (usuarioId)) {
+            if (emprestimo.getUsuarioId() == (usuarioId)) {
                 emprestimosFiltrados.add(emprestimo);
             }
         }
@@ -96,7 +96,7 @@ public class EmprestimoRepositorio implements Repositorio<Emprestimo> {
     public void criarEmprestimoExemplo(Usuario usuario, MaterialBibliografico material, long quantidadeDias) {
     	try {
     		material.marcarComoIndisponivel();
-			this.adicionar(new Emprestimo(LocalDate.now().minusDays(quantidadeDias), material, usuario));
+			this.adicionar(new Emprestimo(LocalDate.now().minusDays(quantidadeDias), material.getId(), usuario.getID()));
 		} catch (ItemDuplicadoException e) {
 			
 		}

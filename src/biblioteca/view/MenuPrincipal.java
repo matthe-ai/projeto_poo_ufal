@@ -1,3 +1,4 @@
+
 package biblioteca.view;
 
 import java.awt.BorderLayout;
@@ -24,6 +25,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import biblioteca.auth.Sessao;
@@ -37,7 +39,6 @@ import biblioteca.model.material.Livro;
 import biblioteca.model.material.MaterialBibliografico;
 import biblioteca.model.material.Periodico;
 import biblioteca.model.usuario.Cargo;
-import biblioteca.model.usuario.Usuario;
 import biblioteca.service.CatalogoService;
 import biblioteca.service.EmprestimoService;
 import biblioteca.service.MultaService;
@@ -46,13 +47,21 @@ import biblioteca.service.UsuarioService;
 
 public class MenuPrincipal extends JFrame {
 
-	// atributos
+	// Atributos
 
 	private JTextField campoPesquisa;
 	private JPanel painelMateriais;
 
 	private CardLayout cardLayout;
 	private JPanel painelCentral;
+
+	private JButton botaoBuscar;
+
+	// Referências dos painéis
+
+	private MeusDados painelMeusDados;
+	private MenuBibliotecario painelBibliotecario;
+	private MenuAdministrador painelAdministrador;
 
 	final private Sessao sessao;
 	final private UsuarioService usuarios;
@@ -63,10 +72,17 @@ public class MenuPrincipal extends JFrame {
 
 	private final Runnable voltarLogin;
 
-	// construtor
+	// Construtor
 
-	public MenuPrincipal(Sessao usuario, UsuarioService usuarios, CatalogoService catalogo,
-			EmprestimoService emprestimos, Runnable voltarLogin, SolicitacaoEmprestimoService sol, MultaService mus) {
+	public MenuPrincipal(
+			Sessao usuario,
+			UsuarioService usuarios,
+			CatalogoService catalogo,
+			EmprestimoService emprestimos,
+			Runnable voltarLogin,
+			SolicitacaoEmprestimoService sol,
+			MultaService mus) {
+
 		this.sessao = usuario;
 		this.usuarios = usuarios;
 		this.catalogo = catalogo;
@@ -74,13 +90,14 @@ public class MenuPrincipal extends JFrame {
 		this.voltarLogin = voltarLogin;
 		this.solicitacaoEmprestimos = sol;
 		this.multaService = mus;
+
 		configurarJanela();
 		criarMenu();
 		criarConteudo();
 		atualizarMateriais();
 	}
 
-	// metodos
+	// Métodos
 
 	private void configurarJanela() {
 		setTitle("Biblioteca");
@@ -102,26 +119,36 @@ public class MenuPrincipal extends JFrame {
 		JMenuItem itemSair = new JMenuItem("Sair");
 
 		itemInicio.addActionListener(e -> {
-			cardLayout.show(painelCentral, "CATALOGO");
-			this.atualizarMateriais();
+			mostrarTela("CATALOGO");
+			atualizarMateriais();
 		});
 
 		itemMeusDados.addActionListener(e -> {
-			cardLayout.show(painelCentral, "MEUS_DADOS");
+			mostrarTela("MEUS_DADOS");
 		});
 
 		itemSair.addActionListener(e -> {
-			int opcao = JOptionPane.showConfirmDialog(this, "Deseja realmente sair?", "Sair",
-					JOptionPane.YES_NO_OPTION);
+			int opcao = JOptionPane.showConfirmDialog(
+					this,
+					"Deseja realmente sair?",
+					"Sair",
+					JOptionPane.YES_NO_OPTION
+			);
 
 			if (opcao == JOptionPane.YES_OPTION) {
 				try {
 					this.usuarios.deslogar();
 					dispose();
 					voltarLogin.run();
+
 				} catch (UsuarioNaoAutenticadoException e1) {
-					JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro de autenticação",
-							JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(
+							this,
+							e1.getMessage(),
+							"Erro de autenticação",
+							JOptionPane.ERROR_MESSAGE
+					);
+
 					dispose();
 					voltarLogin.run();
 				}
@@ -135,12 +162,14 @@ public class MenuPrincipal extends JFrame {
 		barraMenu.add(multas);
 
 		// LEITOR
+
 		if (this.sessao.getUsuarioLogado().getCargo() == Cargo.LEITOR) {
 			JMenuItem minhasMultas = this.createMinhasMultas();
 			multas.add(minhasMultas);
 		}
 
-		// BIBLIOTECARIO
+		// BIBLIOTECÁRIO
+
 		if (this.sessao.getUsuarioLogado().getCargo() == Cargo.BIBLIOTECARIO
 				|| this.sessao.getUsuarioLogado().getCargo() == Cargo.ADMINISTRADOR) {
 
@@ -150,19 +179,19 @@ public class MenuPrincipal extends JFrame {
 			JMenuItem multasGerenciar = new JMenuItem("Gerenciar multas");
 
 			itemGerenciar.addActionListener(e -> {
-				cardLayout.show(painelCentral, "BIBLIOTECARIO");
+				mostrarTela("BIBLIOTECARIO");
 			});
 
 			solicitacoes.addActionListener(e -> {
-				cardLayout.show(painelCentral, "SOLICITACOES");
+				mostrarTela("SOLICITACOES");
 			});
-			
+
 			emprestimos.addActionListener(e -> {
-				cardLayout.show(painelCentral, "EMPRESTIMOS");
+				mostrarTela("EMPRESTIMOS");
 			});
-			
+
 			multasGerenciar.addActionListener(e -> {
-				cardLayout.show(painelCentral, "MULTAS");
+				mostrarTela("MULTAS");
 			});
 
 			multas.add(multasGerenciar);
@@ -173,16 +202,16 @@ public class MenuPrincipal extends JFrame {
 		}
 
 		// SOMENTE ADMINISTRADOR
+
 		if (this.sessao.getUsuarioLogado().getCargo() == Cargo.ADMINISTRADOR) {
 
 			JMenuItem itemGerenciarUsuarios = new JMenuItem("Gerenciar usuários");
 
 			itemGerenciarUsuarios.addActionListener(e -> {
-				cardLayout.show(painelCentral, "ADMINISTRADOR");
+				mostrarTela("ADMINISTRADOR");
 			});
 
 			menuPrincipal.add(itemGerenciarUsuarios);
-
 		}
 
 		menuPrincipal.addSeparator();
@@ -193,32 +222,61 @@ public class MenuPrincipal extends JFrame {
 
 	private JMenuItem createMinhasMultas() {
 		JMenuItem minhasMultas = new JMenuItem("Minhas multas");
+
 		minhasMultas.addActionListener(e -> {
 			try {
 				if (this.multaService.listarMinhasMultasPorStatus(StatusMulta.PENDENTE).isEmpty()) {
-					JOptionPane.showMessageDialog(this, "Você não possui pendências.", "Sem multas",
-							JOptionPane.INFORMATION_MESSAGE);
+
+					JOptionPane.showMessageDialog(
+							this,
+							"Você não possui pendências.",
+							"Sem multas",
+							JOptionPane.INFORMATION_MESSAGE
+					);
+
 				} else {
-					JOptionPane.showMessageDialog(this, "Você possui R$"+this.calcularTotal(this.multaService.listarMinhasMultasPorStatus(StatusMulta.PENDENTE))+" pendente.", "Valor pendente", JOptionPane.INFORMATION_MESSAGE);
+
+					JOptionPane.showMessageDialog(
+							this,
+							"Você possui R$" + this.calcularTotal(
+									this.multaService.listarMinhasMultasPorStatus(StatusMulta.PENDENTE)
+							) + " pendente.",
+							"Valor pendente",
+							JOptionPane.INFORMATION_MESSAGE
+					);
 				}
+
 			} catch (UsuarioNaoAutenticadoException e1) {
-				JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro de autenticação",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(
+						this,
+						e1.getMessage(),
+						"Erro de autenticação",
+						JOptionPane.ERROR_MESSAGE
+				);
+
 				dispose();
 				voltarLogin.run();
+
 			} catch (OperacaoNaoPermitidaException one) {
-				JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(
+						this,
+						one.getMessage(),
+						"Erro de permissão",
+						JOptionPane.ERROR_MESSAGE
+				);
 			}
 		});
+
 		return minhasMultas;
 	}
 
 	private String calcularTotal(List<Multa> listarMinhasMultasPorStatus) {
 		BigDecimal total = new BigDecimal(0);
+
 		for (Multa multa : listarMinhasMultasPorStatus) {
 			total = total.add(multa.getValor());
 		}
+
 		return total.toString();
 	}
 
@@ -232,42 +290,125 @@ public class MenuPrincipal extends JFrame {
 		painelCentral = new JPanel(cardLayout);
 
 		// Adiciona o catálogo como tela inicial
+
 		painelCentral.add(criarPainelCatalogo(), "CATALOGO");
 
 		// Adiciona a tela de dados
-		painelCentral.add(
-				new MeusDados(this.sessao, this.usuarios, this.emprestimos, voltarLogin, this.solicitacaoEmprestimos),
-				"MEUS_DADOS");
 
-		// Adiciona a tela do bibliotecario
+		painelMeusDados = new MeusDados(
+				this.sessao,
+				this.usuarios,
+				this.emprestimos,
+				voltarLogin,
+				this.solicitacaoEmprestimos,
+				catalogo
+		);
+
+		painelCentral.add(painelMeusDados, "MEUS_DADOS");
+
+		// Adiciona a tela do bibliotecário
+
 		if (this.sessao.getUsuarioLogado().getCargo() == Cargo.BIBLIOTECARIO
 				|| this.sessao.getUsuarioLogado().getCargo() == Cargo.ADMINISTRADOR) {
-			painelCentral.add(new MenuBibliotecario(this.catalogo, voltarLogin), "BIBLIOTECARIO");
-			painelCentral.add(new Solicitacoes(this.solicitacaoEmprestimos, voltarLogin), "SOLICITACOES");
-			painelCentral.add(new Multas(multaService, voltarLogin), "MULTAS");
-			painelCentral.add(new Emprestimos(this.emprestimos, voltarLogin), "EMPRESTIMOS");
+
+			painelBibliotecario = new MenuBibliotecario(
+					this.catalogo,
+					this.voltarLogin
+			);
+
+			painelCentral.add(painelBibliotecario, "BIBLIOTECARIO");
+
+			painelCentral.add(
+					new Solicitacoes(
+							this.solicitacaoEmprestimos,
+							this.catalogo,
+							this.usuarios,
+							this.voltarLogin
+					),
+					"SOLICITACOES"
+			);
+
+			painelCentral.add(
+					new Multas(
+							this.multaService,
+							this.catalogo,
+							this.voltarLogin
+					),
+					"MULTAS"
+			);
+
+			painelCentral.add(
+					new Emprestimos(
+							this.emprestimos,
+							this.catalogo,
+							this.usuarios,
+							this.voltarLogin
+					),
+					"EMPRESTIMOS"
+			);
 		}
 
 		// Adiciona a tela do administrador
+
 		if (this.sessao.getUsuarioLogado().getCargo() == Cargo.ADMINISTRADOR) {
-			painelCentral.add(new MenuAdministrador(this.usuarios, voltarLogin), "ADMINISTRADOR");
+
+			painelAdministrador = new MenuAdministrador(
+					this.usuarios,
+					voltarLogin
+			);
+
+			painelCentral.add(painelAdministrador, "ADMINISTRADOR");
 		}
+
 		add(painelCentral, BorderLayout.CENTER);
+
+		// Define o catálogo como tela inicial
+
+		mostrarTela("CATALOGO");
+	}
+
+	// Configura o botão padrão de acordo com a tela exibida
+
+	private void mostrarTela(String nomeTela) {
+
+		cardLayout.show(painelCentral, nomeTela);
+
+		JButton botaoPadrao = switch (nomeTela) {
+
+			case "CATALOGO" -> botaoBuscar;
+
+			case "MEUS_DADOS" ->
+					painelMeusDados.getBotaoPadrao();
+
+			case "BIBLIOTECARIO" ->
+					painelBibliotecario.getBotaoPadrao();
+
+			case "ADMINISTRADOR" ->
+					painelAdministrador.getBotaoPadrao();
+
+			default -> null;
+		};
+
+		getRootPane().setDefaultButton(botaoPadrao);
 	}
 
 	private JPanel criarPainelCatalogo() {
 		JPanel painelCatalogo = new JPanel(new BorderLayout(10, 10));
+
 		painelCatalogo.setBackground(new Color(220, 220, 220));
 
 		// Pesquisa
-		JPanel painelPesquisa = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+
+		JPanel painelPesquisa = new JPanel(
+				new FlowLayout(FlowLayout.CENTER, 10, 5)
+		);
 
 		painelPesquisa.setBackground(new Color(220, 220, 220));
 
 		campoPesquisa = new JTextField(25);
 		campoPesquisa.setPreferredSize(new Dimension(250, 35));
 
-		JButton botaoBuscar = this.createBotaoBuscar();
+		botaoBuscar = this.createBotaoBuscar();
 
 		painelPesquisa.add(campoPesquisa);
 		painelPesquisa.add(botaoBuscar);
@@ -275,13 +416,17 @@ public class MenuPrincipal extends JFrame {
 		painelCatalogo.add(painelPesquisa, BorderLayout.NORTH);
 
 		// Lista de materiais
+
 		painelMateriais = new JPanel();
 
-		painelMateriais.setLayout(new BoxLayout(painelMateriais, BoxLayout.Y_AXIS));
+		painelMateriais.setLayout(
+				new BoxLayout(painelMateriais, BoxLayout.Y_AXIS)
+		);
 
 		painelMateriais.setBackground(new Color(220, 220, 220));
 
 		JScrollPane scroll = new JScrollPane(painelMateriais);
+
 		scroll.setBorder(null);
 		scroll.getVerticalScrollBar().setUnitIncrement(15);
 
@@ -295,24 +440,39 @@ public class MenuPrincipal extends JFrame {
 
 		botaoBuscar.addActionListener(e -> {
 			String tituloBusca = this.campoPesquisa.getText();
+
 			if (tituloBusca.isBlank()) {
 				this.atualizarMateriais();
+
 			} else {
 				List<MaterialBibliografico> resultadoBusca;
+
 				try {
 					resultadoBusca = this.catalogo.listarMateriaisPorTitulo(tituloBusca);
 					this.carregarMateriais(resultadoBusca);
+
 				} catch (OperacaoNaoPermitidaException one) {
-					JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão",
-							JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(
+							this,
+							one.getMessage(),
+							"Erro de permissão",
+							JOptionPane.ERROR_MESSAGE
+					);
+
 				} catch (UsuarioNaoAutenticadoException une) {
-					JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação",
-							JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(
+							this,
+							une.getMessage(),
+							"Erro de autenticação",
+							JOptionPane.ERROR_MESSAGE
+					);
+
 					dispose();
 					voltarLogin.run();
 				}
 			}
 		});
+
 		return botaoBuscar;
 	}
 
@@ -334,21 +494,35 @@ public class MenuPrincipal extends JFrame {
 		card.setBorder(new EmptyBorder(12, 12, 12, 12));
 
 		// CAPA
+
 		JPanel capa = new JPanel(new GridBagLayout());
+
 		capa.setPreferredSize(new Dimension(75, 90));
 		capa.setBackground(new Color(210, 210, 210));
 
 		ImageIcon capa_material = new ImageIcon(material.getCaminhoCapa().toString());
-		Image imagemRedimencionada = capa_material.getImage().getScaledInstance(81, 93, Image.SCALE_SMOOTH);
-		capa_material = new ImageIcon(imagemRedimencionada);
+
+		Image imagemRedimensionada = capa_material.getImage().getScaledInstance(
+				81,
+				93,
+				Image.SCALE_SMOOTH
+		);
+
+		capa_material = new ImageIcon(imagemRedimensionada);
 
 		capa.add(new JLabel(capa_material));
 		card.add(capa, BorderLayout.WEST);
 
 		// INFORMACOES
+
 		JPanel informacoes = new JPanel();
-		informacoes.setLayout(new BoxLayout(informacoes, BoxLayout.Y_AXIS));
+
+		informacoes.setLayout(
+				new BoxLayout(informacoes, BoxLayout.Y_AXIS)
+		);
+
 		informacoes.setBackground(Color.WHITE);
+
 		informacoes.add(new JLabel("Título: " + material.getTitulo()));
 		informacoes.add(Box.createVerticalStrut(5));
 
@@ -364,29 +538,43 @@ public class MenuPrincipal extends JFrame {
 		card.add(informacoes, BorderLayout.CENTER);
 
 		// DISPONIBILIDADE E EMPRESTIMO
+
 		JPanel painelAcao = new JPanel();
 
-		painelAcao.setLayout(new BoxLayout(painelAcao, BoxLayout.Y_AXIS));
+		painelAcao.setLayout(
+				new BoxLayout(painelAcao, BoxLayout.Y_AXIS)
+		);
 
 		painelAcao.setBackground(Color.WHITE);
 
-		JLabel status = new JLabel(material.estaDisponivel() ? "Disponível" : "Indisponível");
+		JLabel status = new JLabel(
+				material.estaDisponivel() ? "Disponível" : "Indisponível"
+		);
 
 		status.setOpaque(true);
 		status.setForeground(Color.BLACK);
 
-		status.setBackground(material.estaDisponivel() ? new Color(100, 210, 120) : new Color(240, 70, 70));
+		status.setBackground(
+				material.estaDisponivel()
+						? new Color(100, 210, 120)
+						: new Color(240, 70, 70)
+		);
 
 		status.setBorder(new EmptyBorder(8, 10, 8, 10));
 		status.setAlignmentX(Component.CENTER_ALIGNMENT);
 		status.setAlignmentY(Component.CENTER_ALIGNMENT);
+
 		painelAcao.add(status);
 		painelAcao.add(Box.createVerticalStrut(8));
 
 		// O BOTAO SO APARECE SE O MATERIAL ESTIVER DISPONIVEL
+
 		if (material.estaDisponivel()) {
 
-			boolean existeSolicitacaoPendente = solicitacaoEmprestimos.verificarSolicitacaoPendenteDuplicada(material.getId());
+			boolean existeSolicitacaoPendente =
+					solicitacaoEmprestimos.verificarSolicitacaoPendenteDuplicada(
+							material.getId()
+					);
 
 			if (existeSolicitacaoPendente) {
 
@@ -394,13 +582,22 @@ public class MenuPrincipal extends JFrame {
 
 				solicitadoFlag.setOpaque(true);
 				solicitadoFlag.setForeground(Color.BLACK);
-				solicitadoFlag.setBackground(material.estaDisponivel() ? new Color(210, 195, 100) : new Color(240, 70, 70));
+
+				solicitadoFlag.setBackground(
+						material.estaDisponivel()
+								? new Color(210, 195, 100)
+								: new Color(240, 70, 70)
+				);
+
 				solicitadoFlag.setBorder(new EmptyBorder(8, 10, 8, 10));
 				solicitadoFlag.setAlignmentX(Component.CENTER_ALIGNMENT);
+
 				painelAcao.add(solicitadoFlag);
+
 			} else {
 
-				Cargo cargoUsuarioLogado = this.sessao.getUsuarioLogado().getCargo();
+				Cargo cargoUsuarioLogado =
+						this.sessao.getUsuarioLogado().getCargo();
 
 				if (cargoUsuarioLogado == Cargo.LEITOR) {
 					JButton botaoEmprestar = this.createBotaoEmprestar(material);
@@ -433,28 +630,50 @@ public class MenuPrincipal extends JFrame {
 
 		botaoEmprestar.addActionListener(e -> {
 
-			int opcao = JOptionPane.showConfirmDialog(this,
-					"Deseja solicitar o material \"" + material.getTitulo() + "\" para pegar emprestado?",
-					"Confirmar empréstimo", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+			int opcao = JOptionPane.showConfirmDialog(
+					this,
+					"Deseja solicitar o material \"" + material.getTitulo()
+							+ "\" para pegar emprestado?",
+					"Confirmar empréstimo",
+					JOptionPane.YES_NO_OPTION,
+					JOptionPane.QUESTION_MESSAGE
+			);
 
 			if (opcao == JOptionPane.YES_OPTION) {
 				try {
 					this.solicitacaoEmprestimos.solicitarEmprestimo(material.getId());
 					this.atualizarMateriais();
+
 				} catch (OperacaoNaoPermitidaException one) {
-					JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão",
-							JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(
+							this,
+							one.getMessage(),
+							"Erro de permissão",
+							JOptionPane.ERROR_MESSAGE
+					);
+
 				} catch (UsuarioNaoAutenticadoException une) {
-					JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação",
-							JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(
+							this,
+							une.getMessage(),
+							"Erro de autenticação",
+							JOptionPane.ERROR_MESSAGE
+					);
+
 					dispose();
 					voltarLogin.run();
+
 				} catch (RegistroNaoEncontradoException | ItemDuplicadoException e1) {
-					JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao emprestar",
-							JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(
+							this,
+							e1.getMessage(),
+							"Erro ao emprestar",
+							JOptionPane.ERROR_MESSAGE
+					);
 				}
-            }
+			}
 		});
+
 		return botaoEmprestar;
 	}
 
@@ -474,13 +693,27 @@ public class MenuPrincipal extends JFrame {
 
 	private void atualizarMateriais() {
 		List<MaterialBibliografico> materiais;
+
 		try {
 			materiais = this.catalogo.listarMateriais();
 			carregarMateriais(materiais);
+
 		} catch (OperacaoNaoPermitidaException one) {
-			JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(
+					this,
+					one.getMessage(),
+					"Erro de permissão",
+					JOptionPane.ERROR_MESSAGE
+			);
+
 		} catch (UsuarioNaoAutenticadoException une) {
-			JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(
+					this,
+					une.getMessage(),
+					"Erro de autenticação",
+					JOptionPane.ERROR_MESSAGE
+			);
+
 			dispose();
 			voltarLogin.run();
 		}

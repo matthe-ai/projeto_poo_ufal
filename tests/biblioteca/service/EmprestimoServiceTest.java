@@ -523,7 +523,7 @@ class EmprestimoServiceTest {
         assertEquals(1, emprestimos.size());
         assertEquals(
                 usuarioPermitido.getID(),
-                emprestimos.getFirst().getUsuario().getID()
+                emprestimos.getFirst().getUsuarioId()
         );
     }
 

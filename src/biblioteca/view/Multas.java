@@ -23,6 +23,7 @@ import biblioteca.exception.RegistroNaoEncontradoException;
 import biblioteca.exception.UsuarioNaoAutenticadoException;
 import biblioteca.model.Multa;
 import biblioteca.model.StatusEnums.StatusMulta;
+import biblioteca.service.CatalogoService;
 import biblioteca.service.MultaService;
 
 public class Multas extends JPanel {
@@ -30,16 +31,17 @@ public class Multas extends JPanel {
 	// atributos
 	
 	private final MultaService multaService;
+    private final CatalogoService catalogo;
 	private Runnable voltarLogin;
 	
 	private JPanel painelLista;
 	
 	// construtor
 	
-    public Multas(MultaService mus, Runnable voltarLogin) {
+    public Multas(MultaService mus,  CatalogoService catalogo, Runnable voltarLogin) {
         this.multaService = mus;
-    	
-    	configurarPainel();
+        this.catalogo = catalogo;
+        configurarPainel();
         criarComponentes();
     }
     
@@ -99,7 +101,7 @@ public class Multas extends JPanel {
     // CRIAR COMPONENTE DA MULTA
     // =================================
 
-    private JPanel criarMulta(Multa multa) {
+    private JPanel criarMulta(Multa multa) throws OperacaoNaoPermitidaException, RegistroNaoEncontradoException, UsuarioNaoAutenticadoException {
 
         JPanel item = new JPanel(new BorderLayout(10, 0));
 
@@ -114,7 +116,8 @@ public class Multas extends JPanel {
         informacoes.setLayout(new BoxLayout(informacoes, BoxLayout.Y_AXIS));
         informacoes.setOpaque(false);
 
-        JLabel labelTitulo = new JLabel("Obra: " + multa.getEmprestimo().getMaterial().getTitulo());
+        String materalTitulo = catalogo.buscarMaterial(multa.getEmprestimo().getMaterialId()).getTitulo();
+        JLabel labelTitulo = new JLabel("Obra: " + materalTitulo);
         JLabel labelSolicitante = new JLabel("Valor: " + multa.getValor());
 
         informacoes.add(labelTitulo);
@@ -125,7 +128,7 @@ public class Multas extends JPanel {
         JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         painelBotoes.setOpaque(false);
 
-        JButton botaoAprovar = new JButton("Marcar como paga");
+        JButton botaoAprovar = new JButton("Registrar pagamento");
         botaoAprovar.setBackground(new Color(80, 240, 30));
         botaoAprovar.setForeground(Color.BLACK);
         botaoAprovar.setFocusPainted(false);
@@ -198,14 +201,16 @@ public class Multas extends JPanel {
 			voltarLogin.run();
 		} catch (OperacaoNaoPermitidaException one) {
 			JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);
-		}
+		} catch (RegistroNaoEncontradoException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // =================================
     // ADICIONAR SOLICITAÇÃO À LISTA
     // =================================
 
-    private void adicionarMulta(Multa multa) {
+    private void adicionarMulta(Multa multa) throws OperacaoNaoPermitidaException, RegistroNaoEncontradoException, UsuarioNaoAutenticadoException {
 
         JPanel item = criarMulta(multa);
 

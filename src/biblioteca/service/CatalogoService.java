@@ -83,7 +83,7 @@ public class CatalogoService extends Service {
 
     private void validarPeriodico
             (
-                    String titulo, int anoPublicacao,
+                    String titulo,
                     String editora, int numeroEdicao,
                     String dataPublicacao,
                     Path capa
@@ -92,7 +92,6 @@ public class CatalogoService extends Service {
         this.validarStrings(titulo);
         this.validarStrings(editora);
         this.validarDataPublicacao(dataPublicacao);
-        this.validarAnoPublicacao(anoPublicacao);
         this.validarCapa(capa);
 
         if (numeroEdicao <= 0) {
@@ -136,8 +135,8 @@ public class CatalogoService extends Service {
         this.verificarAutenticacao();
         autorizacaoService.exigirPermissao(sessao.getUsuarioLogado(), Permissao.GERENCIAR_CATALOGO);
 
-        this.validarPeriodico(titulo, anoPublicacao, editora, numeroEdicao, dataPublicacao, capa);
-        Periodico novoPeriodico = new Periodico(titulo, anoPublicacao, editora, numeroEdicao, dataPublicacao, tipoPeriodico, capa);
+        this.validarPeriodico(titulo, editora, numeroEdicao, dataPublicacao, capa);
+        Periodico novoPeriodico = new Periodico(titulo, editora, numeroEdicao, dataPublicacao, tipoPeriodico, capa);
         repositorio.adicionar(novoPeriodico);
         return novoPeriodico;
     }
@@ -173,11 +172,11 @@ public class CatalogoService extends Service {
     public void atualizarLivro(
             String titulo,
             int anoPublicacao,
+            String editora,
+            Path capa,
             String autor,
             String isbn,
-            String editora,
-            int livroId,
-            Path capa
+            int livroId
     )
             throws OperacaoNaoPermitidaException,
             RegistroNaoEncontradoException,
@@ -202,12 +201,11 @@ public class CatalogoService extends Service {
     public void atualizarPeriodico
             (
                     String titulo,
-                    int anoPublicacao,
                     String editora,
+                    Path capa,
                     int numeroEdicao,
                     String dataPublicacao,
-                    int periodicoId,
-                    Path capa
+                    int periodicoId
             )
             throws OperacaoNaoPermitidaException,
             RegistroNaoEncontradoException,
@@ -223,9 +221,9 @@ public class CatalogoService extends Service {
             throw new TipoMaterialInvalidoException(periodico);
         }
 
-        this.validarPeriodico(titulo, anoPublicacao, editora, numeroEdicao, dataPublicacao, capa);
+        this.validarPeriodico(titulo, editora, numeroEdicao, dataPublicacao, capa);
         TipoPeriodico tipoPeriodico = ((Periodico) periodico).getTipoPeriodico();
-        Periodico periodicoAtualizado = new Periodico(titulo, anoPublicacao, editora, numeroEdicao, dataPublicacao, tipoPeriodico, periodicoId, capa);
+        Periodico periodicoAtualizado = new Periodico(titulo, editora, numeroEdicao, dataPublicacao, tipoPeriodico, periodicoId, capa);
         repositorio.atualizar(periodicoAtualizado);
     }
 

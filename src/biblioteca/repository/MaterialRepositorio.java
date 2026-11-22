@@ -84,8 +84,8 @@ public class MaterialRepositorio implements Repositorio<MaterialBibliografico>, 
     
     public void cadastrarMateriaisIniciais() {
     	Livro livro = new Livro("Clean Code", 2008, "Robert C. Martin", "9780132350884", "Prentice Hall", Path.of(MaterialRepositorio.uploadsDirectory, "clean_code.jpg"));
-    	Periodico revista = new Periodico("Revista Ciência Hoje", 2024, "SBPC", 395, "21/07/2024", TipoPeriodico.REVISTA, Path.of(MaterialRepositorio.uploadsDirectory, "revista_ciencia_hoje.jpg"));
-    	Periodico jornal = new Periodico("Jornal da Cidade", 2025, "Editora Local", 120, "23/01/2025", TipoPeriodico.JORNAL, Path.of(MaterialRepositorio.uploadsDirectory, "jornal_da_cidade.jpg"));
+    	Periodico revista = new Periodico("Revista Ciência Hoje", "SBPC", 395, "21/07/2024", TipoPeriodico.REVISTA, Path.of(MaterialRepositorio.uploadsDirectory, "revista_ciencia_hoje.jpg"));
+    	Periodico jornal = new Periodico("Jornal da Cidade", "Editora Local", 120, "23/01/2025", TipoPeriodico.JORNAL, Path.of(MaterialRepositorio.uploadsDirectory, "jornal_da_cidade.jpg"));
     	try {
 			this.adicionar(livro);
 		} catch (ItemDuplicadoException e) {
