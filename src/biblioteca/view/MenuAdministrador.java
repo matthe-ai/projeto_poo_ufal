@@ -513,26 +513,24 @@ public class MenuAdministrador extends JPanel{
             String nome = popup.getValor("Nome");
             String login = popup.getValor("Login");
             String senha = popup.getValor("Senha");
-            String senha2 = popup.getValor("Confirmar senha");
-            if (senha.equals(senha2)) {
-            	try {
-					this.usuarios.atualizarUsuario(nome, login, usuario.getID());
-	            	this.usuarios.atualizarSenhaDoUsuario(senha, usuario.getID());
-				} catch (OperacaoNaoPermitidaException one) {
-					JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);
-				} catch (RegistroNaoEncontradoException e1) {
-					JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao remover usuario", JOptionPane.ERROR_MESSAGE);
-				} catch (UsuarioNaoAutenticadoException une) {
-					JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação", JOptionPane.ERROR_MESSAGE);
-					voltarLogin.run();
-				} catch (CredenciaisInvalidasException e1) {
-					JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro nas credenciais digitadas", JOptionPane.ERROR_MESSAGE);
-				} catch (ItemDuplicadoException e1) {
-					JOptionPane.showMessageDialog(this, e1.getMessage(), "Login já usado", JOptionPane.ERROR_MESSAGE);
-				} catch (NoSuchAlgorithmException | InvalidKeySpecException e1) {
-					JOptionPane.showMessageDialog(this, "Algum erro aconteceu ao atualizar a senha", "ERRO", JOptionPane.ERROR_MESSAGE);
-				}
-            }
+        	try {
+				this.usuarios.atualizarUsuario(nome, login, usuario.getID());
+            	this.usuarios.atualizarSenhaDoUsuario(senha, usuario.getID());
+            	JOptionPane.showMessageDialog(popup, "Dados atualizados com sucesso!", "Sucesso ao atualizar dados", JOptionPane.INFORMATION_MESSAGE);
+			} catch (OperacaoNaoPermitidaException one) {
+				JOptionPane.showMessageDialog(this, one.getMessage(), "Erro de permissão", JOptionPane.ERROR_MESSAGE);
+			} catch (RegistroNaoEncontradoException e1) {
+				JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro ao remover usuario", JOptionPane.ERROR_MESSAGE);
+			} catch (UsuarioNaoAutenticadoException une) {
+				JOptionPane.showMessageDialog(this, une.getMessage(), "Erro de autenticação", JOptionPane.ERROR_MESSAGE);
+				voltarLogin.run();
+			} catch (CredenciaisInvalidasException e1) {
+				JOptionPane.showMessageDialog(this, e1.getMessage(), "Erro nas credenciais digitadas", JOptionPane.ERROR_MESSAGE);
+			} catch (ItemDuplicadoException e1) {
+				JOptionPane.showMessageDialog(this, e1.getMessage(), "Login já usado", JOptionPane.ERROR_MESSAGE);
+			} catch (NoSuchAlgorithmException | InvalidKeySpecException e1) {
+				JOptionPane.showMessageDialog(this, "Algum erro aconteceu ao atualizar a senha", "ERRO", JOptionPane.ERROR_MESSAGE);
+			}
         }
     }
 }
