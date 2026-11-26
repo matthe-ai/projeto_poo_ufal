@@ -599,7 +599,6 @@ public class MenuBibliotecario extends JPanel {
 
                         this.catalogo.cadastrarPeriodico(
                                 campoTitulo.getText(),
-                                Integer.parseInt(campoAno.getText()),
                                 campoEditora.getText(),
                                 Integer.parseInt(campoNumeroEdicao.getText()),
                                 campoDataPublicacao.getText(),

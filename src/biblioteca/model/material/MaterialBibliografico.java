@@ -21,7 +21,7 @@ public abstract class MaterialBibliografico {
 	public MaterialBibliografico(String titulo, String editora, Path caminhoCapa) {
 		this.id = new Random().nextInt();
 		this.setTitulo(titulo.trim());
-
+		this.setEditora(editora);
 		this.setDisponivel(true);
 		this.setCaminhoCapa(caminhoCapa);
 	}
