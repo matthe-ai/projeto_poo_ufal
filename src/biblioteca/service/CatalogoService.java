@@ -123,7 +123,6 @@ public class CatalogoService extends Service {
     public Periodico cadastrarPeriodico
             (
                     String titulo,
-                    int anoPublicacao,
                     String editora,
                     int numeroEdicao,
                     String dataPublicacao,

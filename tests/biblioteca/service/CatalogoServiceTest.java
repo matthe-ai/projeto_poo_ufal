@@ -60,7 +60,6 @@ class CatalogoServiceTest {
     private Periodico cadastrarPeriodicoValido(TipoPeriodico tipo) throws Exception {
         return service.cadastrarPeriodico(
                 "National Geographic",
-                2024,
                 "National Geographic Society",
                 150,
                 "15/05/2024",
@@ -213,7 +212,6 @@ class CatalogoServiceTest {
     void deveCadastrarPeriodicoDoTipoRevista() throws Exception {
         Periodico periodico = service.cadastrarPeriodico(
                 "Revista Ciência Hoje",
-                2024,
                 "Instituto Ciência Hoje",
                 320,
                 "20/06/2024",
@@ -235,7 +233,6 @@ class CatalogoServiceTest {
         assertThrows(CredenciaisInvalidasException.class,
                 () -> service.cadastrarPeriodico(
                         "",
-                        2024,
                         "Editora",
                         10,
                         "15/05/24",
@@ -249,7 +246,6 @@ class CatalogoServiceTest {
         assertThrows(CredenciaisInvalidasException.class,
                 () -> service.cadastrarPeriodico(
                         "Revista Ciência Hoje",
-                        2024,
                         " ",
                         10,
                         "15/05/24",
@@ -263,7 +259,6 @@ class CatalogoServiceTest {
         assertThrows(CredenciaisInvalidasException.class,
                 () -> service.cadastrarPeriodico(
                         "Revista Ciência Hoje",
-                        0,
                         "Editora",
                         10,
                         "15/05/24",
@@ -277,7 +272,6 @@ class CatalogoServiceTest {
         assertThrows(CredenciaisInvalidasException.class,
                 () -> service.cadastrarPeriodico(
                         "Revista Ciência Hoje",
-                        LocalDate.now().getYear() + 1,
                         "Editora",
                         10,
                         "15/05/24",
@@ -291,7 +285,6 @@ class CatalogoServiceTest {
         assertThrows(CredenciaisInvalidasException.class,
                 () -> service.cadastrarPeriodico(
                         "Revista Ciência Hoje",
-                        2024,
                         "Editora",
                         0,
                         "15/05/24",
@@ -305,7 +298,6 @@ class CatalogoServiceTest {
         assertThrows(CredenciaisInvalidasException.class,
                 () -> service.cadastrarPeriodico(
                         "Revista Ciência Hoje",
-                        2024,
                         "Editora",
                         -1,
                         "15/05/24",
@@ -319,7 +311,6 @@ class CatalogoServiceTest {
         assertThrows(CredenciaisInvalidasException.class,
                 () -> service.cadastrarPeriodico(
                         "Revista Ciência Hoje",
-                        2024,
                         "Editora",
                         10,
                         " ",
@@ -333,7 +324,6 @@ class CatalogoServiceTest {
         assertThrows(CredenciaisInvalidasException.class,
                 () -> service.cadastrarPeriodico(
                         "Revista Ciência Hoje",
-                        2024,
                         "Editora",
                         10,
                         "2024-05-15",
@@ -347,7 +337,6 @@ class CatalogoServiceTest {
         assertThrows(CredenciaisInvalidasException.class,
                 () -> service.cadastrarPeriodico(
                         "Revista Ciência Hoje",
-                        2024,
                         "Editora",
                         10,
                         "31/02/24",
@@ -365,7 +354,6 @@ class CatalogoServiceTest {
         assertThrows(CredenciaisInvalidasException.class,
                 () -> service.cadastrarPeriodico(
                         "Revista Ciência Hoje",
-                        2024,
                         "Editora",
                         10,
                         dataFutura,
@@ -379,7 +367,6 @@ class CatalogoServiceTest {
         assertThrows(CredenciaisInvalidasException.class,
                 () -> service.cadastrarPeriodico(
                         "Revista Ciência Hoje",
-                        2024,
                         "Editora",
                         10,
                         "15/05/24",
@@ -719,7 +706,6 @@ class CatalogoServiceTest {
         assertThrows(UsuarioNaoAutenticadoException.class,
                 () -> service.cadastrarPeriodico(
                         "Revista",
-                        2024,
                         "Editora",
                         10,
                         "15/05/2024",
@@ -762,7 +748,6 @@ class CatalogoServiceTest {
         assertThrows(OperacaoNaoPermitidaException.class,
                 () -> service.cadastrarPeriodico(
                         "Revista",
-                        2024,
                         "Editora",
                         10,
                         "15/05/2024",
