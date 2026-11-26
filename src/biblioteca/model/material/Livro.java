@@ -11,16 +11,16 @@ public class Livro extends MaterialBibliografico{
 	private int anoPublicacao;
 	// construtor
 	
-	public Livro(String titulo, int anoPublicacao, String autor, String isbn, String editora, Path caminhoCapa) {
-		super(titulo, editora, caminhoCapa);
+	public Livro(String titulo, int anoPublicacao, String autor, String isbn, String editora, String nomeCapa) {
+		super(titulo, editora, nomeCapa);
 		this.setAnoPublicacao(anoPublicacao);
 		this.setAutor(autor.trim());
 		this.setIsbn(isbn.trim());
 		this.setEditora(editora.trim());
 	}
 
-	public Livro(String titulo, int anoPublicacao, String autor, String isbn, String editora, int id, Path caminhoCapa) {
-		super(titulo, editora, id, caminhoCapa);
+	public Livro(String titulo, int anoPublicacao, String autor, String isbn, String editora, int id, String nomeCapa) {
+		super(titulo, editora, id, nomeCapa);
 		this.setAnoPublicacao(anoPublicacao);
 		this.setAutor(autor.trim());
 		this.setIsbn(isbn.trim());

@@ -12,16 +12,16 @@ public class Periodico extends MaterialBibliografico {
 
     // construtor
 
-    public Periodico(String titulo, String editora, int numeroEdicao, String dataPublicacao, TipoPeriodico tipoPeriodico, Path caminhoCapa) {
-        super(titulo, editora, caminhoCapa);
+    public Periodico(String titulo, String editora, int numeroEdicao, String dataPublicacao, TipoPeriodico tipoPeriodico, String nomeCapa) {
+        super(titulo, editora, nomeCapa);
         this.tipoPeriodico = tipoPeriodico;
         this.setEditora(editora.trim());
         this.setNumeroEdicao(numeroEdicao);
         this.setDataPublicacao(dataPublicacao.trim());
     }
 
-    public Periodico(String titulo, String editora, int numeroEdicao, String dataPublicacao, TipoPeriodico tipoPeriodico, int id, Path caminhoCapa) {
-        super(titulo, editora, id, caminhoCapa);
+    public Periodico(String titulo, String editora, int numeroEdicao, String dataPublicacao, TipoPeriodico tipoPeriodico, int id, String nomeCapa) {
+        super(titulo, editora, id, nomeCapa);
         this.tipoPeriodico = tipoPeriodico;
         this.setEditora(editora.trim());
         this.setNumeroEdicao(numeroEdicao);

@@ -9,6 +9,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -41,6 +42,7 @@ import biblioteca.service.EmprestimoService;
 import biblioteca.service.MultaService;
 import biblioteca.service.SolicitacaoEmprestimoService;
 import biblioteca.service.UsuarioService;
+import biblioteca.util.GerenciarCapas;
 
 public class MenuPrincipal extends JFrame {
 
@@ -497,7 +499,7 @@ public class MenuPrincipal extends JFrame {
 		capa.setPreferredSize(new Dimension(75, 90));
 		capa.setBackground(new Color(210, 210, 210));
 
-		ImageIcon capa_material = new ImageIcon(material.getCaminhoCapa().toString());
+		ImageIcon capa_material = GerenciarCapas.carregarCapa(material.getNomeCapa());
 
 		Image imagemRedimensionada = capa_material.getImage().getScaledInstance(
 				81,

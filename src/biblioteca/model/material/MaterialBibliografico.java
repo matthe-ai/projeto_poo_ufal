@@ -12,26 +12,26 @@ public abstract class MaterialBibliografico {
 
 	private String editora;
 	private boolean disponivel;
-	private Path caminhoCapa;
+	private String nomeCapa;
 	
-	public final static Path capaDefault = Path.of("src", "biblioteca", "upload", "default.jpg");
+	public static final String capaDefault = "default.jpg";
 	
 	// construtor
 	
-	public MaterialBibliografico(String titulo, String editora, Path caminhoCapa) {
+	public MaterialBibliografico(String titulo, String editora, String nomeCapa) {
 		this.id = new Random().nextInt();
 		this.setTitulo(titulo.trim());
 
 		this.setDisponivel(true);
-		this.setCaminhoCapa(caminhoCapa);
+		this.setNomeCapa(nomeCapa);
 	}
 
-	public MaterialBibliografico(String titulo, String editora, int id, Path caminhoCapa) {
+	public MaterialBibliografico(String titulo, String editora, int id, String nomeCapa) {
 		this.id = id;
 		this.setTitulo(titulo.trim());
 		this.setDisponivel(true);
 		this.setEditora(editora);
-		this.setCaminhoCapa(caminhoCapa);
+		this.setNomeCapa(nomeCapa);
 	}
 	
 	// getters e setters
@@ -64,12 +64,12 @@ public abstract class MaterialBibliografico {
 		this.editora = editora;
 	}
 	
-	public Path getCaminhoCapa() {
-		return caminhoCapa;
+	public String getNomeCapa() {
+		return nomeCapa;
 	}
 
-	public void setCaminhoCapa(Path caminhoCapa) {
-		this.caminhoCapa = caminhoCapa;
+	public void setNomeCapa(String nomeCapa) {
+		this.nomeCapa = nomeCapa;
 	}
 	
 	// metodos

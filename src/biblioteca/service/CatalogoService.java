@@ -8,9 +8,10 @@ import biblioteca.model.material.Periodico;
 import biblioteca.model.material.TipoPeriodico;
 import biblioteca.model.usuario.Permissao;
 import biblioteca.repository.MaterialRepositorio;
+import biblioteca.util.GerenciarCapas;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.File;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -43,7 +44,7 @@ public class CatalogoService extends Service {
             String autor,
             String isbn,
             String editora,
-            Path capa
+            String capa
     ) throws CredenciaisInvalidasException {
         this.validarStrings(titulo);
         this.validarStrings(editora);
@@ -53,14 +54,27 @@ public class CatalogoService extends Service {
         this.validarCapa(capa);
     }
 
-    private void validarCapa(Path capa) throws CredenciaisInvalidasException{
-        if (!Files.exists(capa)) {
-            throw new CredenciaisInvalidasException();
-        } if (!Files.isRegularFile(capa)) {
-            throw new CredenciaisInvalidasException();
-        } if (!Files.isReadable(capa)) {
+    private void validarCapa(String capa) throws CredenciaisInvalidasException {
+
+        if (capa == null || capa.isBlank()) {
             throw new CredenciaisInvalidasException();
         }
+
+        // Verifica se foi salva externamente
+        File arquivo = GerenciarCapas.getCapa(capa);
+
+        if (arquivo.isFile() && arquivo.canRead()) {
+            return;
+        }
+
+        // Verifica se está dentro dos recursos do projeto/JAR
+        URL recurso = GerenciarCapas.class.getResource("/" + capa);
+
+        if (recurso != null) {
+            return;
+        }
+
+        throw new CredenciaisInvalidasException();
     }
 
     private void validarDataPublicacao(String dataPublicacao) throws CredenciaisInvalidasException {
@@ -86,7 +100,7 @@ public class CatalogoService extends Service {
                     String titulo,
                     String editora, int numeroEdicao,
                     String dataPublicacao,
-                    Path capa
+                    String capa
             ) throws CredenciaisInvalidasException {
 
         this.validarStrings(titulo);
@@ -106,7 +120,7 @@ public class CatalogoService extends Service {
                     String autor,
                     String isbn,
                     String editora,
-                    Path capa
+                    String capa
             )
             throws OperacaoNaoPermitidaException, ItemDuplicadoException, UsuarioNaoAutenticadoException, CredenciaisInvalidasException {
 
@@ -128,7 +142,7 @@ public class CatalogoService extends Service {
                     int numeroEdicao,
                     String dataPublicacao,
                     TipoPeriodico tipoPeriodico,
-                    Path capa
+                    String capa
             )
             throws OperacaoNaoPermitidaException, ItemDuplicadoException, UsuarioNaoAutenticadoException, CredenciaisInvalidasException {
 
@@ -173,7 +187,7 @@ public class CatalogoService extends Service {
             String titulo,
             int anoPublicacao,
             String editora,
-            Path capa,
+            String capa,
             String autor,
             String isbn,
             int livroId
@@ -202,7 +216,7 @@ public class CatalogoService extends Service {
             (
                     String titulo,
                     String editora,
-                    Path capa,
+                    String capa,
                     int numeroEdicao,
                     String dataPublicacao,
                     int periodicoId

@@ -52,6 +52,7 @@ import biblioteca.model.material.MaterialBibliografico;
 import biblioteca.model.material.Periodico;
 import biblioteca.model.material.TipoPeriodico;
 import biblioteca.service.CatalogoService;
+import biblioteca.util.GerenciarCapas;
 
 public class MenuBibliotecario extends JPanel {
 
@@ -59,7 +60,7 @@ public class MenuBibliotecario extends JPanel {
 
     private final CatalogoService catalogo;
     private final Runnable voltarLogin;
-    private Path caminhoCapa;
+    private String caminhoCapa;
     private String campoBuscar;
 
     private JButton botaoBuscar;
@@ -452,15 +453,9 @@ public class MenuBibliotecario extends JPanel {
 
                 try {
 
-                    Path pastaDestino = Path.of(
-                            "src",
-                            "biblioteca",
-                            "upload"
-                    );
+                    Path pastaDestino = GerenciarCapas.getPastaUploads();
 
-                    Path destinoFinal = pastaDestino.resolve(
-                            arquivoSelecionado.getName()
-                    );
+                    Path destinoFinal = pastaDestino.resolve(arquivoSelecionado.getName());
 
                     Files.copy(
                             arquivoSelecionado.toPath(),
@@ -468,7 +463,7 @@ public class MenuBibliotecario extends JPanel {
                             StandardCopyOption.REPLACE_EXISTING
                     );
 
-                    this.caminhoCapa = destinoFinal;
+                    this.caminhoCapa = destinoFinal.getFileName().toString();
 
                     botaoEscolherCapa.setText("Capa selecionada!");
 
@@ -923,17 +918,13 @@ public class MenuBibliotecario extends JPanel {
 
             File novaCapa = popup.getImagemSelecionada();
 
-            Path novaCapaPath = material.getCaminhoCapa();
+            String novaCapaPath = material.getNomeCapa();
 
             if (novaCapa != null && novaCapa.isFile()) {
 
                 try {
 
-                    Path pastaDestino = Path.of(
-                            "src",
-                            "biblioteca",
-                            "upload"
-                    );
+                    Path pastaDestino = GerenciarCapas.getPastaUploads();
 
                     Path destinoFinal = pastaDestino.resolve(novaCapa.getName());
 
@@ -943,7 +934,7 @@ public class MenuBibliotecario extends JPanel {
                             StandardCopyOption.REPLACE_EXISTING
                     );
 
-                    novaCapaPath = destinoFinal;
+                    novaCapaPath = destinoFinal.getFileName().toString();
 
                     JOptionPane.showMessageDialog(
                             popup,
@@ -1058,17 +1049,13 @@ public class MenuBibliotecario extends JPanel {
 
             File novaCapa = popup.getImagemSelecionada();
 
-            Path novaCapaPath = material.getCaminhoCapa();
+            String novaCapaPath = material.getNomeCapa();
 
             if (novaCapa != null && novaCapa.isFile()) {
 
                 try {
 
-                    Path pastaDestino = Path.of(
-                            "src",
-                            "biblioteca",
-                            "upload"
-                    );
+                    Path pastaDestino = GerenciarCapas.getPastaUploads();
 
                     Path destinoFinal = pastaDestino.resolve(novaCapa.getName());
 
@@ -1078,7 +1065,7 @@ public class MenuBibliotecario extends JPanel {
                             StandardCopyOption.REPLACE_EXISTING
                     );
 
-                    novaCapaPath = destinoFinal;
+                    novaCapaPath = destinoFinal.getFileName().toString();
 
                     JOptionPane.showMessageDialog(
                             popup,
