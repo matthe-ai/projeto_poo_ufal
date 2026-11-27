@@ -16,7 +16,6 @@ public class Livro extends MaterialBibliografico{
 		this.setAnoPublicacao(anoPublicacao);
 		this.setAutor(autor.trim());
 		this.setIsbn(isbn.trim());
-		this.setEditora(editora.trim());
 	}
 
 	public Livro(String titulo, int anoPublicacao, String autor, String isbn, String editora, int id, Path caminhoCapa) {
@@ -24,7 +23,6 @@ public class Livro extends MaterialBibliografico{
 		this.setAnoPublicacao(anoPublicacao);
 		this.setAutor(autor.trim());
 		this.setIsbn(isbn.trim());
-		this.setEditora(editora.trim());
 	}
 	
 	// getters e setters
