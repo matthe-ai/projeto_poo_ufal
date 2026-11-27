@@ -30,7 +30,7 @@ public abstract class MaterialBibliografico {
 		this.id = id;
 		this.setTitulo(titulo.trim());
 		this.setDisponivel(true);
-		this.setEditora(editora);
+		this.setEditora(editora.trim());
 		this.setCaminhoCapa(caminhoCapa);
 	}
 	
@@ -41,14 +41,14 @@ public abstract class MaterialBibliografico {
 	}
 
 	public void setTitulo(String titulo) {
-		this.titulo = titulo;
+		this.titulo = titulo.trim();
 	}
 
 	public boolean estaDisponivel() {
 		return this.disponivel;
 	}
 
-	public void setDisponivel(boolean disponivel) {
+	private void setDisponivel(boolean disponivel) {
 		this.disponivel = disponivel;
 	}
 
@@ -61,7 +61,7 @@ public abstract class MaterialBibliografico {
 	}
 
 	public void setEditora(String editora) {
-		this.editora = editora;
+		this.editora = editora.trim();
 	}
 	
 	public Path getCaminhoCapa() {

@@ -15,7 +15,6 @@ public class Periodico extends MaterialBibliografico {
     public Periodico(String titulo, String editora, int numeroEdicao, String dataPublicacao, TipoPeriodico tipoPeriodico, Path caminhoCapa) {
         super(titulo, editora, caminhoCapa);
         this.tipoPeriodico = tipoPeriodico;
-        this.setEditora(editora.trim());
         this.setNumeroEdicao(numeroEdicao);
         this.setDataPublicacao(dataPublicacao.trim());
     }
@@ -23,7 +22,6 @@ public class Periodico extends MaterialBibliografico {
     public Periodico(String titulo, String editora, int numeroEdicao, String dataPublicacao, TipoPeriodico tipoPeriodico, int id, Path caminhoCapa) {
         super(titulo, editora, id, caminhoCapa);
         this.tipoPeriodico = tipoPeriodico;
-        this.setEditora(editora.trim());
         this.setNumeroEdicao(numeroEdicao);
         this.setDataPublicacao(dataPublicacao.trim());
     }
