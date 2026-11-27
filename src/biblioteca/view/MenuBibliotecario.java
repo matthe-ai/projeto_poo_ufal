@@ -37,7 +37,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.JRootPane;
 import javax.swing.border.EmptyBorder;
 
 import biblioteca.exception.CredenciaisInvalidasException;
@@ -594,7 +593,6 @@ public class MenuBibliotecario extends JPanel {
 
                         this.catalogo.cadastrarPeriodico(
                                 campoTitulo.getText(),
-                                Integer.parseInt(campoAno.getText()),
                                 campoEditora.getText(),
                                 Integer.parseInt(campoNumeroEdicao.getText()),
                                 campoDataPublicacao.getText(),
