@@ -2,7 +2,7 @@ package biblioteca.repository;
 
 import biblioteca.exception.RegistroNaoEncontradoException;
 
-public interface RepositorioRemovivel<T> extends Repositorio<T> {
+public interface RepositorioRemovivel {
 
     void remover(int id) throws RegistroNaoEncontradoException;;
 }

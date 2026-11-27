@@ -2,7 +2,6 @@ package biblioteca.repository;
 
 import biblioteca.exception.ItemDuplicadoException;
 import biblioteca.exception.RegistroNaoEncontradoException;
-import biblioteca.model.Emprestimo;
 
 import java.util.List;
 

@@ -11,7 +11,7 @@ import biblioteca.model.material.MaterialBibliografico;
 import biblioteca.model.material.Periodico;
 import biblioteca.model.material.TipoPeriodico;
 
-public class MaterialRepositorio implements Repositorio<MaterialBibliografico>, RepositorioRemovivel<MaterialBibliografico> {
+public class MaterialRepositorio implements Repositorio<MaterialBibliografico>, RepositorioRemovivel {
 
 	private final ArrayList<MaterialBibliografico> materiais = new ArrayList<>();
 	
